@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Search, Filter, X } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useSearch } from "wouter";
 import { format } from "date-fns";
 import { LazyImage } from "@/components/ui/lazy-image";
 import type { BlogPost } from "@shared/schema";
@@ -17,10 +17,21 @@ interface BlogSearchProps {
 }
 
 export function BlogSearch({ className }: BlogSearchProps) {
+  const searchParams = useSearch();
+  const urlParams = new URLSearchParams(searchParams);
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedTag, setSelectedTag] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("newest");
+
+  // Initialize from URL parameters
+  useEffect(() => {
+    const categoryParam = urlParams.get('category');
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [searchParams]);
 
   const { data: allPosts = [] } = useQuery<BlogPost[]>({
     queryKey: ["/api/blog-posts"],
