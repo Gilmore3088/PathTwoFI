@@ -1,34 +1,53 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { PlusCircle, Edit, Trash2, FileText, Star, Eye } from "lucide-react";
+import { PlusCircle, Edit, Trash2, FileText, Star, Eye, Search, Upload, ExternalLink, CheckSquare, Square, Download } from "lucide-react";
 import { format } from "date-fns";
 import { insertBlogPostSchema, type BlogPost, type InsertBlogPost } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from '@uppy/core';
 
 export default function AdminBlog() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<BlogPost | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
+  const [previewContent, setPreviewContent] = useState<Partial<InsertBlogPost> | null>(null);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Fetch blog posts
-  const { data: blogPosts = [], isLoading } = useQuery<BlogPost[]>({
+  const { data: allBlogPosts = [], isLoading } = useQuery<BlogPost[]>({
     queryKey: ["/api/blog-posts"],
   });
+
+  // Filtered and searched blog posts
+  const blogPosts = useMemo(() => {
+    return allBlogPosts.filter(post => {
+      const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory === "all" || post.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [allBlogPosts, searchTerm, selectedCategory]);
 
   const form = useForm<InsertBlogPost>({
     resolver: zodResolver(insertBlogPostSchema),
@@ -86,6 +105,30 @@ export default function AdminBlog() {
       toast({
         title: "Error",
         description: "Failed to update blog post",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Bulk delete mutation
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      await Promise.all(ids.map(id => 
+        apiRequest(`/api/blog-posts/${id}`, 'DELETE')
+      ));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/blog-posts"] });
+      setSelectedPosts(new Set());
+      toast({
+        title: "Success",
+        description: "Selected blog posts deleted successfully!"
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete selected blog posts",
         variant: "destructive"
       });
     }
@@ -149,6 +192,60 @@ export default function AdminBlog() {
     }
   };
 
+  const handleBulkDelete = () => {
+    if (selectedPosts.size === 0) return;
+    if (confirm(`Are you sure you want to delete ${selectedPosts.size} selected blog posts?`)) {
+      bulkDeleteMutation.mutate(Array.from(selectedPosts));
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedPosts.size === blogPosts.length) {
+      setSelectedPosts(new Set());
+    } else {
+      setSelectedPosts(new Set(blogPosts.map(post => post.id)));
+    }
+  };
+
+  const handleSelectPost = (postId: string) => {
+    const newSelected = new Set(selectedPosts);
+    if (newSelected.has(postId)) {
+      newSelected.delete(postId);
+    } else {
+      newSelected.add(postId);
+    }
+    setSelectedPosts(newSelected);
+  };
+
+  const handlePreview = () => {
+    const currentData = form.getValues();
+    setPreviewContent(currentData);
+    setIsPreviewOpen(true);
+  };
+
+  const handleImageUpload = useCallback(async () => {
+    const response = await fetch('/api/objects/upload', {
+      method: 'POST',
+    });
+    const { uploadURL } = await response.json();
+    return {
+      method: 'PUT' as const,
+      url: uploadURL,
+    };
+  }, []);
+
+  const handleUploadComplete = useCallback((result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful.length > 0) {
+      const uploadedFile = result.successful[0];
+      const imageUrl = uploadedFile.uploadURL || '';
+      form.setValue('imageUrl', imageUrl);
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully!"
+      });
+    }
+  }, [form, toast]);
+
   const resetForm = () => {
     setEditingItem(null);
     form.reset();
@@ -191,6 +288,9 @@ export default function AdminBlog() {
                   <DialogTitle data-testid="text-dialog-title">
                     {editingItem ? "Edit Blog Post" : "Create New Blog Post"}
                   </DialogTitle>
+                  <DialogDescription>
+                    {editingItem ? "Update your blog post details" : "Create a new blog post for your PathTwo journey"}
+                  </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -231,9 +331,8 @@ export default function AdminBlog() {
                         <FormItem>
                           <FormLabel>Excerpt</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Input 
                               placeholder="Brief summary of the blog post..."
-                              className="min-h-[80px]"
                               {...field}
                               data-testid="input-excerpt"
                             />
@@ -250,11 +349,13 @@ export default function AdminBlog() {
                         <FormItem>
                           <FormLabel>Content</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <ReactQuill
+                              theme="snow"
+                              value={field.value}
+                              onChange={field.onChange}
                               placeholder="Write your blog post content here..."
-                              className="min-h-[200px]"
-                              {...field}
-                              data-testid="input-content"
+                              style={{ height: '200px', marginBottom: '50px' }}
+                              data-testid="editor-content"
                             />
                           </FormControl>
                           <FormMessage />
@@ -327,24 +428,38 @@ export default function AdminBlog() {
                       />
                     </div>
 
-                    <FormField
-                      control={form.control}
-                      name="imageUrl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Image URL (optional)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="https://example.com/image.jpg" 
-                              {...field}
-                              value={field.value || ""}
-                              data-testid="input-image-url"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="space-y-2">
+                      <FormField
+                        control={form.control}
+                        name="imageUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Image</FormLabel>
+                            <div className="flex gap-2">
+                              <FormControl>
+                                <Input 
+                                  placeholder="Image URL" 
+                                  {...field}
+                                  value={field.value || ""}
+                                  data-testid="input-image-url"
+                                />
+                              </FormControl>
+                              <ObjectUploader
+                                maxNumberOfFiles={1}
+                                maxFileSize={5242880} // 5MB
+                                onGetUploadParameters={handleImageUpload}
+                                onComplete={handleUploadComplete}
+                                buttonClassName="shrink-0"
+                              >
+                                <Upload className="w-4 h-4 mr-2" />
+                                Upload
+                              </ObjectUploader>
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
                     <div className="flex gap-2 pt-4">
                       <Button
@@ -353,6 +468,15 @@ export default function AdminBlog() {
                         data-testid="button-save-post"
                       >
                         {editingItem ? "Update Post" : "Create Post"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handlePreview}
+                        data-testid="button-preview"
+                      >
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Preview
                       </Button>
                       <Button
                         type="button"
@@ -369,12 +493,58 @@ export default function AdminBlog() {
             </Dialog>
           </div>
 
+          {/* Search and Filters */}
+          <Card className="mb-6">
+            <CardContent className="p-6">
+              <div className="flex flex-wrap gap-4 items-center">
+                <div className="flex items-center gap-2">
+                  <Search className="w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search posts..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-64"
+                    data-testid="input-search"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label>Category:</Label>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger className="w-48" data-testid="select-filter-category">
+                      <SelectValue placeholder="All Categories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      {categories.map(category => (
+                        <SelectItem key={category} value={category}>{category}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {selectedPosts.size > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleBulkDelete}
+                    disabled={bulkDeleteMutation.isPending}
+                    data-testid="button-bulk-delete"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Selected ({selectedPosts.size})
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Data Table */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2" data-testid="text-posts-table-title">
-                <FileText className="w-5 h-5" />
-                Blog Posts ({blogPosts.length})
+              <CardTitle className="flex items-center justify-between" data-testid="text-posts-table-title">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Blog Posts ({blogPosts.length})
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -384,13 +554,30 @@ export default function AdminBlog() {
                 </div>
               ) : blogPosts.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground" data-testid="text-no-data">
-                  No blog posts found. Create your first post to get started.
+                  {searchTerm || selectedCategory !== "all" 
+                    ? "No posts match your search criteria." 
+                    : "No blog posts found. Create your first post to get started."
+                  }
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-12">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleSelectAll}
+                            data-testid="button-select-all"
+                          >
+                            {selectedPosts.size === blogPosts.length ? (
+                              <CheckSquare className="w-4 h-4" />
+                            ) : (
+                              <Square className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </TableHead>
                         <TableHead>Title</TableHead>
                         <TableHead>Category</TableHead>
                         <TableHead>Status</TableHead>
@@ -403,6 +590,13 @@ export default function AdminBlog() {
                     <TableBody>
                       {blogPosts.map((post) => (
                         <TableRow key={post.id} data-testid={`row-post-${post.id}`}>
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedPosts.has(post.id)}
+                              onCheckedChange={() => handleSelectPost(post.id)}
+                              data-testid={`checkbox-select-${post.id}`}
+                            />
+                          </TableCell>
                           <TableCell className="max-w-xs">
                             <div className="font-medium truncate">{post.title}</div>
                             <div className="text-sm text-muted-foreground truncate">{post.excerpt}</div>
@@ -451,6 +645,51 @@ export default function AdminBlog() {
               )}
             </CardContent>
           </Card>
+
+          {/* Preview Dialog */}
+          <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Preview Blog Post</DialogTitle>
+                <DialogDescription>
+                  Preview how your blog post will look to readers
+                </DialogDescription>
+              </DialogHeader>
+              {previewContent && (
+                <div className="space-y-4">
+                  <div>
+                    <h1 className="text-3xl font-bold text-foreground mb-2">
+                      {previewContent.title}
+                    </h1>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+                      <span>{previewContent.category}</span>
+                      <span>{previewContent.readTime} min read</span>
+                      {previewContent.featured && (
+                        <span className="flex items-center gap-1">
+                          <Star className="w-4 h-4" />
+                          Featured
+                        </span>
+                      )}
+                    </div>
+                    {previewContent.imageUrl && (
+                      <img 
+                        src={previewContent.imageUrl} 
+                        alt={previewContent.title}
+                        className="w-full h-64 object-cover rounded-lg mb-4"
+                      />
+                    )}
+                    <p className="text-lg text-muted-foreground mb-6">
+                      {previewContent.excerpt}
+                    </p>
+                  </div>
+                  <div 
+                    className="prose max-w-none"
+                    dangerouslySetInnerHTML={{ __html: previewContent.content || '' }}
+                  />
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>

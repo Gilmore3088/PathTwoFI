@@ -7,6 +7,7 @@ import {
   insertNewsletterSubscriptionSchema,
   insertContactSubmissionSchema 
 } from "@shared/schema";
+import { ObjectStorageService } from "./objectStorage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Blog post routes
@@ -171,6 +172,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json({ message: "Message sent successfully" });
     } catch (error) {
       res.status(400).json({ message: "Invalid contact form data" });
+    }
+  });
+
+  // Object storage routes
+  app.post("/api/objects/upload", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ error: "Failed to get upload URL" });
+    }
+  });
+
+  app.get("/objects/:objectPath(*)", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      
+      // Get file metadata and set response headers
+      const [metadata] = await objectFile.getMetadata();
+      res.set({
+        "Content-Type": metadata.contentType || "application/octet-stream",
+        "Content-Length": metadata.size,
+        "Cache-Control": "public, max-age=3600",
+      });
+
+      // Stream the file to the response
+      const stream = objectFile.createReadStream();
+      stream.on("error", (err) => {
+        console.error("Stream error:", err);
+        if (!res.headersSent) {
+          res.status(500).json({ error: "Error streaming file" });
+        }
+      });
+      stream.pipe(res);
+    } catch (error) {
+      console.error("Error serving object:", error);
+      res.status(404).json({ error: "Object not found" });
     }
   });
 
