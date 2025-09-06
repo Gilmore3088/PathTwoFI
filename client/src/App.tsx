@@ -16,6 +16,7 @@ import AdminWealth from "@/pages/admin-wealth";
 import AdminBlog from "@/pages/admin-blog";
 import AdminGoals from "@/pages/admin-goals";
 import NotFound from "@/pages/not-found";
+import { Offline } from "@/pages/offline";
 
 function Router() {
   return (
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/admin/wealth" component={AdminWealth} />
       <Route path="/admin/blog" component={AdminBlog} />
       <Route path="/admin/goals" component={AdminGoals} />
+      <Route path="/offline" component={Offline} />
       <Route component={NotFound} />
     </Switch>
   );

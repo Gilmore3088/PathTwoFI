@@ -57,25 +57,23 @@ export default function AdminHome() {
               const IconComponent = route.icon;
               return (
                 <Link key={route.href} href={route.href} data-testid={`link-admin-${route.title.toLowerCase().replace(/\s+/g, '-')}`}>
-                  <a>
-                    <Card className="hover:shadow-lg transition-all duration-200 hover:scale-105 cursor-pointer h-full">
-                      <CardHeader>
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-10 h-10 rounded-lg bg-muted flex items-center justify-center`}>
-                            <IconComponent className={`w-5 h-5 ${route.color}`} />
-                          </div>
-                          <CardTitle className="text-lg" data-testid={`text-${route.title.toLowerCase().replace(/\s+/g, '-')}-title`}>
-                            {route.title}
-                          </CardTitle>
+                  <Card className="hover:shadow-lg transition-all duration-200 hover:scale-105 cursor-pointer h-full">
+                    <CardHeader>
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-10 h-10 rounded-lg bg-muted flex items-center justify-center`}>
+                          <IconComponent className={`w-5 h-5 ${route.color}`} />
                         </div>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-muted-foreground" data-testid={`text-${route.title.toLowerCase().replace(/\s+/g, '-')}-description`}>
-                          {route.description}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </a>
+                        <CardTitle className="text-lg" data-testid={`text-${route.title.toLowerCase().replace(/\s+/g, '-')}-title`}>
+                          {route.title}
+                        </CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground" data-testid={`text-${route.title.toLowerCase().replace(/\s+/g, '-')}-description`}>
+                        {route.description}
+                      </p>
+                    </CardContent>
+                  </Card>
                 </Link>
               );
             })}
@@ -88,28 +86,28 @@ export default function AdminHome() {
             </h2>
             <div className="grid md:grid-cols-2 gap-4">
               <Link href="/admin/blog" data-testid="link-quick-new-post">
-                <a className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background transition-colors">
+                <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background transition-colors cursor-pointer">
                   <Edit className="w-4 h-4 text-secondary" />
                   <span className="text-foreground">Create New Blog Post</span>
-                </a>
+                </div>
               </Link>
               <Link href="/admin/wealth" data-testid="link-quick-add-wealth">
-                <a className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background transition-colors">
+                <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background transition-colors cursor-pointer">
                   <TrendingUp className="w-4 h-4 text-primary" />
                   <span className="text-foreground">Add Wealth Data</span>
-                </a>
+                </div>
               </Link>
               <Link href="/admin/goals" data-testid="link-quick-set-goal">
-                <a className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background transition-colors">
+                <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background transition-colors cursor-pointer">
                   <Target className="w-4 h-4 text-accent" />
                   <span className="text-foreground">Set New Goal</span>
-                </a>
+                </div>
               </Link>
               <Link href="/" data-testid="link-quick-view-site">
-                <a className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background transition-colors">
+                <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background transition-colors cursor-pointer">
                   <Settings className="w-4 h-4 text-muted-foreground" />
                   <span className="text-foreground">View Public Site</span>
-                </a>
+                </div>
               </Link>
             </div>
           </div>
@@ -117,9 +115,9 @@ export default function AdminHome() {
           {/* Back to Site */}
           <div className="mt-8 text-center">
             <Link href="/" data-testid="link-back-to-site">
-              <a className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors">
+              <span className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
                 ← Back to PathTwo Site
-              </a>
+              </span>
             </Link>
           </div>
         </div>
