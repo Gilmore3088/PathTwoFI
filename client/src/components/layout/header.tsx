@@ -14,6 +14,7 @@ export function Header() {
     { href: "/blog", label: "Blog" },
     { href: "/dashboard", label: "Wealth Dashboard" },
     { href: "/admin/goals", label: "Goals" },
+    { href: "/admin/contact", label: "Contact Admin" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ];

@@ -56,7 +56,10 @@ export interface IStorage {
   getNewsletterSubscription(email: string): Promise<NewsletterSubscription | undefined>;
 
   // Contact methods
+  getContactSubmissions(): Promise<ContactSubmission[]>;
+  getContactSubmission(id: string): Promise<ContactSubmission | undefined>;
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
+  deleteContactSubmission(id: string): Promise<boolean>;
 
   // Financial Goals methods
   getFinancialGoals(category?: string): Promise<FinancialGoal[]>;
@@ -277,9 +280,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Contact methods
+  async getContactSubmissions(): Promise<ContactSubmission[]> {
+    return await db.select().from(contactSubmissions).orderBy(desc(contactSubmissions.submittedAt));
+  }
+
+  async getContactSubmission(id: string): Promise<ContactSubmission | undefined> {
+    const [submission] = await db.select().from(contactSubmissions).where(eq(contactSubmissions.id, id));
+    return submission || undefined;
+  }
+
   async createContactSubmission(insertSubmission: InsertContactSubmission): Promise<ContactSubmission> {
     const [submission] = await db.insert(contactSubmissions).values(insertSubmission).returning();
     return submission;
+  }
+
+  async deleteContactSubmission(id: string): Promise<boolean> {
+    const result = await db.delete(contactSubmissions).where(eq(contactSubmissions.id, id));
+    return (result.rowCount || 0) > 0;
   }
 
   // Financial Goals methods

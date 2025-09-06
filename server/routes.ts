@@ -171,6 +171,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Contact form routes
+  app.get("/api/contact", async (req, res) => {
+    try {
+      const submissions = await storage.getContactSubmissions();
+      res.json(submissions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch contact submissions" });
+    }
+  });
+
+  app.get("/api/contact/:id", async (req, res) => {
+    try {
+      const submission = await storage.getContactSubmission(req.params.id);
+      if (!submission) {
+        return res.status(404).json({ message: "Contact submission not found" });
+      }
+      res.json(submission);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch contact submission" });
+    }
+  });
+
   app.post("/api/contact", async (req, res) => {
     try {
       const validatedData = insertContactSubmissionSchema.parse(req.body);
@@ -178,6 +199,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json({ message: "Message sent successfully" });
     } catch (error) {
       res.status(400).json({ message: "Invalid contact form data" });
+    }
+  });
+
+  app.delete("/api/contact/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteContactSubmission(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Contact submission not found" });
+      }
+      res.json({ message: "Contact submission deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete contact submission" });
     }
   });
 
