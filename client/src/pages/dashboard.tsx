@@ -3,6 +3,7 @@ import { WealthData } from "@shared/schema";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { ProgressIndicator } from "@/components/dashboard/progress-indicator";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/ui/seo";
 import { TrendingUp, Wallet, PiggyBank, Calendar, ChartArea, DollarSign, Target } from "lucide-react";
 import { FIRE_TARGET } from "@/lib/constants";
 
@@ -72,6 +73,13 @@ export default function Dashboard() {
 
   return (
     <div className="py-16 lg:py-20">
+      <SEO 
+        title="Wealth Dashboard - Real-Time FIRE Progress Tracking"
+        description="Track our real-time progress toward financial independence. View current net worth, investment growth, savings rate, and estimated time to FIRE."
+        keywords="wealth dashboard, FIRE progress, net worth tracking, investment portfolio, financial independence metrics"
+        type="website"
+        url="/dashboard"
+      />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}

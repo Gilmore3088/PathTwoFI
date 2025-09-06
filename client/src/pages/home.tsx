@@ -7,6 +7,7 @@ import { ProgressIndicator } from "@/components/dashboard/progress-indicator";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SEO } from "@/components/ui/seo";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
@@ -67,6 +68,13 @@ export default function Home() {
 
   return (
     <div>
+      <SEO 
+        title="PathTwo - Personal Finance FIRE Journey"
+        description="Follow our data-driven journey to financial independence as a couple. Real wealth tracking, investment strategies, and transparent progress toward FIRE."
+        keywords="FIRE, financial independence, personal finance, wealth tracking, early retirement, investment strategy, couples finance"
+        type="website"
+        url="/"
+      />
       {/* Hero Section */}
       <section className="py-16 lg:py-24 bg-gradient-to-br from-background to-muted">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">

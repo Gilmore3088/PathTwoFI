@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
+import { SEO } from "@/components/ui/seo";
 import { Mountain, TrendingUp, Target, Coffee, Mail } from "lucide-react";
 
 export default function About() {
@@ -21,6 +22,13 @@ export default function About() {
 
   return (
     <div className="py-16 lg:py-20">
+      <SEO 
+        title="About Us - PathTwo FIRE Journey"
+        description="Meet the couple behind PathTwo. Learn about our mission to achieve financial independence through transparent wealth tracking, data-driven decisions, and sharing our journey."
+        keywords="about PathTwo, FIRE couple, financial independence journey, personal finance transparency"
+        type="website"
+        url="/about"
+      />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           {/* Hero Section */}

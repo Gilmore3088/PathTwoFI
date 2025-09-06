@@ -4,6 +4,7 @@ import { BlogPost } from "@shared/schema";
 import { BlogCard } from "@/components/blog/blog-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SEO } from "@/components/ui/seo";
 import { BLOG_CATEGORIES } from "@/lib/constants";
 import { Search } from "lucide-react";
 
@@ -23,6 +24,13 @@ export default function Blog() {
 
   return (
     <div className="py-16 lg:py-20">
+      <SEO 
+        title="Blog - Personal Finance and FIRE Journey"
+        description="Explore our journey to financial independence through detailed blog posts on wealth tracking, investment strategies, FIRE progress, and personal finance insights."
+        keywords="FIRE blog, personal finance blog, wealth tracking, investment strategies, financial independence blog, early retirement"
+        type="website"
+        url="/blog"
+      />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}

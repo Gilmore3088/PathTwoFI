@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { SEO } from "@/components/ui/seo";
 import { Mail, MessageSquare, Send, Twitter, Linkedin } from "lucide-react";
 
 interface ContactForm {
@@ -62,6 +63,13 @@ export default function Contact() {
 
   return (
     <div className="py-16 lg:py-20">
+      <SEO 
+        title="Contact Us - PathTwo FIRE Journey"
+        description="Get in touch with the PathTwo team. Ask questions about FIRE, share your journey, or connect with fellow financial independence enthusiasts."
+        keywords="contact PathTwo, FIRE questions, personal finance contact, financial independence community"
+        type="website"
+        url="/contact"
+      />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
