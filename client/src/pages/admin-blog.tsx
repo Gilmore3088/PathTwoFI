@@ -711,6 +711,34 @@ export default function AdminBlog() {
                                 </FormItem>
                               )}
                             />
+
+                            {/* Scheduled Date Field */}
+                            {form.watch("status") === "scheduled" && (
+                              <FormField
+                                control={form.control}
+                                name="scheduledAt"
+                                render={({ field }) => (
+                                  <FormItem className="space-y-3">
+                                    <FormLabel className="text-sm font-medium">Scheduled Publish Date & Time</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="datetime-local"
+                                        {...field}
+                                        value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ''}
+                                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
+                                        min={new Date().toISOString().slice(0, 16)}
+                                        data-testid="input-scheduled-at"
+                                        className="h-11"
+                                      />
+                                    </FormControl>
+                                    <p className="text-xs text-muted-foreground">
+                                      Set when this post should be automatically published
+                                    </p>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            )}
                           </div>
                         </div>
                       </div>
@@ -891,9 +919,12 @@ export default function AdminBlog() {
                               <div className={`px-2 py-1 rounded-full text-xs font-medium ${
                                 (post as any).status === 'draft' 
                                   ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' 
+                                  : (post as any).status === 'scheduled'
+                                  ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
                                   : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                               }`}>
-                                {(post as any).status === 'draft' ? 'Draft' : 'Published'}
+                                {(post as any).status === 'draft' ? 'Draft' : 
+                                 (post as any).status === 'scheduled' ? 'Scheduled' : 'Published'}
                               </div>
                               {post.featured && <Star className="w-4 h-4 text-yellow-500" />}
                             </div>
