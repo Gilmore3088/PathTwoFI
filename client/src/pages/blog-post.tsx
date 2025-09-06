@@ -140,10 +140,10 @@ export default function BlogPostPage() {
             {/* Back Button */}
             <Button variant="ghost" asChild className="mb-8" data-testid="button-back-to-blog">
               <Link href="/blog">
-                <a className="inline-flex items-center">
+                <span className="inline-flex items-center">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Blog
-                </a>
+                </span>
               </Link>
             </Button>
 

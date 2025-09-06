@@ -2,6 +2,7 @@ import { BlogPost } from "@shared/schema";
 import { Link } from "wouter";
 import { Clock, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { LazyImage } from "@/components/ui/lazy-image";
 
 interface FeaturedPostProps {
   post: BlogPost;
@@ -33,7 +34,7 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
   return (
     <article className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-shadow" data-testid={`article-featured-${post.slug}`}>
       {post.imageUrl && (
-        <img 
+        <LazyImage 
           src={post.imageUrl} 
           alt={post.title}
           className="w-full h-48 object-cover"
@@ -55,7 +56,7 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
         </div>
         <h3 className="text-xl font-semibold text-foreground mb-3 hover:text-primary transition-colors">
           <Link href={`/blog/${post.slug}`} data-testid={`link-featured-${post.slug}`}>
-            <a>{post.title}</a>
+            <span>{post.title}</span>
           </Link>
         </h3>
         <p className="text-muted-foreground mb-4 leading-relaxed" data-testid={`text-excerpt-${post.slug}`}>
@@ -63,9 +64,9 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
         </p>
         <div className="flex items-center justify-between">
           <Link href={`/blog/${post.slug}`} data-testid={`link-read-more-${post.slug}`}>
-            <a className="text-primary font-medium hover:text-primary/80 transition-colors">
+            <span className="text-primary font-medium hover:text-primary/80 transition-colors cursor-pointer">
               Read More →
-            </a>
+            </span>
           </Link>
           <div className="flex items-center space-x-4 text-xs text-muted-foreground">
             <span className="flex items-center" data-testid={`text-read-time-${post.slug}`}>

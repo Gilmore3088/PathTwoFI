@@ -2,6 +2,7 @@ import { BlogPost } from "@shared/schema";
 import { Link } from "wouter";
 import { Clock, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { LazyImage } from "@/components/ui/lazy-image";
 
 interface BlogCardProps {
   post: BlogPost;
@@ -34,7 +35,7 @@ export function BlogCard({ post, size = "default" }: BlogCardProps) {
   return (
     <article className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-shadow" data-testid={`article-blog-${post.slug}`}>
       {post.imageUrl && (
-        <img 
+        <LazyImage 
           src={post.imageUrl} 
           alt={post.title}
           className={`w-full object-cover ${size === "compact" ? "h-32" : "h-40"}`}
@@ -56,7 +57,7 @@ export function BlogCard({ post, size = "default" }: BlogCardProps) {
         </div>
         <h3 className={`font-semibold text-foreground mb-2 hover:text-primary transition-colors ${size === "compact" ? "text-base" : "text-lg"}`}>
           <Link href={`/blog/${post.slug}`} data-testid={`link-blog-${post.slug}`}>
-            <a>{post.title}</a>
+            <span>{post.title}</span>
           </Link>
         </h3>
         <p className="text-sm text-muted-foreground mb-4" data-testid={`text-excerpt-${post.slug}`}>
