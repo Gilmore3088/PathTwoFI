@@ -385,24 +385,31 @@ export default function AdminBlog() {
                             <FormItem className="space-y-3">
                               <FormLabel className="text-sm font-medium">Post Content *</FormLabel>
                               <FormControl>
-                                <div className="border rounded-lg">
+                                <div className="border rounded-lg overflow-hidden">
                                   <ReactQuill
                                     theme="snow"
                                     value={field.value}
                                     onChange={field.onChange}
                                     placeholder="Tell your story, share insights from your PathTwo journey..."
-                                    style={{ minHeight: '400px' }}
                                     data-testid="editor-content"
+                                    className="min-h-[400px]"
                                     modules={{
-                                      toolbar: [
-                                        [{ 'header': [1, 2, 3, false] }],
-                                        ['bold', 'italic', 'underline', 'strike'],
-                                        [{'list': 'ordered'}, {'list': 'bullet'}],
-                                        ['blockquote', 'code-block'],
-                                        ['link', 'image'],
-                                        ['clean']
-                                      ],
+                                      toolbar: {
+                                        container: [
+                                          [{ 'header': [1, 2, 3, false] }],
+                                          ['bold', 'italic', 'underline'],
+                                          [{'list': 'ordered'}, {'list': 'bullet'}],
+                                          ['blockquote', 'link'],
+                                          ['clean']
+                                        ],
+                                      },
                                     }}
+                                    formats={[
+                                      'header',
+                                      'bold', 'italic', 'underline',
+                                      'list', 'bullet',
+                                      'blockquote', 'link'
+                                    ]}
                                   />
                                 </div>
                               </FormControl>
