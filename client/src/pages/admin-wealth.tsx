@@ -68,7 +68,19 @@ export default function AdminWealth() {
       cash: "",
       liabilities: "",
       fireTarget: "1000000.00",
-      savingsRate: ""
+      savingsRate: "",
+      // Asset breakdown
+      stocks: "",
+      bonds: "",
+      realEstate: "",
+      crypto: "",
+      commodities: "",
+      alternativeInvestments: "",
+      // Debt breakdown
+      mortgage: "",
+      creditCards: "",
+      studentLoans: "",
+      autoLoans: ""
     }
   });
 
@@ -182,7 +194,19 @@ export default function AdminWealth() {
       cash: item.cash,
       liabilities: item.liabilities,
       fireTarget: item.fireTarget,
-      savingsRate: item.savingsRate
+      savingsRate: item.savingsRate,
+      // Asset breakdown
+      stocks: item.stocks || "",
+      bonds: item.bonds || "",
+      realEstate: item.realEstate || "",
+      crypto: item.crypto || "",
+      commodities: item.commodities || "",
+      alternativeInvestments: item.alternativeInvestments || "",
+      // Debt breakdown
+      mortgage: item.mortgage || "",
+      creditCards: item.creditCards || "",
+      studentLoans: item.studentLoans || "",
+      autoLoans: item.autoLoans || ""
     });
     setIsDialogOpen(true);
   };
@@ -227,7 +251,19 @@ export default function AdminWealth() {
       Cash: entry.cash,
       Liabilities: entry.liabilities,
       'FIRE Target': entry.fireTarget,
-      'Savings Rate': entry.savingsRate
+      'Savings Rate': entry.savingsRate,
+      // Asset breakdown
+      Stocks: entry.stocks || '0',
+      Bonds: entry.bonds || '0',
+      'Real Estate': entry.realEstate || '0',
+      Crypto: entry.crypto || '0',
+      Commodities: entry.commodities || '0',
+      'Alternative Investments': entry.alternativeInvestments || '0',
+      // Debt breakdown
+      Mortgage: entry.mortgage || '0',
+      'Credit Cards': entry.creditCards || '0',
+      'Student Loans': entry.studentLoans || '0',
+      'Auto Loans': entry.autoLoans || '0'
     }));
 
     const csv = Papa.unparse(csvData);
@@ -294,7 +330,7 @@ export default function AdminWealth() {
                     Add Wealth Data
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle data-testid="text-dialog-title">
                     {editingItem ? "Edit Wealth Data" : "Add New Wealth Data"}
@@ -433,7 +469,159 @@ export default function AdminWealth() {
                       )}
                     />
 
-                    <div className="flex gap-2 pt-4">
+                    {/* Asset Breakdown Section */}
+                    <div className="pt-4 border-t">
+                      <h3 className="text-lg font-semibold mb-4 text-green-600">Asset Breakdown</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="stocks"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Stocks ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-stocks" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="bonds"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Bonds ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-bonds" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="realEstate"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Real Estate ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-real-estate" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="crypto"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Crypto ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-crypto" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="commodities"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Commodities ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-commodities" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="alternativeInvestments"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Alternative Investments ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-alternative-investments" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Debt Breakdown Section */}
+                    <div className="pt-4 border-t">
+                      <h3 className="text-lg font-semibold mb-4 text-red-600">Debt Breakdown</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="mortgage"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Mortgage ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-mortgage" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="creditCards"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Credit Cards ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-credit-cards" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="studentLoans"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Student Loans ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-student-loans" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="autoLoans"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Auto Loans ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-auto-loans" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 pt-4 border-t">
                       <Button
                         type="submit"
                         disabled={createMutation.isPending || updateMutation.isPending}
