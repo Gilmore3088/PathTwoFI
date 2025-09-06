@@ -28,10 +28,10 @@ export default function Blog() {
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-6" data-testid="text-blog-title">
-              The FIRE Journey Blog
+              PathTwo Blog
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto" data-testid="text-blog-subtitle">
-              Documenting the path to financial independence through data-driven insights, investment strategies, and personal reflections.
+              Documenting our path to financial independence through data-driven insights, investment strategies, and reflections on our journey as a couple.
             </p>
           </div>
 

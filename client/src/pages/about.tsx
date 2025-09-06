@@ -29,11 +29,11 @@ export default function About() {
               <Mountain className="w-12 h-12 text-primary" data-testid="icon-about-hero" />
             </div>
             <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-6" data-testid="text-about-title">
-              About The FIRE Journey
+              About PathTwo
             </h1>
             <p className="text-xl text-muted-foreground leading-relaxed" data-testid="text-about-subtitle">
-              A transparent look at one person's path to financial independence from the Pacific Northwest, 
-              sharing real data, strategies, and lessons learned along the way.
+              A transparent look at our path to financial independence as a couple, 
+              sharing real data, strategies, and lessons learned along our journey together.
             </p>
           </div>
 
@@ -42,13 +42,13 @@ export default function About() {
             <CardContent className="p-8">
               <h2 className="text-2xl font-bold text-foreground mb-4" data-testid="text-mission-title">Mission Statement</h2>
               <p className="text-lg text-muted-foreground leading-relaxed mb-4" data-testid="text-mission-content">
-                This blog exists to document and share the journey toward Financial Independence, Retire Early (FIRE) 
-                through transparent wealth tracking, data-driven decision making, and honest reflection on both 
-                successes and setbacks.
+                This blog exists to document and share our journey toward Financial Independence, Retire Early (FIRE) 
+                as a couple through transparent wealth tracking, data-driven decision making, and honest reflection on both 
+                successes and setbacks along our path together.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed" data-testid="text-mission-goal">
-                The goal isn't just to reach FIRE, but to inspire others to take control of their financial future 
-                and show that financial independence is achievable with discipline, planning, and patience.
+                The goal isn't just to reach FIRE, but to inspire other couples to take control of their financial future 
+                and show that financial independence is achievable together with discipline, planning, and patience.
               </p>
             </CardContent>
           </Card>
@@ -156,7 +156,7 @@ export default function About() {
               Join the Journey
             </h2>
             <p className="text-lg text-muted-foreground mb-8" data-testid="text-cta-description">
-              Whether you're just starting your FIRE journey or well on your way, I'd love to connect and 
+              Whether you're just starting your FIRE journey or well on your way, we'd love to connect and 
               share experiences. Feel free to reach out with questions, feedback, or your own FIRE story.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

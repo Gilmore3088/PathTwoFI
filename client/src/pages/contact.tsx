@@ -71,7 +71,7 @@ export default function Contact() {
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto" data-testid="text-contact-subtitle">
               Have questions about FIRE, want to share your own journey, or just want to connect? 
-              I'd love to hear from you.
+              We'd love to hear from you.
             </p>
           </div>
 
@@ -182,7 +182,7 @@ export default function Contact() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-muted-foreground" data-testid="text-contact-info-description">
-                    I try to respond to all messages within 24-48 hours. Whether you have questions about 
+                    We try to respond to all messages within 24-48 hours. Whether you have questions about 
                     specific FIRE strategies, want to share your own journey, or are looking for accountability 
                     partners, don't hesitate to reach out.
                   </p>

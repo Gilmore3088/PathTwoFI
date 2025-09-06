@@ -29,7 +29,7 @@ export function Header() {
             <Link href="/" data-testid="link-home">
               <a className="flex items-center space-x-2">
                 <Mountain className="text-primary text-xl" data-testid="icon-logo" />
-                <span className="font-bold text-xl text-foreground">The FIRE Journey</span>
+                <span className="font-bold text-xl text-foreground">PathTwo</span>
               </a>
             </Link>
           </div>

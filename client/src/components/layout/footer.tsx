@@ -10,10 +10,10 @@ export function Footer() {
             <div className="md:col-span-2">
               <div className="flex items-center space-x-2 mb-4">
                 <Mountain className="text-primary text-xl" data-testid="icon-footer-logo" />
-                <span className="font-bold text-xl text-foreground">The FIRE Journey</span>
+                <span className="font-bold text-xl text-foreground">PathTwo</span>
               </div>
               <p className="text-muted-foreground mb-6 max-w-sm">
-                Documenting the path to financial independence through data-driven wealth tracking and transparent reporting from the Pacific Northwest.
+                Tracking our combined journey to financial independence through data-driven wealth tracking and transparent reporting.
               </p>
               <div className="flex space-x-4">
                 <a href="#" className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-social-twitter">
@@ -56,7 +56,7 @@ export function Footer() {
           
           <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-muted-foreground">
-              © 2024 The FIRE Journey. All rights reserved.
+              © 2024 PathTwo. All rights reserved.
             </p>
             <p className="text-sm text-muted-foreground mt-2 md:mt-0">
               Built with passion for financial independence
