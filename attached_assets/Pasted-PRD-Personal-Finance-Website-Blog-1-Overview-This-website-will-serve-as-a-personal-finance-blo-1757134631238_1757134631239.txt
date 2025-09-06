@@ -1,0 +1,148 @@
+PRD – Personal Finance Website & Blog
+1. Overview
+
+This website will serve as a personal finance blog and wealth tracking journal, documenting progress toward financial independence (FIRE). The site should balance storytelling with data visualization: clear, modern, and motivating. It is primarily a blog but should include sections that highlight weekly/quarterly balance sheet updates, charts, and long-form reflections.
+
+2. Goals
+
+Primary Goal: Publish blog posts about wealth tracking, financial planning, and FIRE progress.
+
+Secondary Goal: Display personal wealth tracking data (charts, summaries, milestones) in an engaging, reader-friendly way.
+
+Tertiary Goal: Build credibility and identity through clean design, a strong personal brand, and easy navigation.
+
+3. Target Audience
+
+Personal finance enthusiasts (FIRE, investing, budgeting).
+
+Friends, peers, and broader readers interested in financial journeys.
+
+Future collaborators or potential clients who want to see data storytelling ability.
+
+4. Content Types
+
+Blog Posts
+
+Long-form articles (1,000–2,000 words)
+
+Weekly update posts (shorter, data-driven)
+
+Categories: Wealth Progress, FIRE Strategy, Investments, Personal Reflections
+
+Wealth Tracking Updates
+
+Charts & graphs (Net worth, FIRE progress, Assets/Liabilities over time).
+
+Simple balance sheet snapshots (Cash, Investments, Liabilities).
+
+Visualized milestones (e.g., % to FIRE target).
+
+About/Author Page
+
+Personal intro: who I am, why I’m blogging, FIRE goals.
+
+Lifestyle imagery (Pacific Northwest, travel, outdoors).
+
+Contact Page
+
+Simple contact form.
+
+Links to LinkedIn, Twitter/X, and email.
+
+5. Key Features
+
+Blogging Platform: Easy post creation, markdown support, SEO-friendly.
+
+Data Visualization:
+
+Embed charts (Net worth over time, FIRE % progress).
+
+Milestone indicators.
+
+Responsive Design: Mobile-first with great readability.
+
+Search & Categories: Filter blog posts by theme.
+
+Newsletter Sign-Up: Capture emails for future updates.
+
+Light/Dark Mode Toggle (optional).
+
+6. Design Guidelines
+
+Style: Clean, modern, minimalist. Heavy emphasis on readability.
+
+Colors: Neutral base with accent color(s) drawn from Pacific Northwest vibes (greens, blues, grays).
+
+Typography: Large, readable fonts for blog posts. Distinct headline vs. body text.
+
+Layout:
+
+Homepage = featured blog posts + net worth snapshot section.
+
+Blog feed = chronological posts with category filters.
+
+Sidebar (optional) = quick wealth metrics or FIRE % tracker.
+
+Charts/Visuals: Should integrate seamlessly into posts.
+
+Brand Feel: Personal yet professional; data + storytelling.
+
+7. Technical Requirements
+
+CMS (e.g., WordPress, Ghost, or a headless CMS like Sanity if using Next.js).
+
+SEO optimization (metadata, sitemap, fast loading).
+
+Social sharing support (Twitter/X, LinkedIn).
+
+Analytics (Google Analytics or Plausible).
+
+Secure (SSL, spam-protected contact form).
+
+8. Example Pages
+
+Homepage
+
+Hero banner with blog intro tagline.
+
+Featured post(s).
+
+Net worth snapshot (chart or progress bar).
+
+Blog Post Template
+
+Title, author, date.
+
+Category tags.
+
+Rich text + images + embedded charts.
+
+Comments (optional).
+
+Wealth Dashboard (lite)
+
+Net worth line chart (monthly/weekly updates).
+
+FIRE progress bar.
+
+Asset allocation pie chart.
+
+About Page
+
+Personal finance journey story.
+
+Mission statement.
+
+Contact Page
+
+Simple form + social links.
+
+9. Future Enhancements (Phase 2)
+
+User login (personal dashboard, private posts).
+
+Automated data feeds from spreadsheets/APIs.
+
+Podcast or video section.
+
+Interactive FIRE calculator.
