@@ -432,6 +432,55 @@ export default function AdminWealth() {
                       />
                     </div>
 
+                    {/* To FIRE Goal Section */}
+                    <div className="pt-6 border-t">
+                      <h3 className="text-lg font-semibold mb-4 text-blue-600">To FIRE Goal</h3>
+                      
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        <FormField
+                          control={form.control}
+                          name="netWorth"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Net Worth ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="3000000.00" {...field} data-testid="input-net-worth" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="investments"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Net Worth Less Home ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="1500000.00" {...field} data-testid="input-net-worth-less-home" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="cash"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Working Cap ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="100000.00" {...field} data-testid="input-working-cap" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
                     {/* Assets Section */}
                     <div className="pt-6 border-t">
                       <h3 className="text-lg font-semibold mb-4 text-green-600">Assets</h3>
@@ -552,10 +601,24 @@ export default function AdminWealth() {
                           
                           <FormField
                             control={form.control}
+                            name="crypto"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Crypto ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-crypto" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
                             name="alternativeInvestments"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Other Investments ($)</FormLabel>
+                                <FormLabel>Other ($)</FormLabel>
                                 <FormControl>
                                   <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-other-investments" />
                                 </FormControl>
