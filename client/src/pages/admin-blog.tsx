@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import { insertBlogPostSchema, type BlogPost, type InsertBlogPost } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from '@uppy/core';
 
@@ -414,21 +415,47 @@ export default function AdminBlog() {
                             <FormItem className="space-y-3">
                               <FormLabel className="text-sm font-medium">Post Content *</FormLabel>
                               <FormControl>
-                                <div className="border rounded-lg">
+                                <div className="border rounded-lg overflow-hidden">
+                                  <style>{`
+                                    .ql-editor {
+                                      min-height: 400px;
+                                      font-size: 16px;
+                                      line-height: 1.6;
+                                      padding: 20px;
+                                    }
+                                    .ql-toolbar {
+                                      border-bottom: 1px solid #e5e7eb;
+                                      padding: 12px;
+                                    }
+                                    .ql-container {
+                                      border: none;
+                                    }
+                                    .ql-editor.ql-blank::before {
+                                      font-style: normal;
+                                      color: #9ca3af;
+                                    }
+                                    .ql-snow .ql-picker-label {
+                                      border: none;
+                                    }
+                                    .ql-snow .ql-stroke {
+                                      stroke: #6b7280;
+                                    }
+                                    .ql-snow .ql-fill {
+                                      fill: #6b7280;
+                                    }
+                                  `}</style>
                                   <ReactQuill
                                     theme="snow"
                                     value={field.value || ''}
                                     onChange={field.onChange}
                                     placeholder="Tell your story, share insights from your PathTwo journey..."
                                     data-testid="editor-content"
-                                    style={{ minHeight: '400px' }}
                                     modules={{
                                       toolbar: [
-                                        [{ 'header': [1, 2, 3, false] }],
-                                        ['bold', 'italic', 'underline'],
+                                        [{ 'header': [2, 3, false] }],
+                                        ['bold', 'italic'],
                                         [{'list': 'ordered'}, {'list': 'bullet'}],
-                                        ['blockquote', 'link'],
-                                        ['clean']
+                                        ['blockquote', 'link']
                                       ]
                                     }}
                                   />
