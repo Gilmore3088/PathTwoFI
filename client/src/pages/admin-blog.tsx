@@ -772,8 +772,14 @@ export default function AdminBlog() {
                           <TableCell>{post.category}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
+                              <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                (post as any).status === 'draft' 
+                                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' 
+                                  : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              }`}>
+                                {(post as any).status === 'draft' ? 'Draft' : 'Published'}
+                              </div>
                               {post.featured && <Star className="w-4 h-4 text-yellow-500" />}
-                              <span className="text-sm">{post.featured ? 'Featured' : 'Regular'}</span>
                             </div>
                           </TableCell>
                           <TableCell>
