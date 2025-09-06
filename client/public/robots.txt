@@ -1,0 +1,17 @@
+# PathTwo - Personal Finance FIRE Journey
+# https://pathtwo.fire
+
+User-agent: *
+Allow: /
+
+# Disallow admin areas
+Disallow: /admin/
+
+# Disallow API endpoints (they're not user-facing content)
+Disallow: /api/
+
+# Point to sitemap
+Sitemap: https://pathtwo.fire/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1

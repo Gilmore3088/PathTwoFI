@@ -27,7 +27,7 @@ export function Footer() {
                     <Mail className="h-5 w-5" />
                   </a>
                 </Link>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-social-rss">
+                <a href="/feed.xml" className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-social-rss" title="Subscribe to RSS Feed">
                   <Rss className="h-5 w-5" />
                 </a>
               </div>

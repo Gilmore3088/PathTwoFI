@@ -10,6 +10,114 @@ import {
 import { ObjectStorageService } from "./objectStorage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // SEO Routes
+  app.get("/sitemap.xml", async (req, res) => {
+    try {
+      const posts = await storage.getBlogPosts();
+      const baseUrl = process.env.NODE_ENV === 'production' ? 'https://pathtwo.fire' : 'http://localhost:5000';
+      
+      let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${baseUrl}/</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/blog</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/dashboard</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/about</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/contact</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>`;
+
+      // Add blog posts
+      for (const post of posts) {
+        const lastmod = post.updatedAt || post.createdAt;
+        sitemap += `
+  <url>
+    <loc>${baseUrl}/blog/${post.slug}</loc>
+    <lastmod>${new Date(lastmod!).toISOString().split('T')[0]}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>`;
+      }
+
+      sitemap += `
+</urlset>`;
+
+      res.set('Content-Type', 'application/xml');
+      res.send(sitemap);
+    } catch (error) {
+      console.error('Sitemap generation error:', error);
+      res.status(500).send('Error generating sitemap');
+    }
+  });
+
+  app.get("/feed.xml", async (req, res) => {
+    try {
+      const posts = await storage.getBlogPosts();
+      const baseUrl = process.env.NODE_ENV === 'production' ? 'https://pathtwo.fire' : 'http://localhost:5000';
+      
+      let feed = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>PathTwo - Personal Finance FIRE Journey</title>
+    <link>${baseUrl}</link>
+    <description>Follow our data-driven journey to financial independence through transparent wealth tracking, investment strategies, and FIRE progress.</description>
+    <language>en-us</language>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <atom:link href="${baseUrl}/feed.xml" rel="self" type="application/rss+xml"/>
+    <image>
+      <url>${baseUrl}/logo.png</url>
+      <title>PathTwo</title>
+      <link>${baseUrl}</link>
+    </image>`;
+
+      // Add blog posts to RSS feed
+      for (const post of posts) {
+        const pubDate = new Date(post.createdAt!).toUTCString();
+        feed += `
+    <item>
+      <title>${post.title}</title>
+      <link>${baseUrl}/blog/${post.slug}</link>
+      <description>${post.excerpt}</description>
+      <category>${post.category}</category>
+      <pubDate>${pubDate}</pubDate>
+      <guid>${baseUrl}/blog/${post.slug}</guid>
+    </item>`;
+      }
+
+      feed += `
+  </channel>
+</rss>`;
+
+      res.set('Content-Type', 'application/rss+xml');
+      res.send(feed);
+    } catch (error) {
+      console.error('RSS feed generation error:', error);
+      res.status(500).send('Error generating RSS feed');
+    }
+  });
+
   // Blog post routes
   app.get("/api/blog-posts", async (req, res) => {
     try {
