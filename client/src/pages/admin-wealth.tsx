@@ -19,7 +19,7 @@ import { apiRequest } from "@/lib/queryClient";
 export default function AdminWealth() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<WealthData | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -28,7 +28,7 @@ export default function AdminWealth() {
   const { data: wealthData = [], isLoading } = useQuery<WealthData[]>({
     queryKey: ["/api/wealth-data", selectedCategory],
     queryFn: async () => {
-      const params = selectedCategory ? `?category=${selectedCategory}` : '';
+      const params = selectedCategory && selectedCategory !== "all" ? `?category=${selectedCategory}` : '';
       return await fetch(`/api/wealth-data${params}`).then(res => res.json());
     }
   });
@@ -354,7 +354,7 @@ export default function AdminWealth() {
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Categories</SelectItem>
+                    <SelectItem value="all">All Categories</SelectItem>
                     <SelectItem value="His">His</SelectItem>
                     <SelectItem value="Her">Her</SelectItem>
                     <SelectItem value="Both">Both</SelectItem>
