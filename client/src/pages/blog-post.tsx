@@ -22,17 +22,15 @@ export default function BlogPostPage() {
   // Reading progress tracking
   const readingStats = useReadingStats(post?.content || "");
 
-  // Decode HTML entities in content
+  // Simple HTML entity decoder
   const decodeHtmlEntities = (html: string) => {
-    const temp = document.createElement('div');
-    temp.innerHTML = html;
-    return temp.textContent || temp.innerText || '';
-  };
-
-  const getDecodedContent = (content: string) => {
-    const temp = document.createElement('div');
-    temp.innerHTML = content;
-    return temp.innerHTML;
+    return html
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&nbsp;/g, ' ');
   };
 
   const handleShare = async () => {
@@ -236,7 +234,7 @@ export default function BlogPostPage() {
             <div 
               className="prose prose-lg dark:prose-invert max-w-none" 
               data-testid="content-post-body"
-              dangerouslySetInnerHTML={{ __html: getDecodedContent(post.content) }}
+              dangerouslySetInnerHTML={{ __html: decodeHtmlEntities(post.content) }}
             />
 
             {/* Related Posts */}
