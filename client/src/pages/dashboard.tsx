@@ -23,9 +23,11 @@ export default function Dashboard() {
     }
   });
 
-  const formatCurrency = (amount: string | number) => {
+  const formatCurrency = (amount: string | number | null | undefined) => {
+    if (amount === null || amount === undefined) return '$0';
     const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return num.toLocaleString();
+    if (isNaN(num)) return '$0';
+    return '$' + num.toLocaleString();
   };
 
   const calculateProgress = () => {
@@ -100,14 +102,14 @@ export default function Dashboard() {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
               <MetricCard
                 title="Net Worth"
-                value={`$${formatCurrency(latestWealth.netWorth)}`}
+                value={formatCurrency(latestWealth.netWorth)}
                 change={`+${monthlyGrowth.toFixed(1)}% this month`}
                 changeType="positive"
                 icon={TrendingUp}
               />
               <MetricCard
                 title="Investment Portfolio"
-                value={`$${formatCurrency(latestWealth.investments)}`}
+                value={formatCurrency(latestWealth.investments)}
                 change="+8.7% YTD"
                 changeType="positive"
                 icon={Wallet}
@@ -115,7 +117,7 @@ export default function Dashboard() {
               />
               <MetricCard
                 title="Cash & Savings"
-                value={`$${formatCurrency(latestWealth.cash)}`}
+                value={formatCurrency(latestWealth.cash)}
                 icon={DollarSign}
                 iconColor="text-accent"
               />
@@ -134,7 +136,7 @@ export default function Dashboard() {
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               <MetricCard
                 title="Liabilities"
-                value={`$${formatCurrency(latestWealth.liabilities)}`}
+                value={formatCurrency(latestWealth.liabilities)}
                 icon={Target}
                 iconColor="text-destructive"
               />
@@ -147,7 +149,7 @@ export default function Dashboard() {
               />
               <MetricCard
                 title="FIRE Target"
-                value={`$${formatCurrency(FIRE_TARGET)}`}
+                value={formatCurrency(FIRE_TARGET)}
                 change={`${(100 - percentage).toFixed(1)}% remaining`}
                 icon={Target}
                 iconColor="text-primary"
