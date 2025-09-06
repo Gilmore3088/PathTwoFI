@@ -75,6 +75,8 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
   createdAt: true,
   updatedAt: true,
   views: true,
+}).extend({
+  publishedAt: z.coerce.date().optional(),
 });
 
 export const insertWealthDataSchema = createInsertSchema(wealthData).omit({
