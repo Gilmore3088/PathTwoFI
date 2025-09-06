@@ -32,6 +32,7 @@ export const blogPosts = pgTable("blog_posts", {
   views: integer("views").default(0),
   featured: boolean("featured").default(false),
   imageUrl: text("image_url"),
+  status: varchar("status").notNull().default("published"), // "draft", "published"
   publishedAt: timestamp("published_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -77,6 +78,7 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
   views: true,
 }).extend({
   publishedAt: z.coerce.date().optional(),
+  status: z.enum(["draft", "published"]).default("published"),
 });
 
 export const insertWealthDataSchema = createInsertSchema(wealthData).omit({

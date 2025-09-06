@@ -122,7 +122,7 @@ export default function AdminWealth() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest(`/api/wealth-data/${id}`, 'DELETE');
+      return await apiRequest('DELETE', `/api/wealth-data/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/wealth-data"] });
@@ -144,7 +144,7 @@ export default function AdminWealth() {
   const bulkDeleteMutation = useMutation({
     mutationFn: async (ids: string[]) => {
       await Promise.all(ids.map(id => 
-        apiRequest(`/api/wealth-data/${id}`, 'DELETE')
+        apiRequest('DELETE', `/api/wealth-data/${id}`)
       ));
     },
     onSuccess: () => {
