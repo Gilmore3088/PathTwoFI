@@ -28,6 +28,7 @@ export default function AdminBlog() {
   const [editingItem, setEditingItem] = useState<BlogPost | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
   const [previewContent, setPreviewContent] = useState<Partial<InsertBlogPost> | null>(null);
   
@@ -46,9 +47,19 @@ export default function AdminBlog() {
                            post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = selectedCategory === "all" || post.category === selectedCategory;
-      return matchesSearch && matchesCategory;
+      const matchesStatus = selectedStatus === "all" || post.status === selectedStatus;
+      return matchesSearch && matchesCategory && matchesStatus;
     });
-  }, [allBlogPosts, searchTerm, selectedCategory]);
+  }, [allBlogPosts, searchTerm, selectedCategory, selectedStatus]);
+
+  // Calculate statistics
+  const postStats = useMemo(() => {
+    const total = allBlogPosts.length;
+    const published = allBlogPosts.filter(post => post.status === 'published').length;
+    const drafts = allBlogPosts.filter(post => post.status === 'draft').length;
+    const featured = allBlogPosts.filter(post => post.featured).length;
+    return { total, published, drafts, featured };
+  }, [allBlogPosts]);
 
   const form = useForm<InsertBlogPost>({
     resolver: zodResolver(insertBlogPostSchema),
@@ -61,6 +72,7 @@ export default function AdminBlog() {
       readTime: 5,
       featured: false,
       imageUrl: "",
+      status: "draft",
       publishedAt: new Date()
     }
   });
@@ -740,6 +752,19 @@ export default function AdminBlog() {
                       {categories.map(category => (
                         <SelectItem key={category} value={category}>{category}</SelectItem>
                       ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label>Status:</Label>
+                  <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                    <SelectTrigger className="w-40" data-testid="select-filter-status">
+                      <SelectValue placeholder="All Posts" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Posts</SelectItem>
+                      <SelectItem value="published">Published</SelectItem>
+                      <SelectItem value="draft">Drafts</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

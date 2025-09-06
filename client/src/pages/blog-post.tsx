@@ -107,10 +107,10 @@ export default function BlogPostPage() {
               </p>
               <Button asChild data-testid="button-back-to-blog">
                 <Link href="/blog">
-                  <a className="inline-flex items-center">
+                  <span className="inline-flex items-center">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Blog
-                  </a>
+                  </span>
                 </Link>
               </Button>
             </div>
