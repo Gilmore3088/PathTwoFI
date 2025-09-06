@@ -67,7 +67,8 @@ export default function AdminBlog() {
   // Create/Update mutations
   const createMutation = useMutation({
     mutationFn: async (data: InsertBlogPost) => {
-      return await apiRequest('/api/blog-posts', 'POST', data);
+      const response = await apiRequest('POST', '/api/blog-posts', data);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/blog-posts"] });
@@ -90,7 +91,8 @@ export default function AdminBlog() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string, data: Partial<InsertBlogPost> }) => {
-      return await apiRequest(`/api/blog-posts/${id}`, 'PUT', data);
+      const response = await apiRequest('PUT', `/api/blog-posts/${id}`, data);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/blog-posts"] });
@@ -115,7 +117,7 @@ export default function AdminBlog() {
   const bulkDeleteMutation = useMutation({
     mutationFn: async (ids: string[]) => {
       await Promise.all(ids.map(id => 
-        apiRequest(`/api/blog-posts/${id}`, 'DELETE')
+        apiRequest('DELETE', `/api/blog-posts/${id}`)
       ));
     },
     onSuccess: () => {
@@ -138,7 +140,7 @@ export default function AdminBlog() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest(`/api/blog-posts/${id}`, 'DELETE');
+      return await apiRequest('DELETE', `/api/blog-posts/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/blog-posts"] });
