@@ -181,6 +181,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Financial Goals routes
+  app.get("/api/financial-goals", async (req, res) => {
+    try {
+      const category = req.query.category as string;
+      const goals = await storage.getFinancialGoals(category);
+      res.json(goals);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch financial goals" });
+    }
+  });
+
+  app.post("/api/financial-goals", async (req, res) => {
+    try {
+      const goal = await storage.createFinancialGoal(req.body);
+      res.json(goal);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create financial goal" });
+    }
+  });
+
+  app.put("/api/financial-goals/:id", async (req, res) => {
+    try {
+      const goal = await storage.updateFinancialGoal(req.params.id, req.body);
+      if (!goal) {
+        return res.status(404).json({ message: "Financial goal not found" });
+      }
+      res.json(goal);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update financial goal" });
+    }
+  });
+
+  app.delete("/api/financial-goals/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteFinancialGoal(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Financial goal not found" });
+      }
+      res.json({ message: "Financial goal deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete financial goal" });
+    }
+  });
+
+  // Wealth Reports routes
+  app.get("/api/wealth-reports", async (req, res) => {
+    try {
+      const category = req.query.category as string;
+      const reportType = req.query.reportType as string;
+      const reports = await storage.getWealthReports(category, reportType);
+      res.json(reports);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch wealth reports" });
+    }
+  });
+
+  app.post("/api/wealth-reports", async (req, res) => {
+    try {
+      const report = await storage.createWealthReport(req.body);
+      res.json(report);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create wealth report" });
+    }
+  });
+
   // Object storage routes
   app.post("/api/objects/upload", async (req, res) => {
     try {

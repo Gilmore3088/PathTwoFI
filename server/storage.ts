@@ -365,19 +365,21 @@ export class DatabaseStorage implements IStorage {
 
   // Wealth Reports methods
   async getWealthReports(category?: string, reportType?: string): Promise<WealthReport[]> {
-    let query = db.select().from(wealthReports);
-    
     if (category && reportType) {
-      query = query.where(
-        sql`${wealthReports.category} = ${category} AND ${wealthReports.reportType} = ${reportType}`
-      );
+      return await db.select().from(wealthReports)
+        .where(sql`${wealthReports.category} = ${category} AND ${wealthReports.reportType} = ${reportType}`)
+        .orderBy(desc(wealthReports.reportDate));
     } else if (category) {
-      query = query.where(eq(wealthReports.category, category));
+      return await db.select().from(wealthReports)
+        .where(eq(wealthReports.category, category))
+        .orderBy(desc(wealthReports.reportDate));
     } else if (reportType) {
-      query = query.where(eq(wealthReports.reportType, reportType));
+      return await db.select().from(wealthReports)
+        .where(eq(wealthReports.reportType, reportType))
+        .orderBy(desc(wealthReports.reportDate));
     }
     
-    return await query.orderBy(desc(wealthReports.reportDate));
+    return await db.select().from(wealthReports).orderBy(desc(wealthReports.reportDate));
   }
 
   async createWealthReport(report: InsertWealthReport): Promise<WealthReport> {
@@ -386,19 +388,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getLatestWealthReport(category?: string, reportType?: string): Promise<WealthReport | undefined> {
-    let query = db.select().from(wealthReports);
-    
     if (category && reportType) {
-      query = query.where(
-        sql`${wealthReports.category} = ${category} AND ${wealthReports.reportType} = ${reportType}`
-      );
+      const [latest] = await db.select().from(wealthReports)
+        .where(sql`${wealthReports.category} = ${category} AND ${wealthReports.reportType} = ${reportType}`)
+        .orderBy(desc(wealthReports.reportDate))
+        .limit(1);
+      return latest || undefined;
     } else if (category) {
-      query = query.where(eq(wealthReports.category, category));
+      const [latest] = await db.select().from(wealthReports)
+        .where(eq(wealthReports.category, category))
+        .orderBy(desc(wealthReports.reportDate))
+        .limit(1);
+      return latest || undefined;
     } else if (reportType) {
-      query = query.where(eq(wealthReports.reportType, reportType));
+      const [latest] = await db.select().from(wealthReports)
+        .where(eq(wealthReports.reportType, reportType))
+        .orderBy(desc(wealthReports.reportDate))
+        .limit(1);
+      return latest || undefined;
     }
     
-    const [latest] = await query.orderBy(desc(wealthReports.reportDate)).limit(1);
+    const [latest] = await db.select().from(wealthReports)
+      .orderBy(desc(wealthReports.reportDate))
+      .limit(1);
     return latest || undefined;
   }
 }
