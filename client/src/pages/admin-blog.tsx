@@ -584,6 +584,44 @@ export default function AdminBlog() {
 
                             <FormField
                               control={form.control}
+                              name="status"
+                              render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                  <FormLabel className="text-sm font-medium">Publication Status</FormLabel>
+                                  <div className="flex gap-4 rounded-lg border p-4">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                      <input
+                                        type="radio"
+                                        value="published"
+                                        checked={field.value === "published"}
+                                        onChange={() => field.onChange("published")}
+                                        data-testid="radio-published"
+                                        className="text-primary focus:ring-primary"
+                                      />
+                                      <span className="text-sm">Publish</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                      <input
+                                        type="radio"
+                                        value="draft"
+                                        checked={field.value === "draft"}
+                                        onChange={() => field.onChange("draft")}
+                                        data-testid="radio-draft"
+                                        className="text-primary focus:ring-primary"
+                                      />
+                                      <span className="text-sm">Save as draft</span>
+                                    </label>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">
+                                    Drafts won't be visible to visitors
+                                  </p>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
                               name="featured"
                               render={({ field }) => (
                                 <FormItem className="space-y-3">
