@@ -74,8 +74,7 @@ export default function AdminBlog() {
       featured: false,
       imageUrl: "",
       status: "draft",
-      publishedAt: new Date(),
-      tags: []
+      publishedAt: new Date()
     }
   });
 
@@ -200,7 +199,6 @@ export default function AdminBlog() {
       readTime: item.readTime,
       featured: item.featured,
       imageUrl: item.imageUrl || "",
-      tags: item.tags || [],
       publishedAt: item.publishedAt ? new Date(item.publishedAt) : new Date()
     });
     setIsDialogOpen(true);
@@ -685,38 +683,7 @@ export default function AdminBlog() {
                                 </FormItem>
                               )}
                             />
-                          </div>
 
-                          <FormField
-                            control={form.control}
-                            name="tags"
-                            render={({ field }) => (
-                              <FormItem className="space-y-3">
-                                <FormLabel className="text-sm font-medium">Tags</FormLabel>
-                                <FormControl>
-                                  <Input 
-                                    placeholder="Enter tags separated by commas (e.g., budgeting, investing, FIRE)" 
-                                    value={field.value?.join(', ') || ''}
-                                    onChange={(e) => {
-                                      const tags = e.target.value
-                                        .split(',')
-                                        .map(tag => tag.trim())
-                                        .filter(tag => tag.length > 0);
-                                      field.onChange(tags);
-                                    }}
-                                    data-testid="input-tags"
-                                    className="h-11"
-                                  />
-                                </FormControl>
-                                <p className="text-xs text-muted-foreground">
-                                  Add relevant tags to help readers discover your content
-                                </p>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <div className="space-y-6">
                             <FormField
                               control={form.control}
                               name="featured"
