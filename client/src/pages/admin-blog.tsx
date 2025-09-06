@@ -57,8 +57,9 @@ export default function AdminBlog() {
     const total = allBlogPosts.length;
     const published = allBlogPosts.filter(post => post.status === 'published').length;
     const drafts = allBlogPosts.filter(post => post.status === 'draft').length;
+    const scheduled = allBlogPosts.filter(post => post.status === 'scheduled').length;
     const featured = allBlogPosts.filter(post => post.featured).length;
-    return { total, published, drafts, featured };
+    return { total, published, drafts, scheduled, featured };
   }, [allBlogPosts]);
 
   const form = useForm<InsertBlogPost>({
@@ -304,6 +305,28 @@ export default function AdminBlog() {
               <p className="text-muted-foreground mt-2" data-testid="text-admin-blog-subtitle">
                 Create and manage blog posts for the PathTwo journey
               </p>
+              <div className="flex gap-6 mt-4 text-sm" data-testid="stats-blog-overview">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Total:</span>
+                  <span className="font-semibold text-foreground">{postStats.total}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Published:</span>
+                  <span className="font-semibold text-green-600">{postStats.published}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Drafts:</span>
+                  <span className="font-semibold text-yellow-600">{postStats.drafts}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Scheduled:</span>
+                  <span className="font-semibold text-purple-600">{postStats.scheduled}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Featured:</span>
+                  <span className="font-semibold text-blue-600">{postStats.featured}</span>
+                </div>
+              </div>
             </div>
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
               setIsDialogOpen(open);
@@ -626,7 +649,18 @@ export default function AdminBlog() {
                                         data-testid="radio-published"
                                         className="text-primary focus:ring-primary"
                                       />
-                                      <span className="text-sm">Publish</span>
+                                      <span className="text-sm">Publish Now</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                      <input
+                                        type="radio"
+                                        value="scheduled"
+                                        checked={field.value === "scheduled"}
+                                        onChange={() => field.onChange("scheduled")}
+                                        data-testid="radio-scheduled"
+                                        className="text-primary focus:ring-primary"
+                                      />
+                                      <span className="text-sm">Schedule</span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer">
                                       <input
@@ -641,7 +675,9 @@ export default function AdminBlog() {
                                     </label>
                                   </div>
                                   <p className="text-xs text-muted-foreground">
-                                    Drafts won't be visible to visitors
+                                    {field.value === "draft" && "Drafts won't be visible to visitors"}
+                                    {field.value === "scheduled" && "Scheduled posts will be published automatically at the set date"}
+                                    {field.value === "published" && "Post will be visible to visitors immediately"}
                                   </p>
                                   <FormMessage />
                                 </FormItem>
@@ -765,6 +801,7 @@ export default function AdminBlog() {
                       <SelectItem value="all">All Posts</SelectItem>
                       <SelectItem value="published">Published</SelectItem>
                       <SelectItem value="draft">Drafts</SelectItem>
+                      <SelectItem value="scheduled">Scheduled</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
