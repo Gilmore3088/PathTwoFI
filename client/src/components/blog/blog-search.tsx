@@ -31,7 +31,7 @@ export function BlogSearch({ className }: BlogSearchProps) {
     if (categoryParam) {
       setSelectedCategory(categoryParam);
     }
-  }, [searchParams]);
+  }, []);
 
   const { data: allPosts = [] } = useQuery<BlogPost[]>({
     queryKey: ["/api/blog-posts"],
@@ -77,6 +77,18 @@ export function BlogSearch({ className }: BlogSearchProps) {
 
       // Tag filter
       const tagMatch = selectedTag === "all" || (post.tags && post.tags.includes(selectedTag));
+
+      // Debug logging
+      if (selectedCategory === "Personal Reflections") {
+        console.log('Debug filter:', {
+          postTitle: post.title,
+          postCategory: post.category,
+          selectedCategory,
+          categoryMatch,
+          searchMatch,
+          tagMatch
+        });
+      }
 
       return searchMatch && categoryMatch && tagMatch;
     });
