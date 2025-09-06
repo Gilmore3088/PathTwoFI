@@ -22,6 +22,19 @@ export default function BlogPostPage() {
   // Reading progress tracking
   const readingStats = useReadingStats(post?.content || "");
 
+  // Decode HTML entities in content
+  const decodeHtmlEntities = (html: string) => {
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    return temp.textContent || temp.innerText || '';
+  };
+
+  const getDecodedContent = (content: string) => {
+    const temp = document.createElement('div');
+    temp.innerHTML = content;
+    return temp.innerHTML;
+  };
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -223,7 +236,7 @@ export default function BlogPostPage() {
             <div 
               className="prose prose-lg dark:prose-invert max-w-none" 
               data-testid="content-post-body"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              dangerouslySetInnerHTML={{ __html: getDecodedContent(post.content) }}
             />
 
             {/* Related Posts */}
