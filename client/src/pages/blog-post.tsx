@@ -220,11 +220,11 @@ export default function BlogPostPage() {
             )}
 
             {/* Post Content */}
-            <div className="prose prose-lg dark:prose-invert max-w-none" data-testid="content-post-body">
-              <div className="whitespace-pre-wrap text-foreground leading-relaxed">
-                {post.content}
-              </div>
-            </div>
+            <div 
+              className="prose prose-lg dark:prose-invert max-w-none" 
+              data-testid="content-post-body"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
 
             {/* Related Posts */}
             <RelatedPosts currentPost={post} className="mt-12" />

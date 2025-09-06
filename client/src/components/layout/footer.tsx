@@ -36,10 +36,10 @@ export function Footer() {
             <div>
               <h3 className="font-semibold text-foreground mb-4">Content</h3>
               <ul className="space-y-2">
-                <li><Link href="/blog" data-testid="link-footer-blog"><a className="text-muted-foreground hover:text-foreground transition-colors">Blog Posts</a></Link></li>
+                <li><Link href="/blog" data-testid="link-footer-blog"><a className="text-muted-foreground hover:text-foreground transition-colors">All Posts</a></Link></li>
                 <li><Link href="/dashboard" data-testid="link-footer-dashboard"><a className="text-muted-foreground hover:text-foreground transition-colors">Wealth Dashboard</a></Link></li>
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-updates">Monthly Updates</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-strategy">Investment Strategy</a></li>
+                <li><Link href="/blog?category=FIRE%20Update" data-testid="link-footer-updates"><a className="text-muted-foreground hover:text-foreground transition-colors">FIRE Updates</a></Link></li>
+                <li><Link href="/blog?category=FIRE%20Strategy" data-testid="link-footer-strategy"><a className="text-muted-foreground hover:text-foreground transition-colors">Strategy Posts</a></Link></li>
               </ul>
             </div>
             

@@ -2,7 +2,8 @@ export const BLOG_CATEGORIES = [
   "Wealth Progress",
   "FIRE Strategy", 
   "Investments",
-  "Personal Reflections"
+  "Personal Reflections",
+  "FIRE Update"
 ] as const;
 
 export type BlogCategory = typeof BLOG_CATEGORIES[number];
