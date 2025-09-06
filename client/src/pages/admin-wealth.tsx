@@ -26,6 +26,7 @@ export default function AdminWealth() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState<string>("all");
   const [selectedEntries, setSelectedEntries] = useState<Set<string>>(new Set());
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -36,7 +37,7 @@ export default function AdminWealth() {
   });
 
   // Filtered and searched wealth data
-  const wealthData = useMemo(() => {
+  const filteredWealthData = useMemo(() => {
     return allWealthData.filter(entry => {
       const matchesSearch = searchTerm === "" || 
         format(new Date(entry.date!), 'MMM dd, yyyy').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -58,6 +59,9 @@ export default function AdminWealth() {
       return matchesSearch && matchesCategory && matchesPeriod;
     });
   }, [allWealthData, searchTerm, selectedCategory, selectedPeriod]);
+
+  // Keep wealthData for backward compatibility
+  const wealthData = filteredWealthData;
 
   const form = useForm<InsertWealthData>({
     resolver: zodResolver(insertWealthDataSchema),
@@ -397,59 +401,16 @@ export default function AdminWealth() {
                       )}
                     />
 
-                    <FormField
-                      control={form.control}
-                      name="netWorth"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Net Worth ($)</FormLabel>
-                          <FormControl>
-                            <Input type="number" step="0.01" placeholder="350000.00" {...field} data-testid="input-net-worth" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
+                    {/* FIRE Settings */}
                     <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
-                        name="investments"
+                        name="fireTarget"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Investments ($)</FormLabel>
+                            <FormLabel>FIRE Target ($)</FormLabel>
                             <FormControl>
-                              <Input type="number" step="0.01" placeholder="287000.00" {...field} data-testid="input-investments" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="cash"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Cash ($)</FormLabel>
-                            <FormControl>
-                              <Input type="number" step="0.01" placeholder="63000.00" {...field} data-testid="input-cash" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="liabilities"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Liabilities ($)</FormLabel>
-                            <FormControl>
-                              <Input type="number" step="0.01" placeholder="15000.00" {...field} data-testid="input-liabilities" />
+                              <Input type="number" step="0.01" placeholder="1000000.00" {...field} data-testid="input-fire-target" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -471,187 +432,254 @@ export default function AdminWealth() {
                       />
                     </div>
 
-                    <FormField
-                      control={form.control}
-                      name="fireTarget"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>FIRE Target ($)</FormLabel>
-                          <FormControl>
-                            <Input type="number" step="0.01" placeholder="1000000.00" {...field} data-testid="input-fire-target" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {/* Assets Section */}
+                    <div className="pt-6 border-t">
+                      <h3 className="text-lg font-semibold mb-4 text-green-600">Assets</h3>
+                      
+                      {/* Retirement Accounts */}
+                      <div className="mb-6">
+                        <h4 className="text-md font-medium mb-3 text-green-700">Retirement Accounts</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="retirement401k"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Traditional 401(k) ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-401k" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="retirementRoth"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Roth IRA ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-roth-ira" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="retirementIRA"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Other IRA ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-other-ira" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="hsa"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>HSA ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-hsa" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
 
-                    {/* Asset Breakdown Section */}
-                    <div className="pt-4 border-t">
-                      <h3 className="text-lg font-semibold mb-4 text-green-600">Asset Breakdown</h3>
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="stocks"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Stocks ($)</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-stocks" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="bonds"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Bonds ($)</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-bonds" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="realEstate"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Real Estate ($)</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-real-estate" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="crypto"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Crypto ($)</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-crypto" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="commodities"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Commodities ($)</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-commodities" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="alternativeInvestments"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Alternative Investments ($)</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-alternative-investments" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                      {/* Cash & Banking */}
+                      <div className="mb-6">
+                        <h4 className="text-md font-medium mb-3 text-green-700">Cash & Banking</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="checkingAccounts"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Checking Account ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-checking" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="savingsAccounts"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Savings Account ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-savings" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Investments */}
+                      <div className="mb-6">
+                        <h4 className="text-md font-medium mb-3 text-green-700">Investments</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="stocks"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Brokerage Account ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-brokerage" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="alternativeInvestments"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Other Investments ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-other-investments" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Real Estate */}
+                      <div className="mb-6">
+                        <h4 className="text-md font-medium mb-3 text-green-700">Real Estate</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="realEstate"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Primary Residence ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-primary-residence" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    {/* Debt Breakdown Section */}
-                    <div className="pt-4 border-t">
-                      <h3 className="text-lg font-semibold mb-4 text-red-600">Debt Breakdown</h3>
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="mortgage"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Mortgage ($)</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-mortgage" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="creditCards"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Credit Cards ($)</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-credit-cards" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="studentLoans"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Student Loans ($)</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-student-loans" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="autoLoans"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Auto Loans ($)</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-auto-loans" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                    {/* Liabilities Section */}
+                    <div className="pt-6 border-t">
+                      <h3 className="text-lg font-semibold mb-4 text-red-600">Liabilities</h3>
+                      
+                      {/* Housing */}
+                      <div className="mb-6">
+                        <h4 className="text-md font-medium mb-3 text-red-700">Housing</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="mortgage"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Mortgage Balance ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-mortgage" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Consumer Debt */}
+                      <div className="mb-6">
+                        <h4 className="text-md font-medium mb-3 text-red-700">Consumer Debt</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="creditCards"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Credit Cards ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-credit-cards" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="autoLoans"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Auto Loans ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-auto-loans" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="studentLoans"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Student Loans ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-student-loans" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="personalLoans"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Other Loans ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-other-loans" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex gap-2 pt-4 border-t">
-                      <Button
-                        type="submit"
-                        disabled={createMutation.isPending || updateMutation.isPending}
-                        data-testid="button-save-wealth"
-                      >
-                        {editingItem ? "Update" : "Create"}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setIsDialogOpen(false)}
-                        data-testid="button-cancel"
-                      >
+                    <div className="flex justify-end gap-2 pt-6">
+                      <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} data-testid="button-cancel">
                         Cancel
+                      </Button>
+                      <Button type="submit" data-testid="button-submit">
+                        {editingItem ? "Update" : "Create"} Wealth Data
                       </Button>
                     </div>
                   </form>
@@ -661,161 +689,128 @@ export default function AdminWealth() {
             </div>
           </div>
 
-          {/* Search and Filters */}
-          <Card className="mb-6">
-            <CardContent className="p-6">
-              <div className="flex flex-wrap gap-4 items-center">
-                <div className="flex items-center gap-2">
-                  <Search className="w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search wealth data..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-64"
-                    data-testid="input-search"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Label>Category:</Label>
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                    <SelectTrigger className="w-48" data-testid="select-filter-category">
-                      <SelectValue placeholder="All Categories" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      <SelectItem value="His">His</SelectItem>
-                      <SelectItem value="Her">Her</SelectItem>
-                      <SelectItem value="Both">Both</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Label>Period:</Label>
-                  <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                    <SelectTrigger className="w-48" data-testid="select-filter-period">
-                      <SelectValue placeholder="All Time" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Time</SelectItem>
-                      <SelectItem value="30d">Last 30 Days</SelectItem>
-                      <SelectItem value="90d">Last 90 Days</SelectItem>
-                      <SelectItem value="1y">Last Year</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {selectedEntries.size > 0 && (
+          {/* Wealth Data Table */}
+          <div className="space-y-4">
+            {/* Search and Filter Controls */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search wealth data..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                  data-testid="input-search-wealth"
+                />
+              </div>
+              <div className="flex gap-2">
+                {selectedItems.size > 0 && (
                   <Button
                     variant="destructive"
                     size="sm"
                     onClick={handleBulkDelete}
-                    disabled={bulkDeleteMutation.isPending}
                     data-testid="button-bulk-delete"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Delete Selected ({selectedEntries.size})
+                    Delete Selected ({selectedItems.size})
                   </Button>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Data Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2" data-testid="text-data-table-title">
-                <TrendingUp className="w-5 h-5" />
-                Wealth Data Entries ({wealthData.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="text-center py-8" data-testid="text-loading">
-                  Loading wealth data...
-                </div>
-              ) : wealthData.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground" data-testid="text-no-data">
-                  No wealth data found. Add some entries to get started.
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-12">
+            {isLoading ? (
+              <div className="space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-16 bg-muted rounded-lg animate-pulse" />
+                ))}
+              </div>
+            ) : filteredWealthData.length === 0 ? (
+              <div className="text-center py-12">
+                <TrendingUp className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">No wealth data yet</h3>
+                <p className="text-muted-foreground mb-4">Start tracking your financial journey by adding your first wealth snapshot.</p>
+                <Button onClick={() => setIsDialogOpen(true)} data-testid="button-add-first-wealth">
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  Add Your First Wealth Data
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredWealthData.map((item) => (
+                  <Card key={item.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            checked={selectedItems.has(item.id)}
+                            onChange={(e) => {
+                              const newSelected = new Set(selectedItems);
+                              if (e.target.checked) {
+                                newSelected.add(item.id);
+                              } else {
+                                newSelected.delete(item.id);
+                              }
+                              setSelectedItems(newSelected);
+                            }}
+                            className="rounded"
+                            data-testid={`checkbox-wealth-${item.id}`}
+                          />
+                          {getCategoryIcon(item.category)}
+                          <div>
+                            <CardTitle className="text-lg" data-testid={`text-wealth-date-${item.id}`}>
+                              {format(new Date(item.date), "MMMM d, yyyy")}
+                            </CardTitle>
+                            <p className="text-sm text-muted-foreground" data-testid={`text-wealth-category-${item.id}`}>
+                              {item.category} • Net Worth: ${parseFloat(item.netWorth).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
-                            onClick={handleSelectAll}
-                            data-testid="button-select-all"
+                            onClick={() => handleEdit(item)}
+                            data-testid={`button-edit-wealth-${item.id}`}
                           >
-                            {selectedEntries.size === wealthData.length ? (
-                              <CheckSquare className="w-4 h-4" />
-                            ) : (
-                              <Square className="w-4 h-4" />
-                            )}
+                            <Edit className="w-4 h-4" />
                           </Button>
-                        </TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Net Worth</TableHead>
-                        <TableHead>Investments</TableHead>
-                        <TableHead>Cash</TableHead>
-                        <TableHead>Liabilities</TableHead>
-                        <TableHead>Savings Rate</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {wealthData.map((item) => (
-                        <TableRow key={item.id} data-testid={`row-wealth-${item.id}`}>
-                          <TableCell>
-                            <Checkbox
-                              checked={selectedEntries.has(item.id)}
-                              onCheckedChange={() => handleSelectEntry(item.id)}
-                              data-testid={`checkbox-select-${item.id}`}
-                            />
-                          </TableCell>
-                          <TableCell>{format(new Date(item.date), 'MMM dd, yyyy')}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              {getCategoryIcon(item.category)}
-                              {item.category}
-                            </div>
-                          </TableCell>
-                          <TableCell>${parseFloat(item.netWorth).toLocaleString()}</TableCell>
-                          <TableCell>${parseFloat(item.investments).toLocaleString()}</TableCell>
-                          <TableCell>${parseFloat(item.cash).toLocaleString()}</TableCell>
-                          <TableCell>${parseFloat(item.liabilities).toLocaleString()}</TableCell>
-                          <TableCell>{item.savingsRate}%</TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleEdit(item)}
-                                data-testid={`button-edit-${item.id}`}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleDelete(item.id)}
-                                disabled={deleteMutation.isPending}
-                                data-testid={`button-delete-${item.id}`}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(item.id)}
+                            data-testid={`button-delete-wealth-${item.id}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <p className="text-muted-foreground">Investments</p>
+                          <p className="font-medium">${parseFloat(item.investments).toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Cash</p>
+                          <p className="font-medium">${parseFloat(item.cash).toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Liabilities</p>
+                          <p className="font-medium">${parseFloat(item.liabilities).toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Savings Rate</p>
+                          <p className="font-medium">{parseFloat(item.savingsRate)}%</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
