@@ -11,6 +11,7 @@ import BlogPost from "@/pages/blog-post";
 import Dashboard from "@/pages/dashboard";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
+import AdminHome from "@/pages/admin-home";
 import AdminWealth from "@/pages/admin-wealth";
 import AdminBlog from "@/pages/admin-blog";
 import AdminGoals from "@/pages/admin-goals";
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
+      <Route path="/admin" component={AdminHome} />
       <Route path="/admin/wealth" component={AdminWealth} />
       <Route path="/admin/blog" component={AdminBlog} />
       <Route path="/admin/goals" component={AdminGoals} />
