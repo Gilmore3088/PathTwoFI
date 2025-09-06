@@ -102,6 +102,7 @@ export class DatabaseStorage implements IStorage {
           readTime: 8,
           status: "published" as const,
           featured: true,
+          tags: ["net worth", "Q4 update", "milestones", "FIRE journey"],
           imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400"
         },
         {
@@ -113,6 +114,7 @@ export class DatabaseStorage implements IStorage {
           readTime: 12,
           status: "published" as const,
           featured: true,
+          tags: ["tax optimization", "401k", "IRA", "HSA", "strategy"],
           imageUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400"
         },
         {
@@ -124,6 +126,7 @@ export class DatabaseStorage implements IStorage {
           readTime: 6,
           status: "published" as const,
           featured: false,
+          tags: ["market volatility", "investment strategy", "lessons learned", "reflections"],
           imageUrl: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=300"
         }
       ];
