@@ -1,12 +1,24 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, integer, decimal, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer, decimal, boolean, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+// Session storage table.
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: text("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
 
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  role: varchar("role").notNull().default("user"), // "admin", "user"
 });
 
 export const blogPosts = pgTable("blog_posts", {
@@ -27,6 +39,7 @@ export const blogPosts = pgTable("blog_posts", {
 export const wealthData = pgTable("wealth_data", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   date: timestamp("date").notNull(),
+  category: varchar("category").notNull().default("Both"), // "His", "Her", "Both"
   netWorth: decimal("net_worth", { precision: 12, scale: 2 }).notNull(),
   investments: decimal("investments", { precision: 12, scale: 2 }).notNull(),
   cash: decimal("cash", { precision: 12, scale: 2 }).notNull(),
@@ -65,6 +78,8 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
 
 export const insertWealthDataSchema = createInsertSchema(wealthData).omit({
   id: true,
+}).extend({
+  category: z.enum(["His", "Her", "Both"]).default("Both"),
 });
 
 export const insertNewsletterSubscriptionSchema = createInsertSchema(newsletterSubscriptions).omit({
