@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import { insertWealthDataSchema, type WealthData, type InsertWealthData } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import Papa from 'papaparse';
+import { Link, useLocation } from "wouter";
 
 export default function AdminWealth() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -301,6 +302,21 @@ export default function AdminWealth() {
     <div className="min-h-screen bg-background py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
+          {/* Admin Navigation */}
+          <div className="flex gap-2 mb-6">
+            <Link href="/admin/wealth">
+              <Button variant="outline" className="bg-primary text-primary-foreground">
+                Wealth Data
+              </Button>
+            </Link>
+            <Link href="/admin/blog">
+              <Button variant="outline">Blog Posts</Button>
+            </Link>
+            <Link href="/admin/goals">
+              <Button variant="outline">Financial Goals</Button>
+            </Link>
+          </div>
+
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>

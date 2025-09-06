@@ -20,6 +20,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from '@uppy/core';
+import { Link } from "wouter";
 
 export default function AdminBlog() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -267,6 +268,21 @@ export default function AdminBlog() {
     <div className="min-h-screen bg-background py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
+          {/* Admin Navigation */}
+          <div className="flex gap-2 mb-6">
+            <Link href="/admin/wealth">
+              <Button variant="outline">Wealth Data</Button>
+            </Link>
+            <Link href="/admin/blog">
+              <Button variant="outline" className="bg-primary text-primary-foreground">
+                Blog Posts
+              </Button>
+            </Link>
+            <Link href="/admin/goals">
+              <Button variant="outline">Financial Goals</Button>
+            </Link>
+          </div>
+
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
