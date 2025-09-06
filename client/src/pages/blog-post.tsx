@@ -138,7 +138,7 @@ export default function BlogPostPage() {
         publishedTime={new Date(post.publishedAt || post.createdAt || new Date()).toISOString()}
         modifiedTime={post.updatedAt ? new Date(post.updatedAt).toISOString() : new Date(post.publishedAt || post.createdAt || new Date()).toISOString()}
         category={post.category}
-        image={post.imageUrl}
+        image={post.imageUrl || undefined}
       />
       
       {/* Reading Progress Bar */}
@@ -220,11 +220,11 @@ export default function BlogPostPage() {
             )}
 
             {/* Post Content */}
-            <div className="prose prose-lg dark:prose-invert max-w-none" data-testid="content-post-body">
-              <div className="whitespace-pre-wrap text-foreground leading-relaxed">
-                {post.content}
-              </div>
-            </div>
+            <div 
+              className="prose prose-lg dark:prose-invert max-w-none" 
+              data-testid="content-post-body"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
 
             {/* Related Posts */}
             <RelatedPosts currentPost={post} className="mt-12" />
