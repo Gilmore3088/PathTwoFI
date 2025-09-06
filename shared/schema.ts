@@ -35,6 +35,29 @@ export const blogPosts = pgTable("blog_posts", {
   status: varchar("status").notNull().default("published"), // "draft", "published", "scheduled"
   publishedAt: timestamp("published_at"),
   scheduledAt: timestamp("scheduled_at"),
+  
+  // Content Series Support
+  seriesId: varchar("series_id").references(() => contentSeries.id),
+  seriesOrder: integer("series_order"), // Order within the series
+  
+  // Enhanced Content Discovery
+  tags: text("tags").array().default(sql`'{}'::text[]`), // Array of tags for better categorization
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Content Series table for learning paths
+export const contentSeries = pgTable("content_series", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  imageUrl: text("image_url"),
+  difficulty: varchar("difficulty").notNull().default("beginner"), // "beginner", "intermediate", "advanced"
+  estimatedTime: integer("estimated_time"), // Total estimated reading time in minutes
+  isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -170,7 +193,19 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
   views: true,
 }).extend({
   publishedAt: z.coerce.date().optional(),
+  scheduledAt: z.coerce.date().optional(),
   status: z.enum(["draft", "published", "scheduled"]).default("draft"),
+  tags: z.array(z.string()).default([]),
+  seriesId: z.string().optional(),
+  seriesOrder: z.number().optional(),
+});
+
+export const insertContentSeriesSchema = createInsertSchema(contentSeries).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  difficulty: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),
 });
 
 export const insertWealthDataSchema = createInsertSchema(wealthData).omit({
@@ -225,6 +260,8 @@ export type User = typeof users.$inferSelect;
 
 export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
 export type BlogPost = typeof blogPosts.$inferSelect;
+export type ContentSeries = typeof contentSeries.$inferSelect;
+export type InsertContentSeries = z.infer<typeof insertContentSeriesSchema>;
 
 export type InsertWealthData = z.infer<typeof insertWealthDataSchema>;
 export type WealthData = typeof wealthData.$inferSelect;

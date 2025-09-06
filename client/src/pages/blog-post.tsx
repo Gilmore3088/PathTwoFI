@@ -7,6 +7,9 @@ import { Link } from "wouter";
 import { SEO } from "@/components/ui/seo";
 import { ArrowLeft, Clock, Eye, Calendar, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ReadingProgress, ReadingTimeDisplay } from "@/components/blog/reading-progress";
+import { RelatedPosts } from "@/components/blog/related-posts";
+import { useReadingStats } from "@/hooks/use-reading-progress";
 
 export default function BlogPostPage() {
   const { slug } = useParams();
@@ -15,6 +18,9 @@ export default function BlogPostPage() {
   const { data: post, isLoading, error } = useQuery<BlogPost>({
     queryKey: ["/api/blog-posts", slug],
   });
+
+  // Reading progress tracking
+  const readingStats = useReadingStats(post?.content || "");
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -129,11 +135,15 @@ export default function BlogPostPage() {
         type="article"
         url={`/blog/${post.slug}`}
         author="PathTwo"
-        publishedTime={new Date(post.createdAt!).toISOString()}
-        modifiedTime={post.updatedAt ? new Date(post.updatedAt).toISOString() : new Date(post.createdAt!).toISOString()}
+        publishedTime={new Date(post.publishedAt || post.createdAt || new Date()).toISOString()}
+        modifiedTime={post.updatedAt ? new Date(post.updatedAt).toISOString() : new Date(post.publishedAt || post.createdAt || new Date()).toISOString()}
         category={post.category}
         image={post.imageUrl}
       />
+      
+      {/* Reading Progress Bar */}
+      <ReadingProgress />
+      
       <article className="py-16 lg:py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
@@ -166,11 +176,15 @@ export default function BlogPostPage() {
               <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground mb-8">
                 <div className="flex items-center" data-testid="text-post-date">
                   <Calendar className="w-4 h-4 mr-2" />
-                  {formatDate(post.createdAt!)}
+                  {formatDate(post.publishedAt || post.createdAt || new Date())}
                 </div>
                 <div className="flex items-center" data-testid="text-post-read-time">
                   <Clock className="w-4 h-4 mr-2" />
-                  {post.readTime} min read
+                  <ReadingTimeDisplay
+                    estimatedTime={readingStats.estimatedTime}
+                    timeRead={readingStats.timeRead}
+                    timeRemaining={readingStats.timeRemaining}
+                  />
                 </div>
                 <div className="flex items-center" data-testid="text-post-views">
                   <Eye className="w-4 h-4 mr-2" />
@@ -211,6 +225,9 @@ export default function BlogPostPage() {
                 {post.content}
               </div>
             </div>
+
+            {/* Related Posts */}
+            <RelatedPosts currentPost={post} className="mt-12" />
 
             {/* Post Footer */}
             <footer className="mt-12 pt-8 border-t border-border">
