@@ -27,22 +27,22 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-4">
             <Link href="/" data-testid="link-home">
-              <a className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2">
                 <Mountain className="text-primary text-xl" data-testid="icon-logo" />
                 <span className="font-bold text-xl text-foreground">PathTwo</span>
-              </a>
+              </div>
             </Link>
           </div>
           
           <nav className="hidden md:flex items-center space-x-6">
             {navItems.map((item) => (
               <Link key={item.href} href={item.href} data-testid={`link-nav-${item.label.toLowerCase().replace(' ', '-')}`}>
-                <a className={cn(
-                  "text-muted-foreground hover:text-foreground transition-colors",
+                <span className={cn(
+                  "text-muted-foreground hover:text-foreground transition-colors cursor-pointer",
                   location === item.href && "text-foreground font-medium"
                 )}>
                   {item.label}
-                </a>
+                </span>
               </Link>
             ))}
           </nav>
@@ -70,12 +70,12 @@ export function Header() {
                 <nav className="flex flex-col space-y-4 mt-8">
                   {navItems.map((item) => (
                     <Link key={item.href} href={item.href} data-testid={`link-mobile-${item.label.toLowerCase().replace(' ', '-')}`}>
-                      <a className={cn(
-                        "text-muted-foreground hover:text-foreground transition-colors text-lg",
+                      <span className={cn(
+                        "text-muted-foreground hover:text-foreground transition-colors text-lg cursor-pointer",
                         location === item.href && "text-foreground font-medium"
                       )}>
                         {item.label}
-                      </a>
+                      </span>
                     </Link>
                   ))}
                 </nav>
