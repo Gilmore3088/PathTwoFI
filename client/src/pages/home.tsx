@@ -28,9 +28,12 @@ export default function Home() {
     queryKey: ["/api/blog-posts"],
   });
 
-  // Fetch latest wealth data
+  // Fetch latest wealth data for "Both" category (combined finances)
   const { data: latestWealth, isLoading: wealthLoading } = useQuery<WealthData>({
-    queryKey: ["/api/wealth-data/latest"],
+    queryKey: ["/api/wealth-data/latest", "Both"],
+    queryFn: async () => {
+      return await fetch('/api/wealth-data/latest?category=Both').then(res => res.json());
+    }
   });
 
   const handleNewsletterSignup = async (e: React.FormEvent) => {
