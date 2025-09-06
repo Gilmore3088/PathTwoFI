@@ -57,10 +57,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/blog-posts/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertBlogPostSchema.partial().parse(req.body);
+      const post = await storage.updateBlogPost(id, validatedData);
+      if (!post) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+      res.json(post);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update blog post" });
+    }
+  });
+
+  app.delete("/api/blog-posts/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteBlogPost(id);
+      if (!success) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete blog post" });
+    }
+  });
+
   // Wealth data routes
   app.get("/api/wealth-data", async (req, res) => {
     try {
-      const data = await storage.getWealthData();
+      const category = req.query.category as string | undefined;
+      const data = await storage.getWealthData(category);
       res.json(data);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch wealth data" });
@@ -69,13 +97,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/wealth-data/latest", async (req, res) => {
     try {
-      const data = await storage.getLatestWealthData();
+      const category = req.query.category as string | undefined;
+      const data = await storage.getLatestWealthData(category);
       if (!data) {
         return res.status(404).json({ message: "No wealth data found" });
       }
       res.json(data);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch latest wealth data" });
+    }
+  });
+
+  app.put("/api/wealth-data/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertWealthDataSchema.partial().parse(req.body);
+      const data = await storage.updateWealthData(id, validatedData);
+      if (!data) {
+        return res.status(404).json({ message: "Wealth data not found" });
+      }
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update wealth data" });
+    }
+  });
+
+  app.delete("/api/wealth-data/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteWealthData(id);
+      if (!success) {
+        return res.status(404).json({ message: "Wealth data not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete wealth data" });
     }
   });
 

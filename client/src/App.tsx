@@ -10,6 +10,8 @@ import BlogPost from "@/pages/blog-post";
 import Dashboard from "@/pages/dashboard";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
+import AdminWealth from "@/pages/admin-wealth";
+import AdminBlog from "@/pages/admin-blog";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -21,6 +23,8 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
+      <Route path="/admin/wealth" component={AdminWealth} />
+      <Route path="/admin/blog" component={AdminBlog} />
       <Route component={NotFound} />
     </Switch>
   );
