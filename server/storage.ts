@@ -5,6 +5,12 @@ import {
   type InsertBlogPost,
   type WealthData,
   type InsertWealthData,
+  type FinancialGoal,
+  type InsertFinancialGoal,
+  type GoalMilestone,
+  type InsertGoalMilestone,
+  type WealthReport,
+  type InsertWealthReport,
   type NewsletterSubscription,
   type InsertNewsletterSubscription,
   type ContactSubmission,
@@ -12,6 +18,9 @@ import {
   users,
   blogPosts,
   wealthData,
+  financialGoals,
+  goalMilestones,
+  wealthReports,
   newsletterSubscriptions,
   contactSubmissions
 } from "@shared/schema";
@@ -48,6 +57,26 @@ export interface IStorage {
 
   // Contact methods
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
+
+  // Financial Goals methods
+  getFinancialGoals(category?: string): Promise<FinancialGoal[]>;
+  getFinancialGoal(id: string): Promise<FinancialGoal | undefined>;
+  createFinancialGoal(goal: InsertFinancialGoal): Promise<FinancialGoal>;
+  updateFinancialGoal(id: string, goal: Partial<InsertFinancialGoal>): Promise<FinancialGoal | undefined>;
+  deleteFinancialGoal(id: string): Promise<boolean>;
+  completeFinancialGoal(id: string): Promise<FinancialGoal | undefined>;
+
+  // Goal Milestones methods
+  getGoalMilestones(goalId: string): Promise<GoalMilestone[]>;
+  createGoalMilestone(milestone: InsertGoalMilestone): Promise<GoalMilestone>;
+  updateGoalMilestone(id: string, milestone: Partial<InsertGoalMilestone>): Promise<GoalMilestone | undefined>;
+  deleteGoalMilestone(id: string): Promise<boolean>;
+  completeGoalMilestone(id: string): Promise<GoalMilestone | undefined>;
+
+  // Wealth Reports methods
+  getWealthReports(category?: string, reportType?: string): Promise<WealthReport[]>;
+  createWealthReport(report: InsertWealthReport): Promise<WealthReport>;
+  getLatestWealthReport(category?: string, reportType?: string): Promise<WealthReport | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -71,6 +100,7 @@ export class DatabaseStorage implements IStorage {
           excerpt: "A detailed breakdown of our fourth quarter performance, including investment gains, new asset allocations, and key lessons learned from market volatility...",
           category: "Wealth Progress",
           readTime: 8,
+          status: "published" as const,
           featured: true,
           imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400"
         },
@@ -81,6 +111,7 @@ export class DatabaseStorage implements IStorage {
           excerpt: "Exploring advanced strategies for maximizing 401(k), IRA, and HSA contributions while maintaining liquidity for early retirement goals...",
           category: "FIRE Strategy",
           readTime: 12,
+          status: "published" as const,
           featured: true,
           imageUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400"
         },
@@ -91,6 +122,7 @@ export class DatabaseStorage implements IStorage {
           excerpt: "How staying the course during volatility reinforced my FIRE strategy and investment philosophy...",
           category: "Personal Reflections",
           readTime: 6,
+          status: "published" as const,
           featured: false,
           imageUrl: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=300"
         }
@@ -248,6 +280,126 @@ export class DatabaseStorage implements IStorage {
   async createContactSubmission(insertSubmission: InsertContactSubmission): Promise<ContactSubmission> {
     const [submission] = await db.insert(contactSubmissions).values(insertSubmission).returning();
     return submission;
+  }
+
+  // Financial Goals methods
+  async getFinancialGoals(category?: string): Promise<FinancialGoal[]> {
+    if (category) {
+      return await db.select().from(financialGoals)
+        .where(eq(financialGoals.category, category))
+        .orderBy(desc(financialGoals.createdAt));
+    }
+    return await db.select().from(financialGoals).orderBy(desc(financialGoals.createdAt));
+  }
+
+  async getFinancialGoal(id: string): Promise<FinancialGoal | undefined> {
+    const [goal] = await db.select().from(financialGoals).where(eq(financialGoals.id, id));
+    return goal || undefined;
+  }
+
+  async createFinancialGoal(goal: InsertFinancialGoal): Promise<FinancialGoal> {
+    const [createdGoal] = await db.insert(financialGoals).values(goal).returning();
+    return createdGoal;
+  }
+
+  async updateFinancialGoal(id: string, goal: Partial<InsertFinancialGoal>): Promise<FinancialGoal | undefined> {
+    const [updated] = await db.update(financialGoals)
+      .set({ ...goal, updatedAt: new Date() })
+      .where(eq(financialGoals.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteFinancialGoal(id: string): Promise<boolean> {
+    const result = await db.delete(financialGoals).where(eq(financialGoals.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async completeFinancialGoal(id: string): Promise<FinancialGoal | undefined> {
+    const [updated] = await db.update(financialGoals)
+      .set({ 
+        isCompleted: true, 
+        completedAt: new Date(),
+        updatedAt: new Date() 
+      })
+      .where(eq(financialGoals.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  // Goal Milestones methods
+  async getGoalMilestones(goalId: string): Promise<GoalMilestone[]> {
+    return await db.select().from(goalMilestones)
+      .where(eq(goalMilestones.goalId, goalId))
+      .orderBy(asc(goalMilestones.targetAmount));
+  }
+
+  async createGoalMilestone(milestone: InsertGoalMilestone): Promise<GoalMilestone> {
+    const [created] = await db.insert(goalMilestones).values(milestone).returning();
+    return created;
+  }
+
+  async updateGoalMilestone(id: string, milestone: Partial<InsertGoalMilestone>): Promise<GoalMilestone | undefined> {
+    const [updated] = await db.update(goalMilestones)
+      .set(milestone)
+      .where(eq(goalMilestones.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteGoalMilestone(id: string): Promise<boolean> {
+    const result = await db.delete(goalMilestones).where(eq(goalMilestones.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async completeGoalMilestone(id: string): Promise<GoalMilestone | undefined> {
+    const [updated] = await db.update(goalMilestones)
+      .set({ 
+        isCompleted: true, 
+        achievedAt: new Date() 
+      })
+      .where(eq(goalMilestones.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  // Wealth Reports methods
+  async getWealthReports(category?: string, reportType?: string): Promise<WealthReport[]> {
+    let query = db.select().from(wealthReports);
+    
+    if (category && reportType) {
+      query = query.where(
+        sql`${wealthReports.category} = ${category} AND ${wealthReports.reportType} = ${reportType}`
+      );
+    } else if (category) {
+      query = query.where(eq(wealthReports.category, category));
+    } else if (reportType) {
+      query = query.where(eq(wealthReports.reportType, reportType));
+    }
+    
+    return await query.orderBy(desc(wealthReports.reportDate));
+  }
+
+  async createWealthReport(report: InsertWealthReport): Promise<WealthReport> {
+    const [created] = await db.insert(wealthReports).values(report).returning();
+    return created;
+  }
+
+  async getLatestWealthReport(category?: string, reportType?: string): Promise<WealthReport | undefined> {
+    let query = db.select().from(wealthReports);
+    
+    if (category && reportType) {
+      query = query.where(
+        sql`${wealthReports.category} = ${category} AND ${wealthReports.reportType} = ${reportType}`
+      );
+    } else if (category) {
+      query = query.where(eq(wealthReports.category, category));
+    } else if (reportType) {
+      query = query.where(eq(wealthReports.reportType, reportType));
+    }
+    
+    const [latest] = await query.orderBy(desc(wealthReports.reportDate)).limit(1);
+    return latest || undefined;
   }
 }
 
