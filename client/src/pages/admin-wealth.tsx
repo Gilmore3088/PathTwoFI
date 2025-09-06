@@ -1,37 +1,62 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { PlusCircle, Edit, Trash2, TrendingUp, Users, User, Heart } from "lucide-react";
+import { PlusCircle, Edit, Trash2, TrendingUp, Users, User, Heart, Search, Download, CheckSquare, Square } from "lucide-react";
 import { format } from "date-fns";
 import { insertWealthDataSchema, type WealthData, type InsertWealthData } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+import Papa from 'papaparse';
 
 export default function AdminWealth() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<WealthData | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedPeriod, setSelectedPeriod] = useState<string>("all");
+  const [selectedEntries, setSelectedEntries] = useState<Set<string>>(new Set());
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch wealth data with optional category filter
-  const { data: wealthData = [], isLoading } = useQuery<WealthData[]>({
-    queryKey: ["/api/wealth-data", selectedCategory],
-    queryFn: async () => {
-      const params = selectedCategory && selectedCategory !== "all" ? `?category=${selectedCategory}` : '';
-      return await fetch(`/api/wealth-data${params}`).then(res => res.json());
-    }
+  // Fetch all wealth data
+  const { data: allWealthData = [], isLoading } = useQuery<WealthData[]>({
+    queryKey: ["/api/wealth-data"],
   });
+
+  // Filtered and searched wealth data
+  const wealthData = useMemo(() => {
+    return allWealthData.filter(entry => {
+      const matchesSearch = searchTerm === "" || 
+        format(new Date(entry.date!), 'MMM dd, yyyy').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.category.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesCategory = selectedCategory === "all" || entry.category === selectedCategory;
+      
+      const matchesPeriod = selectedPeriod === "all" || (() => {
+        const entryDate = new Date(entry.date!);
+        const now = new Date();
+        switch (selectedPeriod) {
+          case "30d": return (now.getTime() - entryDate.getTime()) <= 30 * 24 * 60 * 60 * 1000;
+          case "90d": return (now.getTime() - entryDate.getTime()) <= 90 * 24 * 60 * 60 * 1000;
+          case "1y": return (now.getTime() - entryDate.getTime()) <= 365 * 24 * 60 * 60 * 1000;
+          default: return true;
+        }
+      })();
+      
+      return matchesSearch && matchesCategory && matchesPeriod;
+    });
+  }, [allWealthData, searchTerm, selectedCategory, selectedPeriod]);
 
   const form = useForm<InsertWealthData>({
     resolver: zodResolver(insertWealthDataSchema),
@@ -115,6 +140,30 @@ export default function AdminWealth() {
     }
   });
 
+  // Bulk delete mutation
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      await Promise.all(ids.map(id => 
+        apiRequest(`/api/wealth-data/${id}`, 'DELETE')
+      ));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/wealth-data"] });
+      setSelectedEntries(new Set());
+      toast({
+        title: "Success",
+        description: "Selected entries deleted successfully!"
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete selected entries",
+        variant: "destructive"
+      });
+    }
+  });
+
   const onSubmit = (data: InsertWealthData) => {
     if (editingItem) {
       updateMutation.mutate({ id: editingItem.id, data });
@@ -139,10 +188,64 @@ export default function AdminWealth() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this wealth data entry?")) {
+    if (confirm("Are you sure you want to delete this wealth entry?")) {
       deleteMutation.mutate(id);
     }
   };
+
+  const handleBulkDelete = () => {
+    if (selectedEntries.size === 0) return;
+    if (confirm(`Are you sure you want to delete ${selectedEntries.size} selected entries?`)) {
+      bulkDeleteMutation.mutate(Array.from(selectedEntries));
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedEntries.size === wealthData.length) {
+      setSelectedEntries(new Set());
+    } else {
+      setSelectedEntries(new Set(wealthData.map(entry => entry.id)));
+    }
+  };
+
+  const handleSelectEntry = (entryId: string) => {
+    const newSelected = new Set(selectedEntries);
+    if (newSelected.has(entryId)) {
+      newSelected.delete(entryId);
+    } else {
+      newSelected.add(entryId);
+    }
+    setSelectedEntries(newSelected);
+  };
+
+  const handleExportCSV = useCallback(() => {
+    const csvData = wealthData.map(entry => ({
+      Date: format(new Date(entry.date!), 'yyyy-MM-dd'),
+      Category: entry.category,
+      'Net Worth': entry.netWorth,
+      Investments: entry.investments,
+      Cash: entry.cash,
+      Liabilities: entry.liabilities,
+      'FIRE Target': entry.fireTarget,
+      'Savings Rate': entry.savingsRate
+    }));
+
+    const csv = Papa.unparse(csvData);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `pathwo-wealth-data-${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      title: "Success",
+      description: "Wealth data exported successfully!"
+    });
+  }, [wealthData, toast]);
 
   const resetForm = () => {
     setEditingItem(null);
@@ -172,17 +275,26 @@ export default function AdminWealth() {
                 Manage wealth data for His, Her, and Both categories
               </p>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={(open) => {
-              setIsDialogOpen(open);
-              if (!open) resetForm();
-            }}>
-              <DialogTrigger asChild>
-                <Button data-testid="button-add-wealth">
-                  <PlusCircle className="w-4 h-4 mr-2" />
-                  Add Wealth Data
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md">
+            <div className="flex gap-2">
+              <Button
+                onClick={handleExportCSV}
+                variant="outline"
+                data-testid="button-export-csv"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export CSV
+              </Button>
+              <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) resetForm();
+              }}>
+                <DialogTrigger asChild>
+                  <Button data-testid="button-add-wealth">
+                    <PlusCircle className="w-4 h-4 mr-2" />
+                    Add Wealth Data
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
                 <DialogHeader>
                   <DialogTitle data-testid="text-dialog-title">
                     {editingItem ? "Edit Wealth Data" : "Add New Wealth Data"}
@@ -340,26 +452,65 @@ export default function AdminWealth() {
                     </div>
                   </form>
                 </Form>
-              </DialogContent>
-            </Dialog>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
 
-          {/* Filters */}
+          {/* Search and Filters */}
           <Card className="mb-6">
             <CardContent className="p-6">
-              <div className="flex gap-4 items-center">
-                <Label>Filter by Category:</Label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="w-48" data-testid="select-filter-category">
-                    <SelectValue placeholder="All Categories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="His">His</SelectItem>
-                    <SelectItem value="Her">Her</SelectItem>
-                    <SelectItem value="Both">Both</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex flex-wrap gap-4 items-center">
+                <div className="flex items-center gap-2">
+                  <Search className="w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search wealth data..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-64"
+                    data-testid="input-search"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label>Category:</Label>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger className="w-48" data-testid="select-filter-category">
+                      <SelectValue placeholder="All Categories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      <SelectItem value="His">His</SelectItem>
+                      <SelectItem value="Her">Her</SelectItem>
+                      <SelectItem value="Both">Both</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label>Period:</Label>
+                  <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+                    <SelectTrigger className="w-48" data-testid="select-filter-period">
+                      <SelectValue placeholder="All Time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Time</SelectItem>
+                      <SelectItem value="30d">Last 30 Days</SelectItem>
+                      <SelectItem value="90d">Last 90 Days</SelectItem>
+                      <SelectItem value="1y">Last Year</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {selectedEntries.size > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleBulkDelete}
+                    disabled={bulkDeleteMutation.isPending}
+                    data-testid="button-bulk-delete"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Selected ({selectedEntries.size})
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -386,6 +537,20 @@ export default function AdminWealth() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-12">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleSelectAll}
+                            data-testid="button-select-all"
+                          >
+                            {selectedEntries.size === wealthData.length ? (
+                              <CheckSquare className="w-4 h-4" />
+                            ) : (
+                              <Square className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </TableHead>
                         <TableHead>Date</TableHead>
                         <TableHead>Category</TableHead>
                         <TableHead>Net Worth</TableHead>
@@ -399,6 +564,13 @@ export default function AdminWealth() {
                     <TableBody>
                       {wealthData.map((item) => (
                         <TableRow key={item.id} data-testid={`row-wealth-${item.id}`}>
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedEntries.has(item.id)}
+                              onCheckedChange={() => handleSelectEntry(item.id)}
+                              data-testid={`checkbox-select-${item.id}`}
+                            />
+                          </TableCell>
                           <TableCell>{format(new Date(item.date), 'MMM dd, yyyy')}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">

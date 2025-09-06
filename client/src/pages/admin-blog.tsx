@@ -17,7 +17,6 @@ import { format } from "date-fns";
 import { insertBlogPostSchema, type BlogPost, type InsertBlogPost } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from '@uppy/core';
 
