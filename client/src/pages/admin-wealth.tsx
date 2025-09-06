@@ -70,17 +70,17 @@ export default function AdminWealth() {
       fireTarget: "1000000.00",
       savingsRate: "",
       // Asset breakdown
-      stocks: "",
-      bonds: "",
-      realEstate: "",
-      crypto: "",
-      commodities: "",
-      alternativeInvestments: "",
+      stocks: "0",
+      bonds: "0",
+      realEstate: "0",
+      crypto: "0",
+      commodities: "0",
+      alternativeInvestments: "0",
       // Debt breakdown
-      mortgage: "",
-      creditCards: "",
-      studentLoans: "",
-      autoLoans: ""
+      mortgage: "0",
+      creditCards: "0",
+      studentLoans: "0",
+      autoLoans: "0"
     }
   });
 
@@ -196,17 +196,17 @@ export default function AdminWealth() {
       fireTarget: item.fireTarget,
       savingsRate: item.savingsRate,
       // Asset breakdown
-      stocks: item.stocks || "",
-      bonds: item.bonds || "",
-      realEstate: item.realEstate || "",
-      crypto: item.crypto || "",
-      commodities: item.commodities || "",
-      alternativeInvestments: item.alternativeInvestments || "",
+      stocks: item.stocks?.toString() || "0",
+      bonds: item.bonds?.toString() || "0",
+      realEstate: item.realEstate?.toString() || "0",
+      crypto: item.crypto?.toString() || "0",
+      commodities: item.commodities?.toString() || "0",
+      alternativeInvestments: item.alternativeInvestments?.toString() || "0",
       // Debt breakdown
-      mortgage: item.mortgage || "",
-      creditCards: item.creditCards || "",
-      studentLoans: item.studentLoans || "",
-      autoLoans: item.autoLoans || ""
+      mortgage: item.mortgage?.toString() || "0",
+      creditCards: item.creditCards?.toString() || "0",
+      studentLoans: item.studentLoans?.toString() || "0",
+      autoLoans: item.autoLoans?.toString() || "0"
     });
     setIsDialogOpen(true);
   };

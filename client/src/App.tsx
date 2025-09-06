@@ -12,6 +12,7 @@ import About from "@/pages/about";
 import Contact from "@/pages/contact";
 import AdminWealth from "@/pages/admin-wealth";
 import AdminBlog from "@/pages/admin-blog";
+import AdminGoals from "@/pages/admin-goals";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/admin/wealth" component={AdminWealth} />
       <Route path="/admin/blog" component={AdminBlog} />
+      <Route path="/admin/goals" component={AdminGoals} />
       <Route component={NotFound} />
     </Switch>
   );
