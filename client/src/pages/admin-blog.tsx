@@ -282,212 +282,324 @@ export default function AdminBlog() {
                   Add Blog Post
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle data-testid="text-dialog-title">
+              <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden flex flex-col">
+                <DialogHeader className="shrink-0 pb-6">
+                  <DialogTitle className="text-2xl font-semibold" data-testid="text-dialog-title">
                     {editingItem ? "Edit Blog Post" : "Create New Blog Post"}
                   </DialogTitle>
-                  <DialogDescription>
-                    {editingItem ? "Update your blog post details" : "Create a new blog post for your PathTwo journey"}
+                  <DialogDescription className="text-base text-muted-foreground">
+                    {editingItem ? "Update your blog post details and content" : "Share your PathTwo journey with a compelling blog post"}
                   </DialogDescription>
                 </DialogHeader>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="title"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Title</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter blog post title" {...field} data-testid="input-title" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                
+                <div className="flex-1 overflow-y-auto">
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                      {/* Basic Information Section */}
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-2 pb-2 border-b">
+                          <FileText className="w-5 h-5 text-primary" />
+                          <h3 className="text-lg font-medium">Basic Information</h3>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          <FormField
+                            control={form.control}
+                            name="title"
+                            render={({ field }) => (
+                              <FormItem className="space-y-3">
+                                <FormLabel className="text-sm font-medium">Post Title *</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="Enter an engaging title for your post..." 
+                                    {...field} 
+                                    data-testid="input-title"
+                                    className="h-11"
+                                  />
+                                </FormControl>
+                                <p className="text-xs text-muted-foreground">
+                                  Make it catchy and descriptive (recommended: 40-60 characters)
+                                </p>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
-                      <FormField
-                        control={form.control}
-                        name="slug"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Slug</FormLabel>
-                            <FormControl>
-                              <Input placeholder="auto-generated-from-title" {...field} data-testid="input-slug" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                          <FormField
+                            control={form.control}
+                            name="slug"
+                            render={({ field }) => (
+                              <FormItem className="space-y-3">
+                                <FormLabel className="text-sm font-medium">URL Slug</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="auto-generated-from-title" 
+                                    {...field} 
+                                    data-testid="input-slug"
+                                    className="h-11"
+                                  />
+                                </FormControl>
+                                <p className="text-xs text-muted-foreground">
+                                  Leave empty to auto-generate from title
+                                </p>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
 
-                    <FormField
-                      control={form.control}
-                      name="excerpt"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Excerpt</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="Brief summary of the blog post..."
-                              {...field}
-                              data-testid="input-excerpt"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="content"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Content</FormLabel>
-                          <FormControl>
-                            <ReactQuill
-                              theme="snow"
-                              value={field.value}
-                              onChange={field.onChange}
-                              placeholder="Write your blog post content here..."
-                              style={{ height: '200px', marginBottom: '50px' }}
-                              data-testid="editor-content"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="grid grid-cols-3 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="category"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Category</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger data-testid="select-category">
-                                  <SelectValue placeholder="Select category" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {categories.map(category => (
-                                  <SelectItem key={category} value={category}>{category}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="readTime"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Read Time (minutes)</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="number" 
-                                min="1" 
-                                placeholder="5" 
-                                {...field}
-                                onChange={(e) => field.onChange(parseInt(e.target.value))}
-                                data-testid="input-read-time"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="featured"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value || false}
-                                onCheckedChange={field.onChange}
-                                data-testid="checkbox-featured"
-                              />
-                            </FormControl>
-                            <div className="space-y-1 leading-none">
-                              <FormLabel>Featured Post</FormLabel>
-                            </div>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <FormField
-                        control={form.control}
-                        name="imageUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Image</FormLabel>
-                            <div className="flex gap-2">
+                        <FormField
+                          control={form.control}
+                          name="excerpt"
+                          render={({ field }) => (
+                            <FormItem className="space-y-3">
+                              <FormLabel className="text-sm font-medium">Excerpt *</FormLabel>
                               <FormControl>
                                 <Input 
-                                  placeholder="Image URL" 
+                                  placeholder="Write a compelling summary that will appear in post previews..."
                                   {...field}
-                                  value={field.value || ""}
-                                  data-testid="input-image-url"
+                                  data-testid="input-excerpt"
+                                  className="h-11"
                                 />
                               </FormControl>
-                              <ObjectUploader
-                                maxNumberOfFiles={1}
-                                maxFileSize={5242880} // 5MB
-                                onGetUploadParameters={handleImageUpload}
-                                onComplete={handleUploadComplete}
-                                buttonClassName="shrink-0"
-                              >
-                                <Upload className="w-4 h-4 mr-2" />
-                                Upload
-                              </ObjectUploader>
-                            </div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                              <p className="text-xs text-muted-foreground">
+                                This appears in blog post cards and search results (recommended: 120-160 characters)
+                              </p>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
 
-                    <div className="flex gap-2 pt-4">
-                      <Button
-                        type="submit"
-                        disabled={createMutation.isPending || updateMutation.isPending}
-                        data-testid="button-save-post"
-                      >
-                        {editingItem ? "Update Post" : "Create Post"}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handlePreview}
-                        data-testid="button-preview"
-                      >
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        Preview
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setIsDialogOpen(false)}
-                        data-testid="button-cancel"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </form>
-                </Form>
+                      {/* Content Section */}
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-2 pb-2 border-b">
+                          <Edit className="w-5 h-5 text-primary" />
+                          <h3 className="text-lg font-medium">Content</h3>
+                        </div>
+                        
+                        <FormField
+                          control={form.control}
+                          name="content"
+                          render={({ field }) => (
+                            <FormItem className="space-y-3">
+                              <FormLabel className="text-sm font-medium">Post Content *</FormLabel>
+                              <FormControl>
+                                <div className="border rounded-lg">
+                                  <ReactQuill
+                                    theme="snow"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    placeholder="Tell your story, share insights from your PathTwo journey..."
+                                    style={{ minHeight: '400px' }}
+                                    data-testid="editor-content"
+                                    modules={{
+                                      toolbar: [
+                                        [{ 'header': [1, 2, 3, false] }],
+                                        ['bold', 'italic', 'underline', 'strike'],
+                                        [{'list': 'ordered'}, {'list': 'bullet'}],
+                                        ['blockquote', 'code-block'],
+                                        ['link', 'image'],
+                                        ['clean']
+                                      ],
+                                    }}
+                                  />
+                                </div>
+                              </FormControl>
+                              <p className="text-xs text-muted-foreground">
+                                Use the rich text editor to format your content with headings, lists, links, and more
+                              </p>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* Media & Settings Section */}
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-2 pb-2 border-b">
+                          <Star className="w-5 h-5 text-primary" />
+                          <h3 className="text-lg font-medium">Media & Settings</h3>
+                        </div>
+
+                        <div className="space-y-6">
+                          <FormField
+                            control={form.control}
+                            name="imageUrl"
+                            render={({ field }) => (
+                              <FormItem className="space-y-3">
+                                <FormLabel className="text-sm font-medium">Featured Image</FormLabel>
+                                <div className="space-y-4">
+                                  <div className="flex gap-3">
+                                    <FormControl className="flex-1">
+                                      <Input 
+                                        placeholder="Enter image URL or upload below..." 
+                                        {...field}
+                                        value={field.value || ""}
+                                        data-testid="input-image-url"
+                                        className="h-11"
+                                      />
+                                    </FormControl>
+                                    <ObjectUploader
+                                      maxNumberOfFiles={1}
+                                      maxFileSize={5242880} // 5MB
+                                      onGetUploadParameters={handleImageUpload}
+                                      onComplete={handleUploadComplete}
+                                      buttonClassName="shrink-0 h-11 px-6"
+                                    >
+                                      <Upload className="w-4 h-4 mr-2" />
+                                      Upload Image
+                                    </ObjectUploader>
+                                  </div>
+                                  {field.value && (
+                                    <div className="border rounded-lg p-4 bg-muted/20">
+                                      <img 
+                                        src={field.value} 
+                                        alt="Featured image preview" 
+                                        className="max-h-40 rounded object-cover"
+                                        onError={(e) => {
+                                          e.currentTarget.style.display = 'none';
+                                        }}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  Add a compelling featured image (recommended: 1200x630px, max 5MB)
+                                </p>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <FormField
+                              control={form.control}
+                              name="category"
+                              render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                  <FormLabel className="text-sm font-medium">Category *</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger data-testid="select-category" className="h-11">
+                                        <SelectValue placeholder="Choose category" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {categories.map(category => (
+                                        <SelectItem key={category} value={category}>{category}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <p className="text-xs text-muted-foreground">
+                                    Help readers find your content
+                                  </p>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="readTime"
+                              render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                  <FormLabel className="text-sm font-medium">Read Time (minutes)</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      type="number" 
+                                      min="1" 
+                                      max="60"
+                                      placeholder="5" 
+                                      {...field}
+                                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                      data-testid="input-read-time"
+                                      className="h-11"
+                                    />
+                                  </FormControl>
+                                  <p className="text-xs text-muted-foreground">
+                                    Estimated reading time
+                                  </p>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="featured"
+                              render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                  <FormLabel className="text-sm font-medium">Post Options</FormLabel>
+                                  <div className="flex items-center space-x-3 rounded-lg border p-4">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value || false}
+                                        onCheckedChange={field.onChange}
+                                        data-testid="checkbox-featured"
+                                      />
+                                    </FormControl>
+                                    <div className="space-y-1 leading-none">
+                                      <FormLabel className="text-sm font-medium cursor-pointer">
+                                        Featured Post
+                                      </FormLabel>
+                                      <p className="text-xs text-muted-foreground">
+                                        Show on homepage
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                  </Form>
+                </div>
+
+                {/* Action Buttons - Fixed at bottom */}
+                <div className="shrink-0 pt-6 border-t bg-background">
+                  <div className="flex flex-wrap gap-3 justify-end">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsDialogOpen(false)}
+                      data-testid="button-cancel"
+                      className="h-11 px-6"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handlePreview}
+                      data-testid="button-preview"
+                      className="h-11 px-6"
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Preview
+                    </Button>
+                    <Button
+                      onClick={form.handleSubmit(onSubmit)}
+                      disabled={createMutation.isPending || updateMutation.isPending}
+                      data-testid="button-save-post"
+                      className="h-11 px-8"
+                    >
+                      {createMutation.isPending || updateMutation.isPending ? (
+                        <>
+                          <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          {editingItem ? "Updating..." : "Creating..."}
+                        </>
+                      ) : (
+                        <>
+                          {editingItem ? "Update Post" : "Create Post"}
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
               </DialogContent>
             </Dialog>
           </div>
