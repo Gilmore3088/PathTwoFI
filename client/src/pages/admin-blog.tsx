@@ -58,7 +58,8 @@ export default function AdminBlog() {
       category: "Personal Reflections",
       readTime: 5,
       featured: false,
-      imageUrl: ""
+      imageUrl: "",
+      publishedAt: new Date()
     }
   });
 
@@ -180,7 +181,8 @@ export default function AdminBlog() {
       category: item.category,
       readTime: item.readTime,
       featured: item.featured,
-      imageUrl: item.imageUrl || ""
+      imageUrl: item.imageUrl || "",
+      publishedAt: item.publishedAt ? new Date(item.publishedAt) : new Date()
     });
     setIsDialogOpen(true);
   };
@@ -234,7 +236,7 @@ export default function AdminBlog() {
   }, []);
 
   const handleUploadComplete = useCallback((result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    if (result.successful.length > 0) {
+    if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
       const imageUrl = uploadedFile.uploadURL || '';
       form.setValue('imageUrl', imageUrl);
@@ -369,6 +371,33 @@ export default function AdminBlog() {
                             </FormItem>
                           )}
                         />
+
+                        <FormField
+                          control={form.control}
+                          name="publishedAt"
+                          render={({ field }) => (
+                            <FormItem className="space-y-3">
+                              <FormLabel className="text-sm font-medium">Publish Date & Time</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="datetime-local"
+                                  {...field}
+                                  value={field.value instanceof Date ? 
+                                    field.value.toISOString().slice(0, 16) : 
+                                    field.value || new Date().toISOString().slice(0, 16)
+                                  }
+                                  onChange={(e) => field.onChange(new Date(e.target.value))}
+                                  data-testid="input-published-at"
+                                  className="h-11"
+                                />
+                              </FormControl>
+                              <p className="text-xs text-muted-foreground">
+                                Set to future date to schedule publication, or past date for historical posts
+                              </p>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
 
                       {/* Content Section */}
@@ -385,31 +414,23 @@ export default function AdminBlog() {
                             <FormItem className="space-y-3">
                               <FormLabel className="text-sm font-medium">Post Content *</FormLabel>
                               <FormControl>
-                                <div className="border rounded-lg overflow-hidden">
+                                <div className="border rounded-lg">
                                   <ReactQuill
                                     theme="snow"
-                                    value={field.value}
+                                    value={field.value || ''}
                                     onChange={field.onChange}
                                     placeholder="Tell your story, share insights from your PathTwo journey..."
                                     data-testid="editor-content"
-                                    className="min-h-[400px]"
+                                    style={{ minHeight: '400px' }}
                                     modules={{
-                                      toolbar: {
-                                        container: [
-                                          [{ 'header': [1, 2, 3, false] }],
-                                          ['bold', 'italic', 'underline'],
-                                          [{'list': 'ordered'}, {'list': 'bullet'}],
-                                          ['blockquote', 'link'],
-                                          ['clean']
-                                        ],
-                                      },
+                                      toolbar: [
+                                        [{ 'header': [1, 2, 3, false] }],
+                                        ['bold', 'italic', 'underline'],
+                                        [{'list': 'ordered'}, {'list': 'bullet'}],
+                                        ['blockquote', 'link'],
+                                        ['clean']
+                                      ]
                                     }}
-                                    formats={[
-                                      'header',
-                                      'bold', 'italic', 'underline',
-                                      'list', 'bullet',
-                                      'blockquote', 'link'
-                                    ]}
                                   />
                                 </div>
                               </FormControl>

@@ -32,6 +32,7 @@ export const blogPosts = pgTable("blog_posts", {
   views: integer("views").default(0),
   featured: boolean("featured").default(false),
   imageUrl: text("image_url"),
+  publishedAt: timestamp("published_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
