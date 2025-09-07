@@ -2,63 +2,16 @@ import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { BlogPost } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { SEO } from "@/components/ui/seo";
-import { ArrowLeft, Clock, Eye, Calendar, Share2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { ReadingProgress, ReadingTimeDisplay } from "@/components/blog/reading-progress";
-import { RelatedPosts } from "@/components/blog/related-posts";
-import { useReadingStats } from "@/hooks/use-reading-progress";
+import { ArrowLeft, Clock, Eye, Calendar } from "lucide-react";
 
 export default function BlogPostPage() {
   const { slug } = useParams();
-  const { toast } = useToast();
 
   const { data: post, isLoading, error } = useQuery<BlogPost>({
     queryKey: ["/api/blog-posts", slug],
   });
-
-  // Reading progress tracking
-  const readingStats = useReadingStats(post?.content || "");
-
-  // Debug and decode HTML content
-  const processContent = (content: string) => {
-    console.log('Raw content:', content.substring(0, 200));
-    
-    // Decode HTML entities
-    const decoded = content
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&nbsp;/g, ' ');
-    
-    console.log('Decoded content:', decoded.substring(0, 200));
-    return decoded;
-  };
-
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: post?.title,
-          text: post?.excerpt,
-          url: window.location.href,
-        });
-      } catch (err) {
-        // User cancelled sharing
-      }
-    } else {
-      // Fallback to copying URL
-      navigator.clipboard.writeText(window.location.href);
-      toast({
-        title: "Link copied!",
-        description: "Post URL has been copied to your clipboard.",
-      });
-    }
-  };
 
   const formatDate = (date: Date | string) => {
     return new Date(date).toLocaleDateString('en-US', { 
@@ -71,75 +24,46 @@ export default function BlogPostPage() {
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "Wealth Progress":
-        return "bg-primary/10 text-primary hover:bg-primary/20";
+        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100";
       case "FIRE Strategy":
-        return "bg-secondary/10 text-secondary hover:bg-secondary/20";
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100";
       case "Investments":
-        return "bg-secondary/10 text-secondary hover:bg-secondary/20";
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100";
       case "Personal Reflections":
-        return "bg-accent/10 text-accent hover:bg-accent/20";
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100";
       default:
-        return "bg-muted text-muted-foreground";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100";
     }
   };
 
   if (isLoading) {
     return (
-      <>
-        <SEO 
-          title="Loading..."
-          description="Loading blog post..."
-          type="article"
-        />
-        <div className="py-16 lg:py-20">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="animate-pulse">
-                <div className="h-8 bg-muted rounded w-1/4 mb-8"></div>
-                <div className="h-12 bg-muted rounded mb-4"></div>
-                <div className="h-4 bg-muted rounded w-1/2 mb-8"></div>
-                <div className="h-64 bg-muted rounded mb-8"></div>
-                <div className="space-y-4">
-                  <div className="h-4 bg-muted rounded"></div>
-                  <div className="h-4 bg-muted rounded"></div>
-                  <div className="h-4 bg-muted rounded w-3/4"></div>
-                </div>
-              </div>
-            </div>
+      <div className="py-16">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Loading article...</p>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
   if (error || !post) {
     return (
-      <>
-        <SEO 
-          title="Post Not Found"
-          description="The blog post you're looking for doesn't exist or has been moved."
-        />
-        <div className="py-16 lg:py-20">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-3xl font-bold text-foreground mb-4" data-testid="text-error-title">
-                Post Not Found
-              </h1>
-              <p className="text-muted-foreground mb-8" data-testid="text-error-message">
-                The blog post you're looking for doesn't exist or has been moved.
-              </p>
-              <Button asChild data-testid="button-back-to-blog">
-                <Link href="/blog">
-                  <span className="inline-flex items-center">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Blog
-                  </span>
-                </Link>
-              </Button>
-            </div>
-          </div>
+      <div className="py-16">
+        <div className="container mx-auto px-4 max-w-4xl text-center">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Article Not Found</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-8">The article you're looking for doesn't exist.</p>
+          <Link 
+            href="/blog"
+            className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Blog
+          </Link>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -148,121 +72,94 @@ export default function BlogPostPage() {
       <SEO 
         title={post.title}
         description={post.excerpt}
-        keywords={`${post.category}, FIRE, personal finance, wealth tracking, financial independence`}
         type="article"
         url={`/blog/${post.slug}`}
-        author="PathTwo"
-        publishedTime={new Date(post.publishedAt || post.createdAt || new Date()).toISOString()}
-        modifiedTime={post.updatedAt ? new Date(post.updatedAt).toISOString() : new Date(post.publishedAt || post.createdAt || new Date()).toISOString()}
-        category={post.category}
-        image={post.imageUrl || undefined}
       />
       
-      {/* Reading Progress Bar */}
-      <ReadingProgress />
-      
-      <article className="py-16 lg:py-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            {/* Back Button */}
-            <Button variant="ghost" asChild className="mb-8" data-testid="button-back-to-blog">
-              <Link href="/blog">
-                <span className="inline-flex items-center">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Blog
-                </span>
-              </Link>
-            </Button>
+      {/* Back to Blog */}
+      <div className="bg-gray-50 dark:bg-gray-900 py-4">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <Link 
+            href="/blog"
+            className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Blog
+          </Link>
+        </div>
+      </div>
 
-            {/* Post Header */}
-            <header className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <Badge 
-                  variant="secondary" 
-                  className={getCategoryColor(post.category)}
-                  data-testid="badge-post-category"
-                >
-                  {post.category}
-                </Badge>
+      {/* Article */}
+      <article className="py-16">
+        <div className="container mx-auto px-4 max-w-4xl">
+          
+          {/* Header */}
+          <header className="text-center mb-12">
+            <div className="mb-6">
+              <Badge className={`${getCategoryColor(post.category)} font-medium mb-4`}>
+                {post.category}
+              </Badge>
+            </div>
+            
+            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+              {post.title}
+            </h1>
+            
+            <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed mb-8 max-w-3xl mx-auto">
+              {post.excerpt}
+            </p>
+            
+            <div className="flex items-center justify-center gap-8 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center">
+                <Calendar className="w-4 h-4 mr-2" />
+                {formatDate(post.createdAt!)}
               </div>
-
-              <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight" data-testid="text-post-title">
-                {post.title}
-              </h1>
-
-              <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground mb-8">
-                <div className="flex items-center" data-testid="text-post-date">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  {formatDate(post.publishedAt || post.createdAt || new Date())}
-                </div>
-                <div className="flex items-center" data-testid="text-post-read-time">
-                  <Clock className="w-4 h-4 mr-2" />
-                  <ReadingTimeDisplay
-                    estimatedTime={readingStats.estimatedTime}
-                    timeRead={readingStats.timeRead}
-                    timeRemaining={readingStats.timeRemaining}
-                  />
-                </div>
-                <div className="flex items-center" data-testid="text-post-views">
-                  <Eye className="w-4 h-4 mr-2" />
-                  {post.views?.toLocaleString()} views
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleShare}
-                  className="flex items-center"
-                  data-testid="button-share-post"
-                >
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Share
-                </Button>
+              <div className="flex items-center">
+                <Clock className="w-4 h-4 mr-2" />
+                {post.readTime} min read
               </div>
-
-              <p className="text-xl text-muted-foreground leading-relaxed" data-testid="text-post-excerpt">
-                {post.excerpt}
-              </p>
-            </header>
-
-            {/* Featured Image */}
-            {post.imageUrl && (
-              <div className="mb-8">
-                <img 
-                  src={post.imageUrl} 
-                  alt={post.title}
-                  className="w-full h-64 md:h-96 object-cover rounded-xl"
-                  data-testid="img-post-featured"
-                />
+              <div className="flex items-center">
+                <Eye className="w-4 h-4 mr-2" />
+                {post.views?.toLocaleString() || 0} views
               </div>
-            )}
+            </div>
+          </header>
 
-            {/* Post Content */}
-            <div 
-              className="prose prose-lg dark:prose-invert max-w-none" 
-              data-testid="content-post-body"
-              dangerouslySetInnerHTML={{ __html: processContent(post.content) }}
-            />
+          {/* Featured Image */}
+          {post.imageUrl && (
+            <div className="mb-12">
+              <img 
+                src={post.imageUrl}
+                alt={post.title}
+                className="w-full h-96 object-cover rounded-2xl shadow-lg"
+              />
+            </div>
+          )}
 
-            {/* Related Posts */}
-            <RelatedPosts currentPost={post} className="mt-12" />
+          {/* Content */}
+          <div className="prose prose-lg prose-gray dark:prose-invert max-w-none">
+            <div className="text-gray-800 dark:text-gray-200 leading-relaxed text-lg">
+              {post.content.split('\n').map((paragraph, index) => (
+                <p key={index} className="mb-6">{paragraph}</p>
+              ))}
+            </div>
+          </div>
 
-            {/* Post Footer */}
-            <footer className="mt-12 pt-8 border-t border-border">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <p className="text-sm text-muted-foreground" data-testid="text-post-footer">
-                  Thank you for reading! Follow along for more updates on the journey to financial independence.
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={handleShare}
-                  className="flex items-center"
-                  data-testid="button-share-post-footer"
-                >
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Share this post
-                </Button>
-              </div>
-            </footer>
+          {/* Footer */}
+          <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700 text-center">
+            <p className="text-gray-600 dark:text-gray-400 mb-8">
+              Thanks for reading! Follow our FIRE journey for more updates.
+            </p>
+            
+            <Link 
+              href="/blog"
+              className="inline-flex items-center px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full transition-colors duration-200"
+            >
+              More Articles
+              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
           </div>
         </div>
       </article>
