@@ -202,3 +202,52 @@ input[type="submit"], input[type="reset"] {
 .progress-bar {
   background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
 }
+
+/* Blog content styling */
+.blog-content h1 {
+  @apply text-3xl font-bold mb-6 mt-8 text-gray-900 dark:text-white;
+}
+
+.blog-content h2 {
+  @apply text-2xl font-semibold mb-4 mt-8 text-gray-900 dark:text-white;
+}
+
+.blog-content h3 {
+  @apply text-xl font-medium mb-3 mt-6 text-gray-900 dark:text-white;
+}
+
+.blog-content p {
+  @apply mb-4 leading-relaxed text-gray-800 dark:text-gray-200;
+}
+
+.blog-content ul {
+  @apply mb-6 pl-6 space-y-2;
+}
+
+.blog-content li {
+  @apply list-disc mb-1 leading-relaxed text-gray-800 dark:text-gray-200;
+}
+
+.blog-content strong {
+  @apply font-semibold text-gray-900 dark:text-white;
+}
+
+.blog-content em {
+  @apply italic text-gray-700 dark:text-gray-300;
+}
+
+.blog-content blockquote {
+  @apply border-l-4 border-blue-500 pl-4 italic my-6 text-gray-700 dark:text-gray-300;
+}
+
+.blog-content code {
+  @apply bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded font-mono text-sm;
+}
+
+.blog-content pre {
+  @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto mb-4;
+}
+
+.blog-content a {
+  @apply text-blue-600 dark:text-blue-400 hover:underline;
+}
