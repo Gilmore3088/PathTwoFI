@@ -96,7 +96,51 @@ export class DatabaseStorage implements IStorage {
         {
           title: "Q4 2024 Net Worth Update: Breaking the $350K Milestone",
           slug: "q4-2024-net-worth-update",
-          content: "A detailed breakdown of our fourth quarter performance, including investment gains, new asset allocations, and key lessons learned from market volatility. This quarter marked a significant milestone in our FIRE journey...",
+          content: `<h1>Q4 2024 Net Worth Update: Breaking the $350K Milestone</h1>
+
+<p>What a quarter it's been! As we wrap up Q4 2024, I'm excited to share that we've officially crossed the <strong>$350K net worth milestone</strong>. This represents a significant step forward in our FIRE journey, and I want to break down exactly how we got here.</p>
+
+<h2>The Numbers</h2>
+<p>Our net worth increased by <strong>$28,500</strong> this quarter, bringing our total to <strong>$351,200</strong>. Here's the breakdown:</p>
+
+<ul>
+<li><strong>Investment accounts:</strong> $287,400 (+$22,100)</li>
+<li><strong>Cash & savings:</strong> $63,800 (+$6,400)</li>
+<li><strong>Total assets:</strong> $351,200</li>
+<li><strong>Liabilities:</strong> $0</li>
+</ul>
+
+<h2>What Drove Growth</h2>
+<p>Several factors contributed to our strong Q4 performance:</p>
+
+<p><strong>Market Recovery:</strong> After a volatile start to the year, the markets ended strong. Our diversified portfolio of index funds benefited from the broad market rally, contributing approximately $15,000 to our growth.</p>
+
+<p><strong>Increased Savings Rate:</strong> We managed to increase our savings rate to 47% this quarter, up from 42% in Q3. This was possible through some lifestyle adjustments and a small bonus at work.</p>
+
+<p><strong>Side Hustle Income:</strong> My freelance writing continued to provide supplemental income, contributing about $1,200 monthly to our savings.</p>
+
+<h2>Lessons Learned</h2>
+<p>This quarter reinforced some key principles:</p>
+
+<ul>
+<li><strong>Consistency beats perfection:</strong> Regular monthly investments, regardless of market conditions, proved more valuable than trying to time the market.</li>
+<li><strong>Lifestyle inflation is real:</strong> We had to actively fight against increasing our spending as our income grew.</li>
+<li><strong>Emergency fund peace of mind:</strong> Having 6 months of expenses saved provided tremendous psychological comfort during market volatility.</li>
+</ul>
+
+<h2>Looking Ahead to 2025</h2>
+<p>With $351K in the bank, we're now 35% of the way to our $1M FIRE target. Our goals for 2025 include:</p>
+
+<ul>
+<li>Reaching $425K net worth by end of Q4 2025</li>
+<li>Maintaining our 47% savings rate</li>
+<li>Exploring real estate investment opportunities</li>
+<li>Continuing to optimize our tax strategy</li>
+</ul>
+
+<p>The journey to financial independence isn't always easy, but milestones like this remind us why we're doing it. Every dollar saved and invested today is a step closer to the freedom we're working toward.</p>
+
+<p><em>Thank you for following along on our FIRE journey. Here's to an even better 2025!</em></p>`,
           excerpt: "A detailed breakdown of our fourth quarter performance, including investment gains, new asset allocations, and key lessons learned from market volatility...",
           category: "Wealth Progress",
           readTime: 8,
@@ -108,7 +152,76 @@ export class DatabaseStorage implements IStorage {
         {
           title: "Optimizing Tax-Advantaged Accounts: A 2025 Strategy",
           slug: "optimizing-tax-advantaged-accounts-2025",
-          content: "Exploring advanced strategies for maximizing 401(k), IRA, and HSA contributions while maintaining liquidity for early retirement goals. Tax optimization is crucial for FIRE success...",
+          content: `<h1>Optimizing Tax-Advantaged Accounts: A 2025 Strategy</h1>
+
+<p>With 2025 here, it's time to maximize every tax-advantaged dollar we can get. Tax optimization isn't just about reducing what you owe today—it's about strategically positioning your wealth for decades of compound growth.</p>
+
+<h2>The 2025 Contribution Limits</h2>
+<p>Here's what we're working with this year:</p>
+
+<ul>
+<li><strong>401(k):</strong> $23,500 (up from $23,000)</li>
+<li><strong>IRA (Traditional/Roth):</strong> $7,000 (unchanged)</li>
+<li><strong>HSA:</strong> $4,300 individual / $8,550 family</li>
+<li><strong>Catch-up contributions (50+):</strong> Additional $7,500 for 401(k), $1,000 for IRA</li>
+</ul>
+
+<h2>Our Tax Optimization Strategy</h2>
+
+<h3>1. Max Out the 401(k) First</h3>
+<p>The 401(k) offers the highest contribution limit, so we prioritize this first. With the increased limit, we're putting away <strong>$1,958 per month</strong> to hit the full $23,500.</p>
+
+<p>Pro tip: If your employer offers a match, contribute at least enough to get the full match—it's free money.</p>
+
+<h3>2. HSA: The Triple Tax Advantage</h3>
+<p>The HSA is the most tax-efficient account available:</p>
+<ul>
+<li>Tax-deductible contributions</li>
+<li>Tax-free growth</li>
+<li>Tax-free withdrawals for qualified medical expenses</li>
+</ul>
+
+<p>We're maxing out our family HSA at $8,550. After age 65, you can withdraw for any purpose (taxed as ordinary income), making it a second retirement account.</p>
+
+<h3>3. Roth IRA: Tax-Free Growth Forever</h3>
+<p>Even though we can't deduct Roth contributions, the tax-free growth over decades is incredible. We're doing the <strong>backdoor Roth conversion</strong> since our income is too high for direct contributions.</p>
+
+<p>The process: Contribute $7,000 to traditional IRA → immediately convert to Roth → pay taxes on any gains during the conversion period.</p>
+
+<h3>4. Taxable Accounts: The Bridge</h3>
+<p>Since we're aiming for FIRE before 59.5, we need accessible money. After maxing tax-advantaged accounts, everything else goes into taxable brokerage accounts invested in tax-efficient index funds.</p>
+
+<h2>Advanced Strategies We're Using</h2>
+
+<p><strong>Mega Backdoor Roth:</strong> My employer's 401(k) allows after-tax contributions up to the total limit of $70,000. We contribute after-tax dollars and immediately convert to Roth, getting more tax-free growth space.</p>
+
+<p><strong>Tax Loss Harvesting:</strong> Systematically realizing losses in taxable accounts to offset gains and reduce tax burden. This can save us $1,000-3,000 annually.</p>
+
+<p><strong>Asset Location:</strong> Placing tax-inefficient investments (bonds, REITs) in tax-advantaged accounts and tax-efficient investments (index funds) in taxable accounts.</p>
+
+<h2>The Numbers for 2025</h2>
+<p>Our total tax-advantaged savings target:</p>
+<ul>
+<li>401(k): $23,500 × 2 = $47,000</li>
+<li>HSA: $8,550</li>
+<li>Backdoor Roth: $7,000 × 2 = $14,000</li>
+<li><strong>Total: $69,550 in tax-advantaged space</strong></li>
+</ul>
+
+<p>This represents 58% of our gross income, and it's all growing tax-free or tax-deferred. The compound effect over 15-20 years will be massive.</p>
+
+<h2>Common Mistakes to Avoid</h2>
+
+<ul>
+<li><strong>Not prioritizing employer match:</strong> Always get the full match first</li>
+<li><strong>Ignoring HSA potential:</strong> Many people use HSAs like checking accounts instead of investment vehicles</li>
+<li><strong>Poor asset location:</strong> Putting growth investments in tax-advantaged accounts and income investments in taxable accounts</li>
+<li><strong>Neglecting backdoor Roth conversions:</strong> High earners missing out on Roth space</li>
+</ul>
+
+<p>Tax optimization isn't sexy, but it's one of the highest-return activities you can do. Every dollar saved in taxes is a dollar that can compound for decades. In our FIRE journey, tax efficiency isn't optional—it's essential.</p>
+
+<p><em>Remember: Always consult with a tax professional for your specific situation. Tax laws are complex and change frequently.</em></p>`,
           excerpt: "Exploring advanced strategies for maximizing 401(k), IRA, and HSA contributions while maintaining liquidity for early retirement goals...",
           category: "FIRE Strategy",
           readTime: 12,

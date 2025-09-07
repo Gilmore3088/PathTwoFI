@@ -138,11 +138,10 @@ export default function BlogPostPage() {
 
           {/* Content */}
           <div className="prose prose-lg prose-gray dark:prose-invert max-w-none">
-            <div className="text-gray-800 dark:text-gray-200 leading-relaxed text-lg">
-              {post.content.split('\n').map((paragraph, index) => (
-                <p key={index} className="mb-6">{paragraph}</p>
-              ))}
-            </div>
+            <div 
+              className="text-gray-800 dark:text-gray-200 leading-relaxed text-lg [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:mb-6 [&>h1]:mt-8 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:mb-4 [&>h2]:mt-6 [&>h3]:text-xl [&>h3]:font-medium [&>h3]:mb-3 [&>h3]:mt-5 [&>p]:mb-4 [&>ul]:mb-4 [&>ul]:pl-6 [&>li]:mb-2 [&>li]:list-disc [&>strong]:font-semibold [&>em]:italic"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
           </div>
 
           {/* Footer */}
