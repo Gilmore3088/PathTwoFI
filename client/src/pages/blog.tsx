@@ -1,7 +1,52 @@
-import { BlogSearch } from "@/components/blog/blog-search";
+import { useQuery } from "@tanstack/react-query";
+import { BlogPost } from "@shared/schema";
+import { Clock, Eye, Calendar } from "lucide-react";
+import { Link } from "wouter";
+import { Badge } from "@/components/ui/badge";
+import { LazyImage } from "@/components/ui/lazy-image";
 import { SEO } from "@/components/ui/seo";
 
 export default function BlogPage() {
+  const { data: posts = [], isLoading } = useQuery<BlogPost[]>({
+    queryKey: ["/api/blog-posts"],
+  });
+
+  const formatDate = (date: Date | string) => {
+    return new Date(date).toLocaleDateString('en-US', { 
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "Wealth Progress":
+        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100";
+      case "FIRE Strategy":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100";
+      case "Investments":
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100";
+      case "Personal Reflections":
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100";
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="py-16">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading blog posts...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <SEO 
@@ -12,23 +57,96 @@ export default function BlogPage() {
         url="/blog"
       />
       
-      <div className="py-16 lg:py-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            {/* Header */}
-            <header className="text-center mb-12">
-              <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
-                Our FIRE Journey
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Sharing our path to Financial Independence, Retire Early through transparent
-                wealth tracking, strategic insights, and lessons learned along the way.
-              </p>
-            </header>
-
-            {/* Blog Search and Content */}
-            <BlogSearch />
+      {/* Hero Section */}
+      <div className="py-16 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+            The FIRE Journey
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
+            Real insights, transparent progress, and practical strategies on our path to Financial Independence
+          </p>
+          <div className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-md">
+            <span className="text-sm text-gray-600 dark:text-gray-400">{posts.length} articles published</span>
           </div>
+        </div>
+      </div>
+
+      {/* Blog Posts */}
+      <div className="py-16">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="space-y-12">
+            {posts.map((post) => (
+              <article key={post.id} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
+                {post.imageUrl && (
+                  <div className="relative h-64 overflow-hidden">
+                    <LazyImage 
+                      src={post.imageUrl}
+                      alt={post.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                
+                <div className="p-8">
+                  {/* Category and Date */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <Badge className={`${getCategoryColor(post.category)} font-medium`}>
+                      {post.category}
+                    </Badge>
+                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      {formatDate(post.createdAt!)}
+                    </div>
+                  </div>
+
+                  {/* Title */}
+                  <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
+                    <Link href={`/blog/${post.slug}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                      {post.title}
+                    </Link>
+                  </h2>
+
+                  {/* Excerpt */}
+                  <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed mb-6">
+                    {post.excerpt}
+                  </p>
+
+                  {/* Meta and Read More */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center">
+                        <Clock className="w-4 h-4 mr-2" />
+                        {post.readTime} min read
+                      </div>
+                      <div className="flex items-center">
+                        <Eye className="w-4 h-4 mr-2" />
+                        {post.views?.toLocaleString() || 0} views
+                      </div>
+                    </div>
+                    
+                    <Link 
+                      href={`/blog/${post.slug}`}
+                      className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full transition-colors duration-200"
+                    >
+                      Read Article
+                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    </Link>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {posts.length === 0 && (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">📝</div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No posts yet</h3>
+              <p className="text-gray-600 dark:text-gray-400">Check back soon for new content!</p>
+            </div>
+          )}
         </div>
       </div>
     </>
