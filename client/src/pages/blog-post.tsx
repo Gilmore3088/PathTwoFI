@@ -139,8 +139,16 @@ export default function BlogPostPage() {
           {/* Content */}
           <div className="prose prose-lg prose-gray dark:prose-invert max-w-none">
             <div 
-              className="text-gray-800 dark:text-gray-200 leading-relaxed text-lg [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:mb-6 [&>h1]:mt-8 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:mb-4 [&>h2]:mt-6 [&>h3]:text-xl [&>h3]:font-medium [&>h3]:mb-3 [&>h3]:mt-5 [&>p]:mb-4 [&>ul]:mb-4 [&>ul]:pl-6 [&>li]:mb-2 [&>li]:list-disc [&>strong]:font-semibold [&>em]:italic"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              className="text-gray-800 dark:text-gray-200 leading-relaxed text-lg 
+              [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:mb-6 [&>h1]:mt-8 [&>h1]:text-gray-900 [&>h1]:dark:text-white
+              [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:mb-4 [&>h2]:mt-8 [&>h2]:text-gray-900 [&>h2]:dark:text-white
+              [&>h3]:text-xl [&>h3]:font-medium [&>h3]:mb-3 [&>h3]:mt-6 [&>h3]:text-gray-900 [&>h3]:dark:text-white
+              [&>p]:mb-4 [&>p]:leading-relaxed
+              [&>ul]:mb-6 [&>ul]:pl-6 [&>ul]:space-y-2
+              [&>li]:list-disc [&>li]:mb-1 [&>li]:leading-relaxed
+              [&>strong]:font-semibold [&>strong]:text-gray-900 [&>strong]:dark:text-white
+              [&>em]:italic [&>em]:text-gray-700 [&>em]:dark:text-gray-300"
+              dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '') }}
             />
           </div>
 
