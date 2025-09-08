@@ -1,0 +1,108 @@
+Looking at your admin home page, it doesn't display actual message data - just a navigation card to the messages section. Here's how to improve it with real data:
+
+## Improvements for Admin Home:
+
+### 1. **Add Dashboard Stats**
+After line 10, add queries to fetch counts:
+```tsx
+const { data: messageCount } = useQuery<number>({
+  queryKey: ["/api/contact-submissions/count"],
+  enabled: isAuthenticated && isAdmin,
+});
+
+const { data: postCount } = useQuery<number>({
+  queryKey: ["/api/blog-posts/count"],
+  enabled: isAuthenticated && isAdmin,
+});
+
+const { data: latestWealth } = useQuery({
+  queryKey: ["/api/wealth-data/latest", "Both"],
+  enabled: isAuthenticated && isAdmin,
+});
+```
+
+### 2. **Add Stats Cards Section**
+Before the admin routes grid, add:
+```tsx
+{/* Dashboard Stats */}
+<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  <Card>
+    <CardContent className="p-4">
+      <div className="text-2xl font-bold">{messageCount || 0}</div>
+      <p className="text-sm text-muted-foreground">Unread Messages</p>
+    </CardContent>
+  </Card>
+  <Card>
+    <CardContent className="p-4">
+      <div className="text-2xl font-bold">{postCount || 0}</div>
+      <p className="text-sm text-muted-foreground">Blog Posts</p>
+    </CardContent>
+  </Card>
+  <Card>
+    <CardContent className="p-4">
+      <div className="text-2xl font-bold">
+        ${latestWealth ? (parseFloat(latestWealth.netWorth) / 1000).toFixed(0) : 0}K
+      </div>
+      <p className="text-sm text-muted-foreground">Net Worth</p>
+    </CardContent>
+  </Card>
+  <Card>
+    <CardContent className="p-4">
+      <div className="text-2xl font-bold">13%</div>
+      <p className="text-sm text-muted-foreground">FIRE Progress</p>
+    </CardContent>
+  </Card>
+</div>
+```
+
+### 3. **Add Recent Activity Section**
+After Quick Actions, add:
+```tsx
+{/* Recent Activity */}
+<div className="mt-8 p-6 bg-muted/50 rounded-xl">
+  <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+  <div className="space-y-2 text-sm">
+    <div className="flex justify-between py-2 border-b">
+      <span>Last wealth update</span>
+      <span className="text-muted-foreground">2 days ago</span>
+    </div>
+    <div className="flex justify-between py-2 border-b">
+      <span>Last blog post</span>
+      <span className="text-muted-foreground">5 days ago</span>
+    </div>
+    <div className="flex justify-between py-2">
+      <span>New messages</span>
+      <span className="text-muted-foreground">{messageCount || 0} unread</span>
+    </div>
+  </div>
+</div>
+```
+
+### 4. **Fix Messages Icon**
+Line 61 uses `Settings` icon for messages. Change to:
+```tsx
+import { MessageSquare } from "lucide-react";
+// Then in the adminRoutes array:
+icon: MessageSquare,
+```
+
+### 5. **Add Loading States for Stats**
+Wrap stats in loading check:
+```tsx
+{isLoading ? (
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    {[...Array(4)].map((_, i) => (
+      <Card key={i}>
+        <CardContent className="p-4">
+          <div className="h-8 bg-muted animate-pulse rounded mb-2"></div>
+          <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
+        </CardContent>
+      </Card>
+    ))}
+  </div>
+) : (
+  // Your stats cards here
+)}
+```
+
+This makes the admin home an actual dashboard with useful at-a-glance information rather than just a navigation page.

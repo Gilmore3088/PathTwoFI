@@ -315,6 +315,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Count endpoints for admin dashboard
+  app.get("/api/contact-submissions/count", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const submissions = await storage.getContactSubmissions();
+      res.json(submissions.length);
+    } catch (error) {
+      console.error("Error fetching contact submissions count:", error);
+      res.status(500).json({ message: "Failed to fetch contact submissions count" });
+    }
+  });
+
+  app.get("/api/blog-posts/count", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const posts = await storage.getBlogPosts();
+      res.json(posts.length);
+    } catch (error) {
+      console.error("Error fetching blog posts count:", error);
+      res.status(500).json({ message: "Failed to fetch blog posts count" });
+    }
+  });
+
   app.get("/api/contact-submissions/:id", isAuthenticated, isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
