@@ -79,36 +79,6 @@ export function Header() {
           </nav>
           
           <div className="flex items-center space-x-4">
-            {/* Authentication buttons */}
-            {isAuthenticated ? (
-              <div className="hidden md:flex items-center space-x-3">
-                <span className="text-sm text-muted-foreground">
-                  Welcome, {user?.firstName || user?.email || 'User'}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.location.href = '/api/logout'}
-                  data-testid="button-logout"
-                  className="flex items-center gap-1"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.location.href = '/api/login'}
-                data-testid="button-login"
-                className="hidden md:flex items-center gap-1"
-              >
-                <LogIn className="w-4 h-4" />
-                Login
-              </Button>
-            )}
-            
             <MobileOptimizedButton
               variant="ghost"
               size="icon"
@@ -155,39 +125,6 @@ export function Header() {
                     </Link>
                   ))}
                   
-                  {/* Mobile auth buttons */}
-                  <div className="border-t border-border mt-4 pt-4">
-                    {isAuthenticated ? (
-                      <>
-                        <div className="px-3 py-2 text-sm text-muted-foreground">
-                          Welcome, {user?.firstName || user?.email || 'User'}
-                        </div>
-                        <button
-                          onClick={() => {
-                            setIsSheetOpen(false);
-                            window.location.href = '/api/logout';
-                          }}
-                          className="w-full text-left text-muted-foreground hover:text-foreground transition-colors text-lg cursor-pointer p-3 rounded-lg hover:bg-accent/50 min-h-[48px] flex items-center touch-feedback gap-2"
-                          data-testid="button-mobile-logout"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          Logout
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          setIsSheetOpen(false);
-                          window.location.href = '/api/login';
-                        }}
-                        className="w-full text-left text-muted-foreground hover:text-foreground transition-colors text-lg cursor-pointer p-3 rounded-lg hover:bg-accent/50 min-h-[48px] flex items-center touch-feedback gap-2"
-                        data-testid="button-mobile-login"
-                      >
-                        <LogIn className="w-4 h-4" />
-                        Login
-                      </button>
-                    )}
-                  </div>
                 </nav>
               </SheetContent>
             </Sheet>
