@@ -7,73 +7,148 @@ import { Mountain, TrendingUp, Target, Coffee, Mail } from "lucide-react";
 
 export default function About() {
   const milestones = [
-    {
-      year: "Feb 2020",
-      title: "The Awakening",
-      description:
-        "First real effort to track finances and build wealth systematically",
-    },
-    {
-      year: "Jan 2021",
-      title: "Six Figures",
-      description: "Reached $100K net worth milestone",
-    },
-    {
-      year: "Jul 2022",
-      title: "Crypto Crisis",
-      description:
-        "Lost six figures in Voyager bankruptcy - a painful but valuable lesson",
-    },
-    {
-      year: "Aug 2022",
-      title: "First Home",
-      description: "Purchased our home with an incredible 2.9% rate",
-    },
-    {
-      year: "Jan 2023",
-      title: "Rebuilding",
-      description:
-        "Net worth (excl. home) at $29K, credit card debt peaked at $22K",
-    },
-    {
-      year: "Jul 2023",
-      title: "Recovery",
-      description: "Net worth bounced back to $76K through disciplined saving",
-    },
-    {
-      year: "Jan 2024",
-      title: "Momentum",
-      description: "Assets (excl. home) hit $181K, net worth reached $156K",
-    },
-    {
-      year: "Sep 2024",
-      title: "We Got Married! 💑",
-      description: "Combined assets (excl. home) reached $470K",
-    },
-    {
-      year: "Jan 2025",
-      title: "Strong Start",
-      description: "His assets (excl. home) $295K, Hers: $340K",
-    },
-    {
-      year: "Mar 2025",
-      title: "Debt Freedom",
-      description: "Student loans completely paid off!",
-    },
-    {
-      year: "Jul 2025",
-      title: "Major Milestone",
-      description: "Combined assets (excl. home) surpassed $631K",
-    },
-    {
-      year: "Sept 2025",
-      title: "1st Year Marriage in the books",
-      description: "Combined assets (excl. home) surpassed $683K",
-    },
-    {
+    { 
       year: "2030",
-      title: "Target: FIRE",
+      date: "2030-12",
+      title: "🎯 Target: FIRE", 
       description: "Projected to reach full financial independence",
+      type: "future",
+      highlight: true
+    },
+    { 
+      year: "Jul 2025",
+      date: "2025-07",
+      title: "💰 $631K Combined", 
+      description: "Combined assets (excluding home equity) surpassed $631K",
+      amount: "$631K",
+      type: "achievement"
+    },
+    { 
+      year: "Mar 2025",
+      date: "2025-03",
+      title: "🎉 Debt Freedom!", 
+      description: "Student loans completely paid off - only mortgage remains",
+      type: "freedom"
+    },
+    { 
+      year: "Jan 2025",
+      date: "2025-01",
+      title: "📊 Strong Start to 2025", 
+      description: "His: $295K | Hers: $340K in assets (excl. home)",
+      amount: "$635K combined",
+      type: "milestone"
+    },
+    { 
+      year: "Sep 2024",
+      date: "2024-09",
+      title: "💑 We Got Married!", 
+      description: "Two became one - Combined assets hit $470K",
+      amount: "$470K",
+      type: "life",
+      highlight: true
+    },
+    { 
+      year: "Jan 2024",
+      date: "2024-01",
+      title: "📈 Momentum Building", 
+      description: "Assets (excl. home) $181K | Net worth $156K",
+      amount: "$156K NW",
+      type: "growth"
+    },
+    { 
+      year: "Jul 2023",
+      date: "2023-07",
+      title: "💪 Recovery Mode", 
+      description: "Net worth recovered to $76K through discipline",
+      amount: "$76K",
+      type: "recovery"
+    },
+    { 
+      year: "Jan 2023",
+      date: "2023-01",
+      title: "🔥 Rock Bottom", 
+      description: "Net worth $29K | Credit card debt $22K - The turning point",
+      amount: "$29K NW",
+      type: "challenge"
+    },
+    { 
+      year: "Aug 2022",
+      date: "2022-08",
+      title: "🏡 First Home", 
+      description: "Locked in 2.9% mortgage rate - perfect timing",
+      type: "life"
+    },
+    { 
+      year: "Jul 2022",
+      date: "2022-07",
+      title: "💔 Voyager Bankruptcy", 
+      description: "Lost six figures in crypto - expensive education",
+      type: "setback",
+      highlight: true
+    },
+    { 
+      year: "Jan 2021",
+      date: "2021-01",
+      title: "💯 First $100K", 
+      description: "Reached six-figure net worth milestone",
+      amount: "$100K",
+      type: "milestone"
+    },
+    { 
+      year: "Feb 2020",
+      date: "2020-02",
+      title: "🌅 The Awakening", 
+      description: "Started tracking finances and discovered FIRE",
+      type: "beginning"
+    }
+  ];
+
+  // Helper function to get color based on type
+  const getMilestoneColor = (type: string) => {
+    switch(type) {
+      case 'future': return 'border-purple-500 bg-purple-50 dark:bg-purple-900/20';
+      case 'achievement': return 'border-green-500 bg-green-50 dark:bg-green-900/20';
+      case 'freedom': return 'border-blue-500 bg-blue-50 dark:bg-blue-900/20';
+      case 'milestone': return 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20';
+      case 'life': return 'border-pink-500 bg-pink-50 dark:bg-pink-900/20';
+      case 'growth': return 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20';
+      case 'recovery': return 'border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20';
+      case 'challenge': return 'border-orange-500 bg-orange-50 dark:bg-orange-900/20';
+      case 'setback': return 'border-red-500 bg-red-50 dark:bg-red-900/20';
+      case 'beginning': return 'border-gray-500 bg-gray-50 dark:bg-gray-900/20';
+      default: return 'border-gray-300 bg-white dark:bg-gray-800';
+    }
+  };
+
+  // Calculate progress percentage (from $29K low to $631K current)
+  const progressPercentage = ((631 - 29) / (1000 - 29)) * 100; // Progress to $1M
+
+  // Rest of your About component code...
+}
+
+  const principles = [
+    {
+      icon: TrendingUp,
+      title: "Data-Driven Decisions",
+      description:
+        "Every financial choice backed by thorough analysis and tracking",
+    },
+    {
+      icon: Target,
+      title: "Long-Term Focus",
+      description:
+        "Building wealth for financial independence, not short-term gains",
+    },
+    {
+      icon: Mountain,
+      title: "Sustainable Approach",
+      description:
+        "Maintaining quality of life while optimizing for the future",
+    },
+    {
+      icon: Coffee,
+      title: "Transparency",
+      description: "Sharing real numbers and honest reflections on the journey",
     },
   ];
 

@@ -1,0 +1,120 @@
+export default function About() {
+  const milestones = [
+    { 
+      year: "2030",
+      date: "2030-12",
+      title: "🎯 Target: FIRE", 
+      description: "Projected to reach full financial independence",
+      type: "future",
+      highlight: true
+    },
+    { 
+      year: "Jul 2025",
+      date: "2025-07",
+      title: "💰 $631K Combined", 
+      description: "Combined assets (excluding home equity) surpassed $631K",
+      amount: "$631K",
+      type: "achievement"
+    },
+    { 
+      year: "Mar 2025",
+      date: "2025-03",
+      title: "🎉 Debt Freedom!", 
+      description: "Student loans completely paid off - only mortgage remains",
+      type: "freedom"
+    },
+    { 
+      year: "Jan 2025",
+      date: "2025-01",
+      title: "📊 Strong Start to 2025", 
+      description: "His: $295K | Hers: $340K in assets (excl. home)",
+      amount: "$635K combined",
+      type: "milestone"
+    },
+    { 
+      year: "Sep 2024",
+      date: "2024-09",
+      title: "💑 We Got Married!", 
+      description: "Two became one - Combined assets hit $470K",
+      amount: "$470K",
+      type: "life",
+      highlight: true
+    },
+    { 
+      year: "Jan 2024",
+      date: "2024-01",
+      title: "📈 Momentum Building", 
+      description: "Assets (excl. home) $181K | Net worth $156K",
+      amount: "$156K NW",
+      type: "growth"
+    },
+    { 
+      year: "Jul 2023",
+      date: "2023-07",
+      title: "💪 Recovery Mode", 
+      description: "Net worth recovered to $76K through discipline",
+      amount: "$76K",
+      type: "recovery"
+    },
+    { 
+      year: "Jan 2023",
+      date: "2023-01",
+      title: "🔥 Rock Bottom", 
+      description: "Net worth $29K | Credit card debt $22K - The turning point",
+      amount: "$29K NW",
+      type: "challenge"
+    },
+    { 
+      year: "Aug 2022",
+      date: "2022-08",
+      title: "🏡 First Home", 
+      description: "Locked in 2.9% mortgage rate - perfect timing",
+      type: "life"
+    },
+    { 
+      year: "Jul 2022",
+      date: "2022-07",
+      title: "💔 Voyager Bankruptcy", 
+      description: "Lost six figures in crypto - expensive education",
+      type: "setback",
+      highlight: true
+    },
+    { 
+      year: "Jan 2021",
+      date: "2021-01",
+      title: "💯 First $100K", 
+      description: "Reached six-figure net worth milestone",
+      amount: "$100K",
+      type: "milestone"
+    },
+    { 
+      year: "Feb 2020",
+      date: "2020-02",
+      title: "🌅 The Awakening", 
+      description: "Started tracking finances and discovered FIRE",
+      type: "beginning"
+    }
+  ];
+
+  // Helper function to get color based on type
+  const getMilestoneColor = (type: string) => {
+    switch(type) {
+      case 'future': return 'border-purple-500 bg-purple-50 dark:bg-purple-900/20';
+      case 'achievement': return 'border-green-500 bg-green-50 dark:bg-green-900/20';
+      case 'freedom': return 'border-blue-500 bg-blue-50 dark:bg-blue-900/20';
+      case 'milestone': return 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20';
+      case 'life': return 'border-pink-500 bg-pink-50 dark:bg-pink-900/20';
+      case 'growth': return 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20';
+      case 'recovery': return 'border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20';
+      case 'challenge': return 'border-orange-500 bg-orange-50 dark:bg-orange-900/20';
+      case 'setback': return 'border-red-500 bg-red-50 dark:bg-red-900/20';
+      case 'beginning': return 'border-gray-500 bg-gray-50 dark:bg-gray-900/20';
+      default: return 'border-gray-300 bg-white dark:bg-gray-800';
+    }
+  };
+
+  // Calculate progress percentage (from $29K low to $631K current)
+  const progressPercentage = ((631 - 29) / (1000 - 29)) * 100; // Progress to $1M
+
+  // Rest of your About component code...
+}
