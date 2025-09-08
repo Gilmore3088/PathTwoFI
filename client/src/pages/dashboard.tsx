@@ -102,17 +102,9 @@ export default function Dashboard() {
       };
 
     const netWorth = parseFloat(latestWealth.netWorth);
-    // Calculate total assets from individual components
-    const totalAssets = parseFloat(latestWealth.investments || "0") + 
-                       parseFloat(latestWealth.cash || "0") + 
-                       parseFloat(latestWealth.stocks || "0") +
-                       parseFloat(latestWealth.bonds || "0") +
-                       parseFloat(latestWealth.crypto || "0") +
-                       parseFloat(latestWealth.realEstate || "0") +
-                       parseFloat(latestWealth.commodities || "0") +
-                       parseFloat(latestWealth.alternativeInvestments || "0");
+    const assets = parseFloat(latestWealth.assets);
     const liabilities = parseFloat(latestWealth.liabilities);
-    const netWorthExclHome = totalAssets - liabilities; // Exclude real estate from FIRE calculation
+    const netWorthExclHome = assets - liabilities; // Approximation - would be better with specific home equity field
 
     // Progress percentages against inflation-adjusted goals
     const progressToFire = (netWorthExclHome / fireGoalFuture) * 100;
@@ -177,10 +169,7 @@ export default function Dashboard() {
         year: "2-digit",
       }),
       netWorth: parseFloat(d.netWorth),
-      assets: parseFloat(d.investments || "0") + parseFloat(d.cash || "0") + 
-              parseFloat(d.stocks || "0") + parseFloat(d.bonds || "0") +
-              parseFloat(d.crypto || "0") + parseFloat(d.realEstate || "0") +
-              parseFloat(d.commodities || "0") + parseFloat(d.alternativeInvestments || "0"),
+      assets: parseFloat(d.assets),
       liabilities: parseFloat(d.liabilities),
       investments: parseFloat(d.investments),
       cash: parseFloat(d.cash),
@@ -191,32 +180,34 @@ export default function Dashboard() {
   const prepareAllocationData = () => {
     if (!latestWealth) return [];
 
-    const investments = parseFloat(latestWealth.investments || "0");
-    const cash = parseFloat(latestWealth.cash || "0");
-    const crypto = parseFloat(latestWealth.crypto || "0");
-    const stocks = parseFloat(latestWealth.stocks || "0");
-    const bonds = parseFloat(latestWealth.bonds || "0");
-    const realEstate = parseFloat(latestWealth.realEstate || "0");
-    const commodities = parseFloat(latestWealth.commodities || "0");
-    const altInvestments = parseFloat(
-      latestWealth.alternativeInvestments || "0",
-    );
-
-    // Group smaller categories as "Other Assets"
-    const otherAssets = stocks + bonds + commodities + altInvestments;
-
-    const data = [
-      { name: "Investments", value: investments, color: "#10b981" },
-      { name: "Cash & Savings", value: cash, color: "#3b82f6" },
-      { name: "Crypto", value: crypto, color: "#f59e0b" },
-      { name: "Real Estate", value: realEstate, color: "#8b5cf6" },
-    ];
-
-    if (otherAssets > 0) {
-      data.push({ name: "Other Assets", value: otherAssets, color: "#ec4899" });
-    }
-
-    return data.filter((item) => item.value > 0);
+    return [
+      {
+        name: "Investments",
+        value: parseFloat(latestWealth.investments),
+        color: "#10b981",
+      },
+      {
+        name: "Cash & Savings",
+        value: parseFloat(latestWealth.cash),
+        color: "#3b82f6",
+      },
+      {
+        name: "Crypto",
+        value: parseFloat(latestWealth.crypto || "0"),
+        color: "#f59e0b",
+      },
+      {
+        name: "Other Assets",
+        value: Math.max(
+          0,
+          parseFloat(latestWealth.assets) -
+            parseFloat(latestWealth.investments) -
+            parseFloat(latestWealth.cash) -
+            parseFloat(latestWealth.crypto || "0"),
+        ),
+        color: "#8b5cf6",
+      },
+    ].filter((item) => item.value > 0);
   };
 
   const chartData = prepareChartData();

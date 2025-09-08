@@ -1,6 +1,6 @@
 import { Header } from "./header";
 import { Footer } from "./footer";
-// import { ThemeProvider } from "@/components/ui/theme-provider"; // Temporarily disabled due to React version conflict
+import { ThemeProvider } from "@/components/ui/theme-provider";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -8,12 +8,14 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
-        {children}
-      </main>
-      <Footer />
-    </div>
+    <ThemeProvider defaultTheme="light" storageKey="theme">
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1">
+          {children}
+        </main>
+        <Footer />
+      </div>
+    </ThemeProvider>
   );
 }

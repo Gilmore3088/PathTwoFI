@@ -16,18 +16,6 @@ import {
 } from "lucide-react";
 
 export default function About() {
-  // FIRE calculations
-  const fireGoalToday = 3500000;
-  const stretchGoalToday = 4000000;
-  const yearsToFire = 14;
-  const inflationRate = 0.03;
-  const inflationMultiplier = Math.pow(1 + inflationRate, yearsToFire);
-  const fireGoalFuture = fireGoalToday * inflationMultiplier;
-  const stretchGoalFuture = stretchGoalToday * inflationMultiplier;
-  const currentNetWorth = 679000; // Your current net worth excluding home
-  const progressToFire = (currentNetWorth / fireGoalFuture) * 100;
-  const progressToStretch = (currentNetWorth / stretchGoalFuture) * 100;
-
   const milestones = [
     {
       year: "2030",
@@ -153,6 +141,21 @@ export default function About() {
     }
   };
 
+  // FIRE calculations with inflation adjustment
+  const currentNetWorthExclHome = 679; // $679K (combined assets excluding home)
+  const fireGoalToday = 3500; // $3.5M in today's dollars
+  const stretchGoalToday = 4000; // $4M stretch goal
+  const yearsToFire = 14; // Target date: Jan 2040
+  const inflationRate = 0.03;
+  const inflationMultiplier = Math.pow(1 + inflationRate, yearsToFire); // ~1.51
+
+  // Future value of goals with inflation
+  const fireGoalFuture = fireGoalToday * inflationMultiplier; // ~$5.29M
+  const stretchGoalFuture = stretchGoalToday * inflationMultiplier; // ~$6.05M
+
+  // Progress percentages
+  const progressToFire = (currentNetWorthExclHome / fireGoalFuture) * 100; // ~13%
+  const progressToStretch = (currentNetWorthExclHome / stretchGoalFuture) * 100; // ~11%
 
   const principles = [
     {
@@ -260,47 +263,22 @@ export default function About() {
           <Card className="mb-16">
             <CardContent className="p-8">
               <h3 className="text-lg font-semibold mb-4">
-                Progress to Financial Independence
+                Progress to $1M Target
               </h3>
-              <div className="space-y-6">
-                {/* FIRE Goal Progress */}
-                <div>
-                  <div className="flex justify-between text-sm text-muted-foreground mb-2">
-                    <span>Current: $679K</span>
-                    <span className="font-semibold">
-                      FIRE Goal: ${(fireGoalFuture / 1000).toFixed(0)}M
-                      (inflation-adjusted)
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-1000"
-                      style={{ width: `${Math.min(progressToFire, 100)}%` }}
-                    />
-                  </div>
-                  <div className="text-center text-xl font-bold text-primary mt-2">
-                    {progressToFire.toFixed(1)}% to FIRE Goal
-                  </div>
+              <div className="space-y-4">
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>Rock Bottom: $29K (Jan 2023)</span>
+                  <span>Current: $631K</span>
+                  <span>Goal: $1M+</span>
                 </div>
-
-                {/* Stretch Goal Progress */}
-                <div>
-                  <div className="flex justify-between text-sm text-muted-foreground mb-2">
-                    <span>Current: $679K</span>
-                    <span className="font-semibold">
-                      Stretch: ${(stretchGoalFuture / 1000).toFixed(0)}M
-                      (inflation-adjusted)
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-1000"
-                      style={{ width: `${Math.min(progressToStretch, 100)}%` }}
-                    />
-                  </div>
-                  <div className="text-center text-xl font-bold text-secondary mt-2">
-                    {progressToStretch.toFixed(1)}% to Stretch Goal
-                  </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 transition-all duration-1000"
+                    style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+                  />
+                </div>
+                <div className="text-center text-2xl font-bold text-primary">
+                  {progressPercentage.toFixed(1)}% Complete
                 </div>
               </div>
             </CardContent>

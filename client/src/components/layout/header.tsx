@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { MobileOptimizedButton } from "@/components/ui/mobile-optimized-button";
-// import { useTheme } from "@/components/ui/theme-provider"; // Temporarily disabled due to React version conflict
+import { useTheme } from "@/components/ui/theme-provider";
 import { Mountain, Moon, Sun, Menu } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -9,8 +9,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useTouchGestures } from "@/hooks/use-touch";
 
 export function Header() {
-  // const { theme, setTheme } = useTheme(); // Temporarily disabled
-  const theme = "light"; // Fixed to light theme temporarily
+  const { theme, setTheme } = useTheme();
   const [location] = useLocation();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -22,8 +21,7 @@ export function Header() {
   ];
 
   const toggleTheme = () => {
-    // setTheme(theme === "dark" ? "light" : "dark"); // Temporarily disabled
-    console.log("Theme toggle temporarily disabled");
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   // Add swipe gesture support for mobile navigation
