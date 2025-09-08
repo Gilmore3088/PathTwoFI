@@ -74,7 +74,7 @@ export default function AdminBlog() {
       featured: false,
       imageUrl: "",
       status: "draft",
-      publishedAt: new Date()
+      publishedAt: undefined
     }
   });
 
@@ -723,9 +723,14 @@ export default function AdminBlog() {
                                     <FormControl>
                                       <Input
                                         type="datetime-local"
-                                        {...field}
-                                        value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ''}
-                                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
+                                        value={field.value ? (typeof field.value === 'string' ? new Date(field.value).toISOString().slice(0, 16) : field.value.toISOString().slice(0, 16)) : ''}
+                                        onChange={(e) => {
+                                          if (e.target.value) {
+                                            field.onChange(e.target.value);
+                                          } else {
+                                            field.onChange(undefined);
+                                          }
+                                        }}
                                         data-testid="input-published-at"
                                         className="h-11"
                                       />
@@ -750,9 +755,14 @@ export default function AdminBlog() {
                                     <FormControl>
                                       <Input
                                         type="datetime-local"
-                                        {...field}
-                                        value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ''}
-                                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
+                                        value={field.value ? (typeof field.value === 'string' ? new Date(field.value).toISOString().slice(0, 16) : field.value.toISOString().slice(0, 16)) : ''}
+                                        onChange={(e) => {
+                                          if (e.target.value) {
+                                            field.onChange(e.target.value);
+                                          } else {
+                                            field.onChange(undefined);
+                                          }
+                                        }}
                                         min={new Date().toISOString().slice(0, 16)}
                                         data-testid="input-scheduled-at"
                                         className="h-11"
