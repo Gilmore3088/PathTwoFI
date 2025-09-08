@@ -74,7 +74,7 @@ export default function AdminBlog() {
       featured: false,
       imageUrl: "",
       status: "draft",
-      publishedAt: undefined
+      publishedAt: new Date()
     }
   });
 
@@ -712,38 +712,6 @@ export default function AdminBlog() {
                               )}
                             />
 
-                            {/* Published Date Field */}
-                            {form.watch("status") === "published" && (
-                              <FormField
-                                control={form.control}
-                                name="publishedAt"
-                                render={({ field }) => (
-                                  <FormItem className="space-y-3">
-                                    <FormLabel className="text-sm font-medium">Publish Date & Time</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="datetime-local"
-                                        value={field.value ? (typeof field.value === 'string' ? new Date(field.value).toISOString().slice(0, 16) : field.value.toISOString().slice(0, 16)) : ''}
-                                        onChange={(e) => {
-                                          if (e.target.value) {
-                                            field.onChange(e.target.value);
-                                          } else {
-                                            field.onChange(undefined);
-                                          }
-                                        }}
-                                        data-testid="input-published-at"
-                                        className="h-11"
-                                      />
-                                    </FormControl>
-                                    <p className="text-xs text-muted-foreground">
-                                      Set the publish date (leave blank to use current time)
-                                    </p>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            )}
-                            
                             {/* Scheduled Date Field */}
                             {form.watch("status") === "scheduled" && (
                               <FormField
@@ -755,14 +723,9 @@ export default function AdminBlog() {
                                     <FormControl>
                                       <Input
                                         type="datetime-local"
-                                        value={field.value ? (typeof field.value === 'string' ? new Date(field.value).toISOString().slice(0, 16) : field.value.toISOString().slice(0, 16)) : ''}
-                                        onChange={(e) => {
-                                          if (e.target.value) {
-                                            field.onChange(e.target.value);
-                                          } else {
-                                            field.onChange(undefined);
-                                          }
-                                        }}
+                                        {...field}
+                                        value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ''}
+                                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
                                         min={new Date().toISOString().slice(0, 16)}
                                         data-testid="input-scheduled-at"
                                         className="h-11"
