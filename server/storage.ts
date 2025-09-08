@@ -417,7 +417,7 @@ export class DatabaseStorage implements IStorage {
 
   // Contact methods
   async getContactSubmissions(): Promise<ContactSubmission[]> {
-    return await db.select().from(contactSubmissions).orderBy(desc(contactSubmissions.createdAt));
+    return await db.select().from(contactSubmissions).orderBy(desc(contactSubmissions.submittedAt));
   }
 
   async createContactSubmission(insertSubmission: InsertContactSubmission): Promise<ContactSubmission> {
