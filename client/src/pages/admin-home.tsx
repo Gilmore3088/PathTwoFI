@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 
 export default function AdminHome() {
+  // DEBUGGING: This should appear in console
+  console.log("🔴 NEW ADMIN SYSTEM LOADING - Check if you see this!");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -125,7 +127,7 @@ export default function AdminHome() {
             <div className="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
               <Lock className="w-8 h-8 text-red-600 dark:text-red-400" />
             </div>
-            <CardTitle className="text-2xl">Admin Access</CardTitle>
+            <CardTitle className="text-2xl">🔴 NEW ADMIN SYSTEM 🔴</CardTitle>
             <p className="text-muted-foreground mt-2">
               This area is restricted to authorized personnel only
             </p>
