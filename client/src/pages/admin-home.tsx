@@ -2,13 +2,32 @@ import { useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SEO } from "@/components/ui/seo";
-import { TrendingUp, Edit, Target, Settings, LogOut } from "lucide-react";
+import { TrendingUp, Edit, Target, MessageSquare, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 export default function AdminHome() {
   const { toast } = useToast();
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
+
+  // Fetch dashboard data
+  const { data: messageCount, isLoading: messagesLoading } = useQuery<number>({
+    queryKey: ["/api/contact-submissions/count"],
+    enabled: isAuthenticated && isAdmin,
+  });
+
+  const { data: postCount, isLoading: postsLoading } = useQuery<number>({
+    queryKey: ["/api/blog-posts/count"],
+    enabled: isAuthenticated && isAdmin,
+  });
+
+  const { data: latestWealth, isLoading: wealthLoading } = useQuery({
+    queryKey: ["/api/wealth-data/latest"],
+    enabled: isAuthenticated && isAdmin,
+  });
+
+  const statsLoading = messagesLoading || postsLoading || wealthLoading;
 
   // Redirect to login if not authenticated or not admin
   useEffect(() => {
@@ -68,7 +87,7 @@ export default function AdminHome() {
       href: "/admin/messages",
       title: "Message Management",
       description: "View and manage contact form submissions",
-      icon: Settings,
+      icon: MessageSquare,
       color: "text-muted-foreground"
     }
   ];
@@ -99,7 +118,7 @@ export default function AdminHome() {
           {/* Header */}
           <div className="text-center mb-12">
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Settings className="w-8 h-8 text-primary" data-testid="icon-admin-settings" />
+              <TrendingUp className="w-8 h-8 text-primary" data-testid="icon-admin-dashboard" />
             </div>
             <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-4" data-testid="text-admin-title">
               Admin Dashboard
@@ -108,6 +127,51 @@ export default function AdminHome() {
               Manage your PathTwo content and financial tracking data
             </p>
           </div>
+
+          {/* Dashboard Stats */}
+          {statsLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              {[...Array(4)].map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="p-4">
+                    <div className="h-8 bg-muted animate-pulse rounded mb-2"></div>
+                    <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold">{messageCount || 0}</div>
+                  <p className="text-sm text-muted-foreground">Messages</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold">{postCount || 0}</div>
+                  <p className="text-sm text-muted-foreground">Blog Posts</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold">
+                    ${latestWealth ? Math.round(parseFloat(latestWealth.netWorth) / 1000) : 0}K
+                  </div>
+                  <p className="text-sm text-muted-foreground">Net Worth</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold">
+                    {latestWealth ? Math.round((parseFloat(latestWealth.netWorth) / parseFloat(latestWealth.fireTarget || '1000000')) * 100) : 0}%
+                  </div>
+                  <p className="text-sm text-muted-foreground">FIRE Progress</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Admin Routes Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -161,12 +225,33 @@ export default function AdminHome() {
                   <span className="text-foreground">Set New Goal</span>
                 </div>
               </Link>
-              <Link href="/" data-testid="link-quick-view-site">
+              <Link href="/admin/messages" data-testid="link-quick-view-messages">
                 <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background transition-colors cursor-pointer">
-                  <Settings className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-foreground">View Public Site</span>
+                  <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-foreground">View Messages</span>
                 </div>
               </Link>
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          <div className="mt-8 p-6 bg-muted/50 rounded-xl">
+            <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between py-2 border-b border-muted">
+                <span>Last wealth update</span>
+                <span className="text-muted-foreground">
+                  {latestWealth ? new Date(latestWealth.date).toLocaleDateString() : 'No data yet'}
+                </span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-muted">
+                <span>Total blog posts</span>
+                <span className="text-muted-foreground">{postCount || 0} published</span>
+              </div>
+              <div className="flex justify-between py-2">
+                <span>New messages</span>
+                <span className="text-muted-foreground">{messageCount || 0} unread</span>
+              </div>
             </div>
           </div>
 
