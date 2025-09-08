@@ -137,12 +137,20 @@ export default function BlogPostPage() {
           )}
 
           {/* Content */}
-          <div className="prose prose-lg prose-gray dark:prose-invert max-w-none">
-            <div 
-              className="blog-content text-gray-800 dark:text-gray-200 leading-relaxed text-lg"
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
-          </div>
+          <div 
+            className="prose prose-lg prose-gray dark:prose-invert max-w-none
+                       prose-headings:font-bold 
+                       prose-h1:text-3xl prose-h2:text-2xl
+                       prose-p:text-gray-700 dark:prose-p:text-gray-300
+                       prose-strong:font-semibold
+                       prose-ul:list-disc prose-ul:pl-6
+                       prose-ol:list-decimal prose-ol:pl-6
+                       prose-li:mb-2
+                       prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:pl-6 prose-blockquote:italic
+                       prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                       prose-pre:bg-gray-900 prose-pre:text-gray-100"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
 
           {/* Footer */}
           <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700 text-center">
