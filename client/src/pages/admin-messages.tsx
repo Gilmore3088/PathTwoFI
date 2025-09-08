@@ -12,6 +12,8 @@ import { Link } from "wouter";
 import type { ContactSubmission } from "@shared/schema";
 
 export default function AdminMessages() {
+  // DEBUGGING: This should appear in console
+  console.log("🔴 ADMIN MESSAGES LOADING - Check if you see this!");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [selectedMessage, setSelectedMessage] = useState<ContactSubmission | null>(null);
@@ -54,16 +56,18 @@ export default function AdminMessages() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p className="ml-4">Loading messages page...</p>
       </div>
     );
   }
 
   if (!isAuthenticated) {
+    console.log("🔴 Messages page: Not authenticated, redirecting...");
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Redirecting to login...</p>
+          <p className="text-muted-foreground">🔴 DEBUG: Redirecting to login...</p>
         </div>
       </div>
     );
