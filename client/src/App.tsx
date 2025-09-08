@@ -40,21 +40,15 @@ function Router() {
 function App() {
   console.log("📍 App component rendering...");
   
-  try {
-    console.log("📍 Initializing providers and layout...");
-    return (
-      <HelmetProvider>
-        <QueryClientProvider client={queryClient}>
-          <Layout>
-            <Router />
-          </Layout>
-        </QueryClientProvider>
-      </HelmetProvider>
-    );
-  } catch (error) {
-    console.error("❌ Error in App component:", error);
-    return <div>App Error: {error instanceof Error ? error.message : 'Unknown error'}</div>;
-  }
+  return (
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <Layout>
+          <Router />
+        </Layout>
+      </QueryClientProvider>
+    </HelmetProvider>
+  );
 }
 
 export default App;
