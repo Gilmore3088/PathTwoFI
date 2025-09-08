@@ -29,14 +29,12 @@ export default function AdminMessages() {
     enabled: isAuthenticated,
     retry: false,
     queryFn: async () => {
-      console.log('🔴 Making API request with admin password header');
       const response = await fetch('/api/contact-submissions', {
         headers: {
           'x-admin-password': 'PathTwo2024Admin!',
           'Content-Type': 'application/json'
         }
       });
-      console.log('🔴 API response status:', response.status);
       if (!response.ok) {
         throw new Error(`${response.status}: ${response.statusText}`);
       }
