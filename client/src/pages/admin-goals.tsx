@@ -258,6 +258,9 @@ export default function AdminGoals() {
                 Financial Goals
               </Button>
             </Link>
+            <Link href="/admin/messages">
+              <Button variant="outline">Messages</Button>
+            </Link>
           </div>
 
           {/* Header */}

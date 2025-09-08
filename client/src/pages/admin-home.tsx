@@ -63,6 +63,13 @@ export default function AdminHome() {
       description: "Set and track financial goals and milestones",
       icon: Target,
       color: "text-accent"
+    },
+    {
+      href: "/admin/messages",
+      title: "Message Management",
+      description: "View and manage contact form submissions",
+      icon: Settings,
+      color: "text-muted-foreground"
     }
   ];
 

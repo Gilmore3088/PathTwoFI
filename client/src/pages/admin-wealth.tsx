@@ -354,6 +354,9 @@ export default function AdminWealth() {
             <Link href="/admin/goals">
               <Button variant="outline">Financial Goals</Button>
             </Link>
+            <Link href="/admin/messages">
+              <Button variant="outline">Messages</Button>
+            </Link>
           </div>
 
           {/* Header */}
