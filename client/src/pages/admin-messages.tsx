@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, MailOpen, Trash2, Eye, User, Calendar, MessageSquare } from "lucide-react";
+import { Mail, MailOpen, Trash2, Eye, User, Calendar, MessageSquare, LogOut } from "lucide-react";
 import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
@@ -117,6 +117,18 @@ export default function AdminMessages() {
                 Messages
               </Button>
             </Link>
+          </div>
+
+          {/* Admin Logout */}
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={() => window.location.href = '/api/logout'}
+              className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+              data-testid="button-admin-logout"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
           </div>
 
           {/* Header */}

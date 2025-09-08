@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { PlusCircle, Edit, Trash2, TrendingUp, Users, User, Heart, Search, Download, CheckSquare, Square } from "lucide-react";
+import { PlusCircle, Edit, Trash2, TrendingUp, Users, User, Heart, Search, Download, CheckSquare, Square, LogOut } from "lucide-react";
 import { format } from "date-fns";
 import { insertWealthDataSchema, type WealthData, type InsertWealthData } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -357,6 +357,18 @@ export default function AdminWealth() {
             <Link href="/admin/messages">
               <Button variant="outline">Messages</Button>
             </Link>
+          </div>
+
+          {/* Admin Logout */}
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={() => window.location.href = '/api/logout'}
+              className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+              data-testid="button-admin-logout"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
           </div>
 
           {/* Header */}

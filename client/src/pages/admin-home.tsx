@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SEO } from "@/components/ui/seo";
-import { TrendingUp, Edit, Target, Settings } from "lucide-react";
+import { TrendingUp, Edit, Target, Settings, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -83,6 +83,19 @@ export default function AdminHome() {
       />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
+          {/* Admin Header with Logout */}
+          <div className="flex justify-between items-center mb-8">
+            <div></div>
+            <button
+              onClick={() => window.location.href = '/api/logout'}
+              className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+              data-testid="button-admin-logout"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
+          </div>
+
           {/* Header */}
           <div className="text-center mb-12">
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
