@@ -1,200 +1,245 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { SEO } from "@/components/ui/seo";
-import { TrendingUp, Edit, Target, MessageSquare, LogOut } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
-import type { WealthData } from "@shared/schema";
+import { 
+  TrendingUp, 
+  FileText, 
+  Target, 
+  MessageSquare, 
+  LogOut, 
+  Shield,
+  ArrowRight,
+  Lock
+} from "lucide-react";
 
 export default function AdminHome() {
-  const { toast } = useToast();
-  const { isAuthenticated, isAdmin, isLoading } = useAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Fetch dashboard data
-  const { data: messageCount, isLoading: messagesLoading } = useQuery<number>({
-    queryKey: ["/api/contact-submissions/count"],
-    enabled: isAuthenticated && isAdmin,
-  });
-
-  const { data: postCount, isLoading: postsLoading } = useQuery<number>({
-    queryKey: ["/api/blog-posts/count"],
-    enabled: isAuthenticated && isAdmin,
-  });
-
-  const { data: latestWealth, isLoading: wealthLoading } = useQuery<WealthData>({
-    queryKey: ["/api/wealth-data/latest"],
-    enabled: isAuthenticated && isAdmin,
-  });
-
-  const statsLoading = messagesLoading || postsLoading || wealthLoading;
-
-  // Redirect to login if not authenticated or not admin
+  // Check if user is already authenticated
   useEffect(() => {
-    if (!isLoading && (!isAuthenticated || !isAdmin)) {
-      toast({
-        title: "Authentication Required",
-        description: "Redirecting to login...",
-        variant: "destructive",
-      });
-      // Immediate redirect to login
-      window.location.href = "/api/login";
-      return;
+    const checkAuth = () => {
+      const authToken = localStorage.getItem("adminAuth");
+      const authExpiry = localStorage.getItem("adminAuthExpiry");
+      
+      if (authToken && authExpiry) {
+        const now = new Date().getTime();
+        const expiry = parseInt(authExpiry);
+        
+        if (now < expiry) {
+          setIsAuthenticated(true);
+        } else {
+          // Token expired, clean up
+          localStorage.removeItem("adminAuth");
+          localStorage.removeItem("adminAuthExpiry");
+        }
+      }
+      setIsLoading(false);
+    };
+    
+    checkAuth();
+  }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    
+    // Simple password check - CHANGE THIS PASSWORD!
+    const ADMIN_PASSWORD = "PathTwo2024Admin!"; // Change this to your secure password!
+    
+    if (password === ADMIN_PASSWORD) {
+      // Set auth in localStorage with 24 hour expiry
+      const now = new Date().getTime();
+      const expiry = now + (24 * 60 * 60 * 1000); // 24 hours
+      
+      localStorage.setItem("adminAuth", "true");
+      localStorage.setItem("adminAuthExpiry", expiry.toString());
+      setIsAuthenticated(true);
+    } else {
+      setError("Invalid password");
     }
-  }, [isAuthenticated, isAdmin, isLoading, toast]);
+  };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  const handleLogout = () => {
+    localStorage.removeItem("adminAuth");
+    localStorage.removeItem("adminAuthExpiry");
+    setIsAuthenticated(false);
+    setPassword("");
+  };
 
-  if (!isAuthenticated || !isAdmin) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
+  // Admin routes configuration
   const adminRoutes = [
     {
       href: "/admin/wealth",
       title: "Wealth Management",
-      description: "Add, edit, and manage wealth tracking data",
+      description: "Track and manage wealth data entries",
       icon: TrendingUp,
-      color: "text-primary"
+      color: "bg-green-500",
+      stats: "Updated daily"
     },
     {
       href: "/admin/blog",
       title: "Blog Management",
-      description: "Create, edit, and manage blog posts",
-      icon: Edit,
-      color: "text-secondary"
+      description: "Create and edit blog posts",
+      icon: FileText,
+      color: "bg-blue-500",
+      stats: "Manage posts"
     },
     {
       href: "/admin/goals",
-      title: "Goals Management", 
-      description: "Set and track financial goals and milestones",
+      title: "Financial Goals",
+      description: "Set and track FIRE milestones",
       icon: Target,
-      color: "text-accent"
+      color: "bg-purple-500",
+      stats: "Track progress"
     },
     {
       href: "/admin/messages",
-      title: "Message Management",
-      description: "View and manage contact form submissions",
+      title: "Contact Messages",
+      description: "View visitor messages",
       icon: MessageSquare,
-      color: "text-muted-foreground"
+      color: "bg-orange-500",
+      stats: "Inbox"
     }
   ];
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Login Screen
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Lock className="w-8 h-8 text-red-600 dark:text-red-400" />
+            </div>
+            <CardTitle className="text-2xl">Admin Access</CardTitle>
+            <p className="text-muted-foreground mt-2">
+              This area is restricted to authorized personnel only
+            </p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <Input
+                  type="password"
+                  placeholder="Enter admin password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full"
+                  autoFocus
+                  data-testid="input-admin-password"
+                />
+                {error && (
+                  <p className="text-red-500 text-sm mt-2" data-testid="text-error-message">{error}</p>
+                )}
+              </div>
+              <Button type="submit" className="w-full" data-testid="button-admin-login">
+                <Shield className="w-4 h-4 mr-2" />
+                Authenticate
+              </Button>
+            </form>
+            <div className="mt-6 text-center">
+              <Link href="/">
+                <span className="text-sm text-muted-foreground hover:text-foreground cursor-pointer" data-testid="link-back-to-site">
+                  ← Back to public site
+                </span>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Admin Dashboard (Authenticated)
   return (
-    <div className="py-16 lg:py-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <SEO 
         title="Admin Dashboard - PathTwo"
-        description="Admin dashboard for managing PathTwo content, wealth data, and financial goals."
+        description="Admin dashboard for managing PathTwo content and data."
         type="website"
         url="/admin"
       />
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Admin Header with Logout */}
-          <div className="flex justify-between items-center mb-8">
-            <div></div>
-            <button
-              onClick={() => window.location.href = '/api/logout'}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+      
+      {/* Admin Header */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
+                <Shield className="w-5 h-5 text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground" data-testid="text-admin-dashboard-title">Admin Dashboard</h1>
+                <p className="text-xs text-muted-foreground">Secure Management Portal</p>
+              </div>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleLogout}
               data-testid="button-admin-logout"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4 mr-2" />
               Logout
-            </button>
+            </Button>
           </div>
+        </div>
+      </div>
 
-          {/* Header */}
-          <div className="text-center mb-12">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <TrendingUp className="w-8 h-8 text-primary" data-testid="icon-admin-dashboard" />
-            </div>
-            <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-4" data-testid="text-admin-title">
-              Admin Dashboard
-            </h1>
-            <p className="text-xl text-muted-foreground" data-testid="text-admin-subtitle">
-              Manage your PathTwo content and financial tracking data
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-6xl mx-auto">
+          
+          {/* Welcome Section */}
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold text-foreground mb-4" data-testid="text-welcome-title">
+              Welcome to Your Admin Portal
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Manage your PathTwo content, track wealth data, and monitor site activity
             </p>
           </div>
 
-          {/* Dashboard Stats */}
-          {statsLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              {[...Array(4)].map((_, i) => (
-                <Card key={i}>
-                  <CardContent className="p-4">
-                    <div className="h-8 bg-muted animate-pulse rounded mb-2"></div>
-                    <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold">{messageCount || 0}</div>
-                  <p className="text-sm text-muted-foreground">Messages</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold">{postCount || 0}</div>
-                  <p className="text-sm text-muted-foreground">Blog Posts</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold">
-                    ${latestWealth ? Math.round(parseFloat(latestWealth.netWorth || '0') / 1000) : 0}K
-                  </div>
-                  <p className="text-sm text-muted-foreground">Net Worth</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold">
-                    {latestWealth ? Math.round((parseFloat(latestWealth.netWorth || '0') / parseFloat(latestWealth.fireTarget || '1000000')) * 100) : 0}%
-                  </div>
-                  <p className="text-sm text-muted-foreground">FIRE Progress</p>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
           {/* Admin Routes Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {adminRoutes.map((route) => {
               const IconComponent = route.icon;
               return (
-                <Link key={route.href} href={route.href} data-testid={`link-admin-${route.title.toLowerCase().replace(/\s+/g, '-')}`}>
-                  <Card className="hover:shadow-lg transition-all duration-200 hover:scale-105 cursor-pointer h-full">
+                <Link key={route.href} href={route.href}>
+                  <Card className="h-full hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer" data-testid={`card-admin-${route.title.toLowerCase().replace(/\s+/g, '-')}`}>
                     <CardHeader>
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-10 h-10 rounded-lg bg-muted flex items-center justify-center`}>
-                          <IconComponent className={`w-5 h-5 ${route.color}`} />
-                        </div>
-                        <CardTitle className="text-lg" data-testid={`text-${route.title.toLowerCase().replace(/\s+/g, '-')}-title`}>
-                          {route.title}
-                        </CardTitle>
+                      <div className={`w-12 h-12 ${route.color} rounded-lg flex items-center justify-center mb-4`}>
+                        <IconComponent className="w-6 h-6 text-white" />
                       </div>
+                      <CardTitle className="text-lg">
+                        {route.title}
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        {route.stats}
+                      </p>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-muted-foreground" data-testid={`text-${route.title.toLowerCase().replace(/\s+/g, '-')}-description`}>
+                      <p className="text-sm text-muted-foreground mb-4">
                         {route.description}
                       </p>
+                      <div className="flex items-center text-sm font-medium text-primary">
+                        Manage
+                        <ArrowRight className="w-4 h-4 ml-1" />
+                      </div>
                     </CardContent>
                   </Card>
                 </Link>
@@ -203,64 +248,45 @@ export default function AdminHome() {
           </div>
 
           {/* Quick Actions */}
-          <div className="mt-12 p-6 bg-muted/50 rounded-xl">
-            <h2 className="text-xl font-semibold text-foreground mb-4" data-testid="text-quick-actions-title">
-              Quick Actions
-            </h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <Link href="/admin/blog" data-testid="link-quick-new-post">
-                <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background transition-colors cursor-pointer">
-                  <Edit className="w-4 h-4 text-secondary" />
-                  <span className="text-foreground">Create New Blog Post</span>
-                </div>
-              </Link>
-              <Link href="/admin/wealth" data-testid="link-quick-add-wealth">
-                <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background transition-colors cursor-pointer">
-                  <TrendingUp className="w-4 h-4 text-primary" />
-                  <span className="text-foreground">Add Wealth Data</span>
-                </div>
-              </Link>
-              <Link href="/admin/goals" data-testid="link-quick-set-goal">
-                <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background transition-colors cursor-pointer">
-                  <Target className="w-4 h-4 text-accent" />
-                  <span className="text-foreground">Set New Goal</span>
-                </div>
-              </Link>
-              <Link href="/admin/messages" data-testid="link-quick-view-messages">
-                <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background transition-colors cursor-pointer">
-                  <MessageSquare className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-foreground">View Messages</span>
-                </div>
-              </Link>
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="mt-8 p-6 bg-muted/50 rounded-xl">
-            <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between py-2 border-b border-muted">
-                <span>Last wealth update</span>
-                <span className="text-muted-foreground">
-                  {latestWealth?.date ? new Date(latestWealth.date).toLocaleDateString() : 'No data yet'}
-                </span>
+          <Card>
+            <CardHeader>
+              <CardTitle data-testid="text-quick-actions-title">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-4">
+                <Link href="/admin/blog">
+                  <Button variant="outline" className="w-full justify-start" data-testid="button-quick-new-post">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Create New Blog Post
+                  </Button>
+                </Link>
+                <Link href="/admin/wealth">
+                  <Button variant="outline" className="w-full justify-start" data-testid="button-quick-add-wealth">
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Add Wealth Entry
+                  </Button>
+                </Link>
+                <Link href="/admin/goals">
+                  <Button variant="outline" className="w-full justify-start" data-testid="button-quick-update-goals">
+                    <Target className="w-4 h-4 mr-2" />
+                    Update Financial Goals
+                  </Button>
+                </Link>
+                <Link href="/admin/messages">
+                  <Button variant="outline" className="w-full justify-start" data-testid="button-quick-check-messages">
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Check Messages
+                  </Button>
+                </Link>
               </div>
-              <div className="flex justify-between py-2 border-b border-muted">
-                <span>Total blog posts</span>
-                <span className="text-muted-foreground">{postCount || 0} published</span>
-              </div>
-              <div className="flex justify-between py-2">
-                <span>New messages</span>
-                <span className="text-muted-foreground">{messageCount || 0} unread</span>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Back to Site */}
-          <div className="mt-8 text-center">
-            <Link href="/" data-testid="link-back-to-site">
-              <span className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                ← Back to PathTwo Site
+          <div className="mt-12 text-center">
+            <Link href="/">
+              <span className="inline-flex items-center text-muted-foreground hover:text-foreground cursor-pointer" data-testid="link-back-to-public-site">
+                ← Back to Public Site
               </span>
             </Link>
           </div>
