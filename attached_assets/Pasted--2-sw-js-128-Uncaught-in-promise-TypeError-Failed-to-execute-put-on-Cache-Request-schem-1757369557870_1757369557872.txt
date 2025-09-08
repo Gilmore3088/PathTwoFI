@@ -1,0 +1,48 @@
+
+﻿
+2
+sw.js:128 Uncaught (in promise) TypeError: Failed to execute 'put' on 'Cache': Request scheme 'chrome-extension' is unsupported
+    at sw.js:128:23
+10
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+10
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+10
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+FinanceBlog:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+FinanceBlog:1 The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+FinanceBlog:1 The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+framework-8a9063633e1c5790.js:1 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+124e58bb-b59a-460e-b…%2F&id=%3Ar4m%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Grammarly-check.js:1 [Violation] Permissions policy violation: unload is not allowed in this document.
+client:536 WebSocket connection to 'wss://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/?token=wKVwQxBY-uvZ' failed: 
+sw.js:128 Uncaught (in promise) TypeError: Failed to execute 'put' on 'Cache': Request scheme 'chrome-extension' is unsupported
+    at sw.js:128:23
+workspace_iframe.htm…min&id=%3Ar4m%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+client:536 WebSocket connection to 'wss://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/?token=wKVwQxBY-uvZ' failed: 
+client:536 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=wKVwQxBY-uvZ' is invalid.
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)
+chunk-RPCDYKBN.js?v=cc2c9f8f:521 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=cc2c9f8f:205:18
+    at div
+    at div
+    at div
+    at div
+    at div
+    at footer
+    at Footer
+    at div
+    at ThemeProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/hooks/use-theme.tsx:25:3)
+    at Layout (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/components/layout/layout.tsx:20:26)
+    at Provider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…unner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=cc2c9f8f:38:15)
+    at TooltipProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…rkspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=cc2c9f8f:61:5)
+    at QueryClientProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=cc2c9f8f:2805:3)
+    at _a (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…r/workspace/node_modules/.vite/deps/react-helmet-async.js?v=cc2c9f8f:624:5)
+    at App
+sw.js:128 Uncaught (in promise) TypeError: Failed to execute 'put' on 'Cache': Request scheme 'chrome-extension' is unsupported
+    at sw.js:128:23
+localStorage.clear()
