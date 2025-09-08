@@ -83,7 +83,7 @@ export function Header() {
             {isAuthenticated ? (
               <div className="hidden md:flex items-center space-x-3">
                 <span className="text-sm text-muted-foreground">
-                  Welcome, {user?.firstName || user?.email}
+                  Welcome, {user?.firstName || user?.email || 'User'}
                 </span>
                 <Button
                   variant="outline"
@@ -160,7 +160,7 @@ export function Header() {
                     {isAuthenticated ? (
                       <>
                         <div className="px-3 py-2 text-sm text-muted-foreground">
-                          Welcome, {user?.firstName || user?.email}
+                          Welcome, {user?.firstName || user?.email || 'User'}
                         </div>
                         <button
                           onClick={() => {

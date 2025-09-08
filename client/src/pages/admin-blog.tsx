@@ -41,13 +41,12 @@ export default function AdminBlog() {
   useEffect(() => {
     if (!authLoading && (!isAuthenticated || !isAdmin)) {
       toast({
-        title: "Access Denied",
-        description: "You need admin access to view this page. Redirecting to login...",
+        title: "Authentication Required",
+        description: "Redirecting to login...",
         variant: "destructive",
       });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 1000);
+      // Immediate redirect to login
+      window.location.href = "/api/login";
       return;
     }
   }, [isAuthenticated, isAdmin, authLoading, toast]);
@@ -61,7 +60,14 @@ export default function AdminBlog() {
   }
 
   if (!isAuthenticated || !isAdmin) {
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Checking authentication...</p>
+        </div>
+      </div>
+    );
   }
 
   // Fetch blog posts
