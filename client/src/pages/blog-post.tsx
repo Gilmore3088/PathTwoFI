@@ -9,15 +9,19 @@ import { ArrowLeft, Clock, Eye, Calendar } from "lucide-react";
 export default function BlogPostPage() {
   const { slug } = useParams();
 
-  const { data: post, isLoading, error } = useQuery<BlogPost>({
+  const {
+    data: post,
+    isLoading,
+    error,
+  } = useQuery<BlogPost>({
     queryKey: ["/api/blog-posts", slug],
   });
 
   const formatDate = (date: Date | string) => {
-    return new Date(date).toLocaleDateString('en-US', { 
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -42,7 +46,9 @@ export default function BlogPostPage() {
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Loading article...</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              Loading article...
+            </p>
           </div>
         </div>
       </div>
@@ -53,9 +59,13 @@ export default function BlogPostPage() {
     return (
       <div className="py-16">
         <div className="container mx-auto px-4 max-w-4xl text-center">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Article Not Found</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">The article you're looking for doesn't exist.</p>
-          <Link 
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            Article Not Found
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-8">
+            The article you're looking for doesn't exist.
+          </p>
+          <Link
             href="/blog"
             className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full transition-colors"
           >
@@ -69,17 +79,17 @@ export default function BlogPostPage() {
 
   return (
     <>
-      <SEO 
+      <SEO
         title={post.title}
         description={post.excerpt}
         type="article"
         url={`/blog/${post.slug}`}
       />
-      
+
       {/* Back to Blog */}
       <div className="bg-gray-50 dark:bg-gray-900 py-4">
         <div className="container mx-auto px-4 max-w-4xl">
-          <Link 
+          <Link
             href="/blog"
             className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
           >
@@ -92,23 +102,24 @@ export default function BlogPostPage() {
       {/* Article */}
       <article className="py-16">
         <div className="container mx-auto px-4 max-w-4xl">
-          
           {/* Header */}
           <header className="text-center mb-12">
             <div className="mb-6">
-              <Badge className={`${getCategoryColor(post.category)} font-medium mb-4`}>
+              <Badge
+                className={`${getCategoryColor(post.category)} font-medium mb-4`}
+              >
                 {post.category}
               </Badge>
             </div>
-            
+
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
               {post.title}
             </h1>
-            
+
             <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed mb-8 max-w-3xl mx-auto">
               {post.excerpt}
             </p>
-            
+
             <div className="flex items-center justify-center gap-8 text-sm text-gray-500 dark:text-gray-400">
               <div className="flex items-center">
                 <Calendar className="w-4 h-4 mr-2" />
@@ -128,7 +139,7 @@ export default function BlogPostPage() {
           {/* Featured Image */}
           {post.imageUrl && (
             <div className="mb-12">
-              <img 
+              <img
                 src={post.imageUrl}
                 alt={post.title}
                 className="w-full h-96 object-cover rounded-2xl shadow-lg"
@@ -136,32 +147,114 @@ export default function BlogPostPage() {
             </div>
           )}
 
-          {/* Content */}
-          <div className="prose prose-lg prose-gray dark:prose-invert max-w-none">
-            <div 
-              className="blog-content text-gray-800 dark:text-gray-200 leading-relaxed text-lg"
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
-          </div>
+          {/* Content with better styling */}
+          <div
+            className="blog-content prose prose-lg prose-gray dark:prose-invert max-w-none
+                       prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100
+                       prose-h1:text-3xl prose-h1:mt-8 prose-h1:mb-4
+                       prose-h2:text-2xl prose-h2:mt-6 prose-h2:mb-3
+                       prose-h3:text-xl prose-h3:mt-4 prose-h3:mb-2
+                       prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-p:mb-4
+                       prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
+                       prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
+                       prose-li:text-gray-700 dark:prose-li:text-gray-300 prose-li:mb-2
+                       prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-strong:font-semibold
+                       prose-table:my-6 prose-table:w-full
+                       prose-th:bg-gray-100 dark:prose-th:bg-gray-800 prose-th:p-3 prose-th:text-left
+                       prose-td:p-3 prose-td:border prose-td:border-gray-200 dark:prose-td:border-gray-700
+                       prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:pl-4 prose-blockquote:italic
+                       prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+                       prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-pre:text-gray-100 prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-x-auto"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
 
           {/* Footer */}
           <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700 text-center">
             <p className="text-gray-600 dark:text-gray-400 mb-8">
               Thanks for reading! Follow our FIRE journey for more updates.
             </p>
-            
-            <Link 
+
+            <Link
               href="/blog"
               className="inline-flex items-center px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full transition-colors duration-200"
             >
               More Articles
-              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              <svg
+                className="w-4 h-4 ml-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
               </svg>
             </Link>
           </div>
         </div>
       </article>
+
+      <style jsx>{`
+        /* Additional custom styles for blog content */
+        .blog-content table {
+          border-collapse: collapse;
+          width: 100%;
+          margin: 1.5rem 0;
+        }
+
+        .blog-content table th,
+        .blog-content table td {
+          text-align: left;
+          padding: 0.75rem;
+          border: 1px solid #e5e7eb;
+        }
+
+        .dark .blog-content table th,
+        .dark .blog-content table td {
+          border-color: #374151;
+        }
+
+        .blog-content table th {
+          background-color: #f9fafb;
+          font-weight: 600;
+        }
+
+        .dark .blog-content table th {
+          background-color: #1f2937;
+        }
+
+        .blog-content table tr:nth-child(even) {
+          background-color: #f9fafb;
+        }
+
+        .dark .blog-content table tr:nth-child(even) {
+          background-color: #111827;
+        }
+
+        /* Ensure emojis and special characters display properly */
+        .blog-content {
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
+
+        /* Better spacing for content sections */
+        .blog-content > * + * {
+          margin-top: 1rem;
+        }
+
+        .blog-content h1,
+        .blog-content h2 {
+          margin-top: 2rem;
+        }
+
+        .blog-content h1:first-child,
+        .blog-content h2:first-child {
+          margin-top: 0;
+        }
+      `}</style>
     </>
   );
 }

@@ -5,7 +5,7 @@
 
 :root {
   --radius: 8px;
-  
+
   /* Light mode colors - Pacific Northwest inspired */
   --background: hsl(210, 20%, 98%);
   --foreground: hsl(210, 40%, 15%);
@@ -13,13 +13,16 @@
   --card-foreground: hsl(210, 40%, 15%);
   --popover: hsl(0, 0%, 100%);
   --popover-foreground: hsl(210, 40%, 15%);
-  --primary: hsl(160, 85%, 20%); /* Forest green */
+  --primary: hsl(160, 85%, 20%);
+  /* Forest green */
   --primary-foreground: hsl(0, 0%, 98%);
-  --secondary: hsl(220, 60%, 35%); /* Ocean blue */
+  --secondary: hsl(220, 60%, 35%);
+  /* Ocean blue */
   --secondary-foreground: hsl(0, 0%, 98%);
   --muted: hsl(210, 40%, 96%);
   --muted-foreground: hsl(210, 15%, 55%);
-  --accent: hsl(140, 25%, 55%); /* Sage green */
+  --accent: hsl(140, 25%, 55%);
+  /* Sage green */
   --accent-foreground: hsl(0, 0%, 100%);
   --destructive: hsl(0, 84%, 60%);
   --destructive-foreground: hsl(0, 0%, 98%);
@@ -52,45 +55,49 @@
   --shadow-2xl: 0px 2px 0px 0px hsl(210, 40%, 90% / 0.05);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
-  
+
   /* Touch-friendly interaction variables */
-  --touch-target-min: 44px; /* Minimum touch target size for accessibility */
-  --tap-highlight: hsla(160, 85%, 20%, 0.1); /* Touch feedback color */
+  --touch-target-min: 44px;
+  /* Minimum touch target size for accessibility */
+  --tap-highlight: hsla(160, 85%, 20%, 0.1);
+  /* Touch feedback color */
 }
 
 /* Mobile-first touch optimizations */
 @media (max-width: 768px) {
+
   /* Larger touch targets on mobile */
   .btn-touch {
     min-height: var(--touch-target-min);
     min-width: var(--touch-target-min);
     padding: 12px 20px;
   }
-  
+
   /* Better form inputs on mobile */
   .input-touch {
     min-height: var(--touch-target-min);
-    font-size: 16px; /* Prevents zoom on iOS */
+    font-size: 16px;
+    /* Prevents zoom on iOS */
     padding: 12px 16px;
   }
-  
+
   /* Improved tap feedback */
   .touch-feedback {
     -webkit-tap-highlight-color: var(--tap-highlight);
     transition: transform 0.1s ease, background-color 0.1s ease;
   }
-  
+
   .touch-feedback:active {
     transform: scale(0.98);
     background-color: var(--tap-highlight);
   }
-  
+
   /* Better spacing for mobile */
   .mobile-spacing {
     gap: 16px;
     padding: 16px;
   }
-  
+
   /* Scroll improvements */
   .mobile-scroll {
     -webkit-overflow-scrolling: touch;
@@ -125,8 +132,21 @@
 }
 
 /* Allow text selection for readable content */
-p, span, h1, h2, h3, h4, h5, h6, li, td, th, label, 
-input, textarea, [contenteditable] {
+p,
+span,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+li,
+td,
+th,
+label,
+input,
+textarea,
+[contenteditable] {
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
@@ -134,8 +154,12 @@ input, textarea, [contenteditable] {
 }
 
 /* Ensure minimum touch target size */
-button, [role="button"], a, input[type="button"], 
-input[type="submit"], input[type="reset"] {
+button,
+[role="button"],
+a,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
   min-height: var(--touch-target-min);
   min-width: var(--touch-target-min);
 }
@@ -145,7 +169,7 @@ input[type="submit"], input[type="reset"] {
   * {
     -webkit-overflow-scrolling: touch;
   }
-  
+
   /* Larger touch targets on mobile */
   .mobile-touch-large {
     min-height: 48px;
@@ -155,7 +179,8 @@ input[type="submit"], input[type="reset"] {
 
 .dark {
   /* Dark mode colors */
-  --background: hsl(160, 50%, 8%); /* Deep forest */
+  --background: hsl(160, 50%, 8%);
+  /* Deep forest */
   --foreground: hsl(210, 40%, 95%);
   --card: hsl(160, 50%, 10%);
   --card-foreground: hsl(210, 40%, 95%);
@@ -201,53 +226,4 @@ input[type="submit"], input[type="reset"] {
 
 .progress-bar {
   background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
-}
-
-/* Blog content styling */
-.blog-content h1 {
-  @apply text-3xl font-bold mb-6 mt-8 text-gray-900 dark:text-white;
-}
-
-.blog-content h2 {
-  @apply text-2xl font-semibold mb-4 mt-8 text-gray-900 dark:text-white;
-}
-
-.blog-content h3 {
-  @apply text-xl font-medium mb-3 mt-6 text-gray-900 dark:text-white;
-}
-
-.blog-content p {
-  @apply mb-4 leading-relaxed text-gray-800 dark:text-gray-200;
-}
-
-.blog-content ul {
-  @apply mb-6 pl-6 space-y-2;
-}
-
-.blog-content li {
-  @apply list-disc mb-1 leading-relaxed text-gray-800 dark:text-gray-200;
-}
-
-.blog-content strong {
-  @apply font-semibold text-gray-900 dark:text-white;
-}
-
-.blog-content em {
-  @apply italic text-gray-700 dark:text-gray-300;
-}
-
-.blog-content blockquote {
-  @apply border-l-4 border-blue-500 pl-4 italic my-6 text-gray-700 dark:text-gray-300;
-}
-
-.blog-content code {
-  @apply bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded font-mono text-sm;
-}
-
-.blog-content pre {
-  @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto mb-4;
-}
-
-.blog-content a {
-  @apply text-blue-600 dark:text-blue-400 hover:underline;
 }
