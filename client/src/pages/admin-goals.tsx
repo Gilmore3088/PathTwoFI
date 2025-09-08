@@ -189,13 +189,13 @@ export default function AdminGoals() {
     setEditingGoal(goal);
     form.reset({
       title: goal.title,
-      description: goal.description?.toString() || "",
-      targetAmount: goal.targetAmount,
-      currentAmount: goal.currentAmount,
+      description: goal.description || "",
+      targetAmount: goal.targetAmount || "",
+      currentAmount: goal.currentAmount || "0",
       category: goal.category as "His" | "Her" | "Both",
       goalType: goal.goalType as "net_worth" | "savings_rate" | "debt_payoff" | "custom",
       targetDate: goal.targetDate ? new Date(goal.targetDate) : new Date(),
-      priority: goal.priority as "low" | "medium" | "high"
+      priority: (goal.priority || "medium") as "low" | "medium" | "high"
     });
     setIsDialogOpen(true);
   };
@@ -217,13 +217,13 @@ export default function AdminGoals() {
     form.reset();
   };
 
-  const calculateProgress = (current: string, target: string) => {
-    const currentNum = parseFloat(current) || 0;
-    const targetNum = parseFloat(target) || 1;
+  const calculateProgress = (current: string | null, target: string | null) => {
+    const currentNum = parseFloat(current || "0") || 0;
+    const targetNum = parseFloat(target || "1") || 1;
     return Math.min((currentNum / targetNum) * 100, 100);
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: string | null) => {
     switch (priority) {
       case "high": return "bg-red-500";
       case "medium": return "bg-yellow-500";
@@ -491,8 +491,8 @@ export default function AdminGoals() {
               {filteredGoals.map((goal) => {
                 const progress = calculateProgress(goal.currentAmount, goal.targetAmount);
                 const isCompleted = goal.isCompleted;
-                const currentAmount = parseFloat(goal.currentAmount);
-                const targetAmount = parseFloat(goal.targetAmount);
+                const currentAmount = parseFloat(goal.currentAmount || "0");
+                const targetAmount = parseFloat(goal.targetAmount || "0");
 
                 return (
                   <Card key={goal.id} className={`${isCompleted ? 'border-green-500 bg-green-50 dark:bg-green-950' : ''}`}>
@@ -506,7 +506,7 @@ export default function AdminGoals() {
                           </CardTitle>
                           <div className="flex gap-2 mt-2">
                             <Badge variant="outline" className={getPriorityColor(goal.priority)}>
-                              {goal.priority}
+                              {goal.priority || "medium"}
                             </Badge>
                             <Badge variant="secondary">{goal.category}</Badge>
                             <Badge variant="outline">{goal.goalType.replace('_', ' ')}</Badge>
@@ -551,7 +551,7 @@ export default function AdminGoals() {
 
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Clock className="w-4 h-4" />
-                        <span>Target: {format(new Date(goal.targetDate), 'MMM dd, yyyy')}</span>
+                        <span>Target: {goal.targetDate ? format(new Date(goal.targetDate), 'MMM dd, yyyy') : 'No target date'}</span>
                       </div>
 
                       {!isCompleted && progress >= 100 && (
