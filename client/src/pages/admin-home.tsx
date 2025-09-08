@@ -6,6 +6,7 @@ import { TrendingUp, Edit, Target, MessageSquare, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import type { WealthData } from "@shared/schema";
 
 export default function AdminHome() {
   const { toast } = useToast();
@@ -22,7 +23,7 @@ export default function AdminHome() {
     enabled: isAuthenticated && isAdmin,
   });
 
-  const { data: latestWealth, isLoading: wealthLoading } = useQuery({
+  const { data: latestWealth, isLoading: wealthLoading } = useQuery<WealthData>({
     queryKey: ["/api/wealth-data/latest"],
     enabled: isAuthenticated && isAdmin,
   });
@@ -157,7 +158,7 @@ export default function AdminHome() {
               <Card>
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold">
-                    ${latestWealth ? Math.round(parseFloat(latestWealth.netWorth) / 1000) : 0}K
+                    ${latestWealth ? Math.round(parseFloat(latestWealth.netWorth || '0') / 1000) : 0}K
                   </div>
                   <p className="text-sm text-muted-foreground">Net Worth</p>
                 </CardContent>
@@ -165,7 +166,7 @@ export default function AdminHome() {
               <Card>
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold">
-                    {latestWealth ? Math.round((parseFloat(latestWealth.netWorth) / parseFloat(latestWealth.fireTarget || '1000000')) * 100) : 0}%
+                    {latestWealth ? Math.round((parseFloat(latestWealth.netWorth || '0') / parseFloat(latestWealth.fireTarget || '1000000')) * 100) : 0}%
                   </div>
                   <p className="text-sm text-muted-foreground">FIRE Progress</p>
                 </CardContent>
@@ -241,7 +242,7 @@ export default function AdminHome() {
               <div className="flex justify-between py-2 border-b border-muted">
                 <span>Last wealth update</span>
                 <span className="text-muted-foreground">
-                  {latestWealth ? new Date(latestWealth.date).toLocaleDateString() : 'No data yet'}
+                  {latestWealth?.date ? new Date(latestWealth.date).toLocaleDateString() : 'No data yet'}
                 </span>
               </div>
               <div className="flex justify-between py-2 border-b border-muted">
