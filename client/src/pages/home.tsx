@@ -16,8 +16,6 @@ import { FIRE_TARGET } from "@/lib/constants";
 
 export default function Home() {
   const { toast } = useToast();
-  const [email, setEmail] = useState("");
-  const [isSubscribing, setIsSubscribing] = useState(false);
 
   // Fetch featured posts
   const { data: featuredPosts, isLoading: featuredLoading } = useQuery<BlogPost[]>({
@@ -37,28 +35,6 @@ export default function Home() {
     }
   });
 
-  const handleNewsletterSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    setIsSubscribing(true);
-    try {
-      await apiRequest("POST", "/api/newsletter/subscribe", { email });
-      toast({
-        title: "Success!",
-        description: "You've been subscribed to our newsletter.",
-      });
-      setEmail("");
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to subscribe. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubscribing(false);
-    }
-  };
 
   const netWorthFormatted = latestWealth ? parseFloat(latestWealth.netWorth).toLocaleString() : "0";
   const investmentsFormatted = latestWealth ? parseFloat(latestWealth.investments).toLocaleString() : "0";
@@ -262,41 +238,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      <section className="py-16 lg:py-20 bg-gradient-to-br from-primary/5 to-secondary/5">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4" data-testid="text-newsletter-title">Stay Updated</h2>
-            <p className="text-lg text-muted-foreground mb-8" data-testid="text-newsletter-subtitle">
-              Get monthly updates on wealth tracking progress, new investment strategies, and FIRE milestones delivered to your inbox.
-            </p>
-            
-            <form onSubmit={handleNewsletterSignup} className="max-w-md mx-auto" data-testid="form-newsletter">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="flex-1"
-                  data-testid="input-newsletter-email"
-                />
-                <Button 
-                  type="submit" 
-                  disabled={isSubscribing}
-                  data-testid="button-newsletter-subscribe"
-                >
-                  {isSubscribing ? "Subscribing..." : "Subscribe"}
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground mt-4" data-testid="text-newsletter-disclaimer">
-                No spam, unsubscribe at any time. Privacy policy available.
-              </p>
-            </form>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

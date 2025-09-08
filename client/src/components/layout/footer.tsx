@@ -1,4 +1,4 @@
-import { Mountain, Twitter, Linkedin, Mail, Rss } from "lucide-react";
+import { Mountain, Twitter, Mail } from "lucide-react";
 import { Link } from "wouter";
 
 export function Footer() {
@@ -19,17 +19,11 @@ export function Footer() {
                 <a href="#" className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-social-twitter">
                   <Twitter className="h-5 w-5" />
                 </a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-social-linkedin">
-                  <Linkedin className="h-5 w-5" />
-                </a>
                 <Link href="/contact" data-testid="link-social-email">
                   <a className="text-muted-foreground hover:text-primary transition-colors">
                     <Mail className="h-5 w-5" />
                   </a>
                 </Link>
-                <a href="/feed.xml" className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-social-rss" title="Subscribe to RSS Feed">
-                  <Rss className="h-5 w-5" />
-                </a>
               </div>
             </div>
             
@@ -49,7 +43,6 @@ export function Footer() {
                 <li><Link href="/about" data-testid="link-footer-about"><a className="text-muted-foreground hover:text-foreground transition-colors">About</a></Link></li>
                 <li><Link href="/contact" data-testid="link-footer-contact"><a className="text-muted-foreground hover:text-foreground transition-colors">Contact</a></Link></li>
                 <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-privacy">Privacy Policy</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-newsletter">Newsletter</a></li>
               </ul>
             </div>
           </div>
