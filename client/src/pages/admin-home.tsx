@@ -1,9 +1,41 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SEO } from "@/components/ui/seo";
 import { TrendingUp, Edit, Target, Settings } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminHome() {
+  const { toast } = useToast();
+  const { isAuthenticated, isAdmin, isLoading } = useAuth();
+
+  // Redirect to login if not authenticated or not admin
+  useEffect(() => {
+    if (!isLoading && (!isAuthenticated || !isAdmin)) {
+      toast({
+        title: "Access Denied",
+        description: "You need admin access to view this page. Redirecting to login...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 1000);
+      return;
+    }
+  }, [isAuthenticated, isAdmin, isLoading, toast]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || !isAdmin) {
+    return null;
+  }
   const adminRoutes = [
     {
       href: "/admin/wealth",

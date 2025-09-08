@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ import type { UploadResult } from '@uppy/core';
 import { Link } from "wouter";
 
 export default function AdminBlog() {
+  const { isAuthenticated, isAdmin, isLoading } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<BlogPost | null>(null);
@@ -34,6 +36,33 @@ export default function AdminBlog() {
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Redirect to login if not authenticated or not admin
+  useEffect(() => {
+    if (!isLoading && (!isAuthenticated || !isAdmin)) {
+      toast({
+        title: "Access Denied",
+        description: "You need admin access to view this page. Redirecting to login...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 1000);
+      return;
+    }
+  }, [isAuthenticated, isAdmin, isLoading, toast]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || !isAdmin) {
+    return null;
+  }
 
   // Fetch blog posts
   const { data: allBlogPosts = [], isLoading } = useQuery<BlogPost[]>({
