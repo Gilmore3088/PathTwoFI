@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,26 +12,43 @@ import { Link } from "wouter";
 import type { ContactSubmission } from "@shared/schema";
 
 export default function AdminMessages() {
-  const { isAuthenticated, isAdmin, isLoading: authLoading } = useAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
   const [selectedMessage, setSelectedMessage] = useState<ContactSubmission | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Redirect to login if not authenticated or not admin
+  // Check localStorage authentication
   useEffect(() => {
-    if (!authLoading && (!isAuthenticated || !isAdmin)) {
-      toast({
-        title: "Authentication Required",
-        description: "Redirecting to login...",
-        variant: "destructive",
-      });
-      // Immediate redirect to login
-      window.location.href = "/api/login";
-      return;
-    }
-  }, [isAuthenticated, isAdmin, authLoading, toast]);
+    const checkAuth = () => {
+      const authToken = localStorage.getItem("adminAuth");
+      const authExpiry = localStorage.getItem("adminAuthExpiry");
+      
+      if (authToken && authExpiry) {
+        const now = new Date().getTime();
+        const expiry = parseInt(authExpiry);
+        
+        if (now < expiry) {
+          setIsAuthenticated(true);
+        } else {
+          // Token expired, redirect to admin login
+          localStorage.removeItem("adminAuth");
+          localStorage.removeItem("adminAuthExpiry");
+          window.location.href = "/admin";
+          return;
+        }
+      } else {
+        // Not authenticated, redirect to admin login
+        window.location.href = "/admin";
+        return;
+      }
+      setAuthLoading(false);
+    };
+    
+    checkAuth();
+  }, []);
 
   if (authLoading) {
     return (
@@ -42,20 +58,21 @@ export default function AdminMessages() {
     );
   }
 
-  if (!isAuthenticated || !isAdmin) {
+  if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Checking authentication...</p>
+          <p className="text-muted-foreground">Redirecting to login...</p>
         </div>
       </div>
     );
   }
 
-  // Fetch all contact submissions
-  const { data: messages = [], isLoading } = useQuery<ContactSubmission[]>({
+  // Fetch all contact submissions - temporarily use public contact endpoint since auth is different
+  const { data: messages = [], isLoading: messagesLoading } = useQuery<ContactSubmission[]>({
     queryKey: ["/api/contact-submissions"],
+    enabled: isAuthenticated,
   });
 
   // Delete mutation
@@ -150,7 +167,7 @@ export default function AdminMessages() {
           </div>
 
           {/* Messages List */}
-          {isLoading ? (
+          {messagesLoading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
               <p className="text-muted-foreground mt-2">Loading messages...</p>
