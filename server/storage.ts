@@ -60,6 +60,7 @@ export interface IStorage {
 
   // Contact methods
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
+  getContactSubmissions(): Promise<ContactSubmission[]>;
 
   // Financial Goals methods
   getFinancialGoals(category?: string): Promise<FinancialGoal[]>;
@@ -418,6 +419,10 @@ export class DatabaseStorage implements IStorage {
   async createContactSubmission(insertSubmission: InsertContactSubmission): Promise<ContactSubmission> {
     const [submission] = await db.insert(contactSubmissions).values(insertSubmission).returning();
     return submission;
+  }
+
+  async getContactSubmissions(): Promise<ContactSubmission[]> {
+    return await db.select().from(contactSubmissions).orderBy(desc(contactSubmissions.submittedAt));
   }
 
   // Financial Goals methods

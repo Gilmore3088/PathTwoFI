@@ -304,6 +304,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Contact submissions admin endpoint
+  app.get("/api/contact-submissions", isAdmin, async (req, res) => {
+    try {
+      const submissions = await storage.getContactSubmissions();
+      res.json(submissions);
+    } catch (error) {
+      console.error("Error fetching contact submissions:", error);
+      res.status(500).json({ message: "Failed to fetch contact submissions" });
+    }
+  });
+
   // Financial Goals routes
   app.get("/api/financial-goals", isAdmin, async (req, res) => {
     try {
