@@ -18,6 +18,7 @@ import { insertWealthDataSchema, type WealthData, type InsertWealthData } from "
 import { apiRequest } from "@/lib/queryClient";
 import Papa from 'papaparse';
 import { Link, useLocation } from "wouter";
+import { makeAdminRequest } from "@/lib/adminAuth";
 
 export default function AdminWealth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -83,6 +84,13 @@ export default function AdminWealth() {
   // Fetch all wealth data
   const { data: allWealthData = [], isLoading } = useQuery<WealthData[]>({
     queryKey: ["/api/wealth-data"],
+    queryFn: async () => {
+      const response = await makeAdminRequest('/api/wealth-data');
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    }
   });
 
   // Filtered and searched wealth data

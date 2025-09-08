@@ -201,7 +201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/blog-posts", isAdmin, async (req, res) => {
+  app.post("/api/blog-posts", isAdminAuthenticated, async (req, res) => {
     try {
       console.log('Received blog post data:', JSON.stringify(req.body, null, 2));
       const validatedData = insertBlogPostSchema.parse(req.body);
@@ -217,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/blog-posts/:id", isAdmin, async (req, res) => {
+  app.put("/api/blog-posts/:id", isAdminAuthenticated, async (req, res) => {
     try {
       const { id } = req.params;
       const validatedData = insertBlogPostSchema.partial().parse(req.body);
@@ -231,7 +231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/blog-posts/:id", isAdmin, async (req, res) => {
+  app.delete("/api/blog-posts/:id", isAdminAuthenticated, async (req, res) => {
     try {
       const { id } = req.params;
       const success = await storage.deleteBlogPost(id);
@@ -245,7 +245,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wealth data routes
-  app.get("/api/wealth-data", isAdmin, async (req, res) => {
+  app.get("/api/wealth-data", isAdminAuthenticated, async (req, res) => {
     try {
       const category = req.query.category as string | undefined;
       const data = await storage.getWealthData(category);
@@ -268,7 +268,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/wealth-data/:id", isAdmin, async (req, res) => {
+  app.put("/api/wealth-data/:id", isAdminAuthenticated, async (req, res) => {
     try {
       const { id } = req.params;
       const validatedData = insertWealthDataSchema.partial().parse(req.body);
@@ -282,7 +282,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/wealth-data/:id", isAdmin, async (req, res) => {
+  app.delete("/api/wealth-data/:id", isAdminAuthenticated, async (req, res) => {
     try {
       const { id } = req.params;
       const success = await storage.deleteWealthData(id);
@@ -295,7 +295,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/wealth-data", isAdmin, async (req, res) => {
+  app.post("/api/wealth-data", isAdminAuthenticated, async (req, res) => {
     try {
       const validatedData = insertWealthDataSchema.parse(req.body);
       const data = await storage.createWealthData(validatedData);
@@ -392,7 +392,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Financial Goals routes
-  app.get("/api/financial-goals", isAdmin, async (req, res) => {
+  app.get("/api/financial-goals", isAdminAuthenticated, async (req, res) => {
     try {
       const category = req.query.category as string;
       const goals = await storage.getFinancialGoals(category);
@@ -402,7 +402,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/financial-goals", isAdmin, async (req, res) => {
+  app.post("/api/financial-goals", isAdminAuthenticated, async (req, res) => {
     try {
       const validatedData = insertFinancialGoalSchema.parse(req.body);
       const goal = await storage.createFinancialGoal(validatedData);
@@ -416,7 +416,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/financial-goals/:id", isAdmin, async (req, res) => {
+  app.put("/api/financial-goals/:id", isAdminAuthenticated, async (req, res) => {
     try {
       const validatedData = insertFinancialGoalSchema.partial().parse(req.body);
       const goal = await storage.updateFinancialGoal(req.params.id, validatedData);
@@ -433,7 +433,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/financial-goals/:id", isAdmin, async (req, res) => {
+  app.delete("/api/financial-goals/:id", isAdminAuthenticated, async (req, res) => {
     try {
       const success = await storage.deleteFinancialGoal(req.params.id);
       if (!success) {
@@ -446,7 +446,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wealth Reports routes
-  app.get("/api/wealth-reports", isAdmin, async (req, res) => {
+  app.get("/api/wealth-reports", isAdminAuthenticated, async (req, res) => {
     try {
       const category = req.query.category as string;
       const reportType = req.query.reportType as string;
@@ -457,7 +457,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/wealth-reports", isAdmin, async (req, res) => {
+  app.post("/api/wealth-reports", isAdminAuthenticated, async (req, res) => {
     try {
       const validatedData = insertWealthReportSchema.parse(req.body);
       const report = await storage.createWealthReport(validatedData);
@@ -472,7 +472,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Object storage routes
-  app.post("/api/objects/upload", isAdmin, async (req, res) => {
+  app.post("/api/objects/upload", isAdminAuthenticated, async (req, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();

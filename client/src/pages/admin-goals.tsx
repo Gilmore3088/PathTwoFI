@@ -18,6 +18,7 @@ import { format } from "date-fns";
 import { insertFinancialGoalSchema, type FinancialGoal, type InsertFinancialGoal, type GoalMilestone } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
+import { makeAdminRequest } from "@/lib/adminAuth";
 
 export default function AdminGoals() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -79,6 +80,13 @@ export default function AdminGoals() {
   // Fetch all financial goals
   const { data: goals = [], isLoading } = useQuery<FinancialGoal[]>({
     queryKey: ["/api/financial-goals"],
+    queryFn: async () => {
+      const response = await makeAdminRequest('/api/financial-goals');
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    }
   });
 
   // Filtered goals

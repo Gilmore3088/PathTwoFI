@@ -21,6 +21,7 @@ import 'react-quill/dist/quill.snow.css';
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from '@uppy/core';
 import { Link } from "wouter";
+import { makeAdminRequest } from "@/lib/adminAuth";
 
 export default function AdminBlog() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -87,6 +88,13 @@ export default function AdminBlog() {
   // Fetch blog posts
   const { data: allBlogPosts = [], isLoading } = useQuery<BlogPost[]>({
     queryKey: ["/api/blog-posts"],
+    queryFn: async () => {
+      const response = await makeAdminRequest('/api/blog-posts');
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    }
   });
 
   // Filtered and searched blog posts
