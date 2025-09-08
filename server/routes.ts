@@ -18,7 +18,9 @@ import {
   insertBlogPostSchema, 
   insertWealthDataSchema, 
   insertNewsletterSubscriptionSchema,
-  insertContactSubmissionSchema 
+  insertContactSubmissionSchema,
+  insertFinancialGoalSchema,
+  insertWealthReportSchema
 } from "@shared/schema";
 import { ObjectStorageService } from "./objectStorage";
 
@@ -402,22 +404,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/financial-goals", isAdmin, async (req, res) => {
     try {
-      const goal = await storage.createFinancialGoal(req.body);
+      const validatedData = insertFinancialGoalSchema.parse(req.body);
+      const goal = await storage.createFinancialGoal(validatedData);
       res.json(goal);
     } catch (error) {
-      res.status(500).json({ message: "Failed to create financial goal" });
+      if (error instanceof Error) {
+        res.status(400).json({ message: "Invalid financial goal data", error: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to create financial goal" });
+      }
     }
   });
 
   app.put("/api/financial-goals/:id", isAdmin, async (req, res) => {
     try {
-      const goal = await storage.updateFinancialGoal(req.params.id, req.body);
+      const validatedData = insertFinancialGoalSchema.partial().parse(req.body);
+      const goal = await storage.updateFinancialGoal(req.params.id, validatedData);
       if (!goal) {
         return res.status(404).json({ message: "Financial goal not found" });
       }
       res.json(goal);
     } catch (error) {
-      res.status(500).json({ message: "Failed to update financial goal" });
+      if (error instanceof Error) {
+        res.status(400).json({ message: "Invalid financial goal data", error: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to update financial goal" });
+      }
     }
   });
 
@@ -447,10 +459,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/wealth-reports", isAdmin, async (req, res) => {
     try {
-      const report = await storage.createWealthReport(req.body);
+      const validatedData = insertWealthReportSchema.parse(req.body);
+      const report = await storage.createWealthReport(validatedData);
       res.json(report);
     } catch (error) {
-      res.status(500).json({ message: "Failed to create wealth report" });
+      if (error instanceof Error) {
+        res.status(400).json({ message: "Invalid wealth report data", error: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to create wealth report" });
+      }
     }
   });
 
