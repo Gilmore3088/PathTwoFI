@@ -1,6 +1,7 @@
 import { 
   type User, 
-  type InsertUser, 
+  type InsertUser,
+  type UpsertUser, 
   type BlogPost, 
   type InsertBlogPost,
   type WealthData,
@@ -28,8 +29,9 @@ import { db } from "./db";
 import { eq, desc, asc, sql } from "drizzle-orm";
 
 export interface IStorage {
-  // User methods
+  // User methods (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
 
@@ -277,14 +279,29 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // User methods
+  // User methods (required for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
   }
 
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
+    const [user] = await db.select().from(users).where(eq(users.email, username));
     return user || undefined;
   }
 
