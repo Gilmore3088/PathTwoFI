@@ -6,11 +6,24 @@ import { SEO } from "@/components/ui/seo";
 import { Mountain, TrendingUp, Target, Coffee, Mail } from "lucide-react";
 
 export default function About() {
+  // FIRE calculations with inflation
+  const currentNetWorthExclHome = 679000; // $679K
+  const fireGoalToday = 3500000; // $3.5M
+  const stretchGoalToday = 4000000; // $4M
+  const yearsToFire = 14; // Target: Jan 2040
+  const inflationRate = 0.03;
+  const inflationMultiplier = Math.pow(1 + inflationRate, yearsToFire);
+  const fireGoalFuture = fireGoalToday * inflationMultiplier; // ~$5.29M
+  const stretchGoalFuture = stretchGoalToday * inflationMultiplier; // ~$6.05M
+  const progressToFire = (currentNetWorthExclHome / fireGoalFuture) * 100;
+  const progressToStretch = (currentNetWorthExclHome / stretchGoalFuture) * 100;
+
   const milestones = [
     { year: "2022", title: "Started FIRE Journey", description: "Began systematic wealth tracking and optimization" },
     { year: "2023", title: "Reached $200K Net Worth", description: "Hit first major milestone through disciplined saving" },
     { year: "2024", title: "Coast FIRE Achieved", description: "Reached the point where investments can grow to retirement" },
-    { year: "2025", title: "Target: $500K", description: "Next major milestone on the path to financial independence" },
+    { year: "2025", title: "$679K Combined", description: "Current net worth excluding home equity" },
+    { year: "2040", title: "FIRE Target", description: "Achieve financial independence with $5.3M (inflation-adjusted)" },
   ];
 
   const principles = [
@@ -58,6 +71,92 @@ export default function About() {
                 The goal isn't just to reach FIRE, but to inspire other couples to take control of their financial future 
                 and show that financial independence is achievable together with discipline, planning, and patience.
               </p>
+            </CardContent>
+          </Card>
+
+          {/* Stats Grid */}
+          <div className="grid md:grid-cols-4 gap-6 mb-16">
+            <div className="text-center p-6 bg-muted/30 rounded-lg">
+              <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
+              <div className="text-2xl font-bold text-foreground">${(currentNetWorthExclHome / 1000).toFixed(0)}K</div>
+              <div className="text-sm text-muted-foreground">Current Net Worth</div>
+            </div>
+            <div className="text-center p-6 bg-muted/30 rounded-lg">
+              <Mountain className="w-8 h-8 text-primary mx-auto mb-2" />
+              <div className="text-2xl font-bold text-foreground">$5.3M</div>
+              <div className="text-sm text-muted-foreground">FIRE Goal</div>
+            </div>
+            <div className="text-center p-6 bg-muted/30 rounded-lg">
+              <Coffee className="w-8 h-8 text-primary mx-auto mb-2" />
+              <div className="text-2xl font-bold text-foreground">{progressToFire.toFixed(1)}%</div>
+              <div className="text-sm text-muted-foreground">Progress to FIRE</div>
+            </div>
+            <div className="text-center p-6 bg-muted/30 rounded-lg">
+              <Target className="w-8 h-8 text-primary mx-auto mb-2" />
+              <div className="text-2xl font-bold text-foreground">{yearsToFire}</div>
+              <div className="text-sm text-muted-foreground">Years to FIRE</div>
+            </div>
+          </div>
+
+          {/* Progress Bar Card */}
+          <Card className="mb-16">
+            <CardContent className="p-8">
+              <h3 className="text-lg font-semibold mb-4">Progress to Financial Independence</h3>
+              <div className="space-y-6">
+                {/* FIRE Goal Progress */}
+                <div>
+                  <div className="flex justify-between text-sm text-muted-foreground mb-2">
+                    <span>Current: $679K</span>
+                    <span className="font-semibold">FIRE Goal: $5.3M (inflation-adjusted)</span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-1000"
+                      style={{ width: `${Math.min(progressToFire, 100)}%` }}
+                    />
+                  </div>
+                  <div className="text-center text-xl font-bold text-primary mt-2">
+                    {progressToFire.toFixed(1)}% to FIRE Goal
+                  </div>
+                </div>
+
+                {/* Stretch Goal Progress */}
+                <div>
+                  <div className="flex justify-between text-sm text-muted-foreground mb-2">
+                    <span>Current: $679K</span>
+                    <span className="font-semibold">Stretch: $6.1M (inflation-adjusted)</span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-1000"
+                      style={{ width: `${Math.min(progressToStretch, 100)}%` }}
+                    />
+                  </div>
+                  <div className="text-center text-xl font-bold text-secondary mt-2">
+                    {progressToStretch.toFixed(1)}% to Stretch Goal
+                  </div>
+                </div>
+
+                {/* Info Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
+                  <div className="text-center">
+                    <div className="text-sm text-muted-foreground">Target Date</div>
+                    <div className="font-semibold">Jan 2040</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm text-muted-foreground">Years to Go</div>
+                    <div className="font-semibold">14</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm text-muted-foreground">Today's Goal</div>
+                    <div className="font-semibold">$3.5M</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm text-muted-foreground">Inflation Rate</div>
+                    <div className="font-semibold">3%/year</div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
