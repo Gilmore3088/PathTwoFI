@@ -123,35 +123,6 @@ export default function About() {
   // Calculate progress percentage (from $29K low to $631K current)
   const progressPercentage = ((631 - 29) / (1000 - 29)) * 100; // Progress to $1M
 
-  // Rest of your About component code...
-}
-
-  const principles = [
-    {
-      icon: TrendingUp,
-      title: "Data-Driven Decisions",
-      description:
-        "Every financial choice backed by thorough analysis and tracking",
-    },
-    {
-      icon: Target,
-      title: "Long-Term Focus",
-      description:
-        "Building wealth for financial independence, not short-term gains",
-    },
-    {
-      icon: Mountain,
-      title: "Sustainable Approach",
-      description:
-        "Maintaining quality of life while optimizing for the future",
-    },
-    {
-      icon: Coffee,
-      title: "Transparency",
-      description: "Sharing real numbers and honest reflections on the journey",
-    },
-  ];
-
   const principles = [
     {
       icon: TrendingUp,
