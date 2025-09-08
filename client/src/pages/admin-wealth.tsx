@@ -496,7 +496,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>Traditional 401(k) ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-401k" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-401k" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -510,7 +510,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>Roth IRA ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-roth-ira" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-roth-ira" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -524,7 +524,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>Other IRA ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-other-ira" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-other-ira" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -538,7 +538,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>HSA ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-hsa" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-hsa" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -558,7 +558,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>Checking Account ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-checking" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-checking" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -572,7 +572,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>Savings Account ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-savings" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-savings" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -592,7 +592,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>Brokerage Account ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-brokerage" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-brokerage" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -606,7 +606,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>Crypto ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-crypto" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-crypto" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -620,7 +620,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>Other ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-other-investments" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-other-investments" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -640,7 +640,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>Primary Residence ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-primary-residence" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-primary-residence" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -665,7 +665,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>Mortgage Balance ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-mortgage" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-mortgage" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -685,7 +685,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>Credit Cards ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-credit-cards" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-credit-cards" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -699,7 +699,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>Auto Loans ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-auto-loans" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-auto-loans" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -713,7 +713,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>Student Loans ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-student-loans" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-student-loans" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -727,7 +727,7 @@ export default function AdminWealth() {
                               <FormItem>
                                 <FormLabel>Other Loans ($)</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-other-loans" />
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-other-loans" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
