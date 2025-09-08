@@ -712,6 +712,33 @@ export default function AdminBlog() {
                               )}
                             />
 
+                            {/* Published Date Field */}
+                            {form.watch("status") === "published" && (
+                              <FormField
+                                control={form.control}
+                                name="publishedAt"
+                                render={({ field }) => (
+                                  <FormItem className="space-y-3">
+                                    <FormLabel className="text-sm font-medium">Publish Date & Time</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="datetime-local"
+                                        {...field}
+                                        value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ''}
+                                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
+                                        data-testid="input-published-at"
+                                        className="h-11"
+                                      />
+                                    </FormControl>
+                                    <p className="text-xs text-muted-foreground">
+                                      Set the publish date (leave blank to use current time)
+                                    </p>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            )}
+                            
                             {/* Scheduled Date Field */}
                             {form.watch("status") === "scheduled" && (
                               <FormField
