@@ -339,7 +339,7 @@ export default function AdminGoals() {
                           <FormItem className="col-span-2">
                             <FormLabel>Description</FormLabel>
                             <FormControl>
-                              <Textarea placeholder="Save 6 months of expenses for emergencies" {...field} data-testid="input-description" />
+                              <Textarea placeholder="Save 6 months of expenses for emergencies" {...field} value={field.value || ""} data-testid="input-description" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -353,7 +353,7 @@ export default function AdminGoals() {
                           <FormItem>
                             <FormLabel>Target Amount ($)</FormLabel>
                             <FormControl>
-                              <Input type="number" step="0.01" placeholder="50000.00" {...field} data-testid="input-target-amount" />
+                              <Input type="number" step="0.01" placeholder="50000.00" {...field} value={field.value || ""} data-testid="input-target-amount" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -367,7 +367,7 @@ export default function AdminGoals() {
                           <FormItem>
                             <FormLabel>Current Amount ($)</FormLabel>
                             <FormControl>
-                              <Input type="number" step="0.01" placeholder="0.00" {...field} data-testid="input-current-amount" />
+                              <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-current-amount" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
