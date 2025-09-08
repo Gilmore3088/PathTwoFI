@@ -97,7 +97,7 @@ export default function AdminHome() {
           </div>
 
           {/* Admin Routes Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {adminRoutes.map((route) => {
               const IconComponent = route.icon;
               return (
