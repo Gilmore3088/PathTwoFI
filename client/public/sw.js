@@ -62,6 +62,11 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
   
+  // Skip chrome-extension and other non-cacheable schemes
+  if (!url.protocol.startsWith('http')) {
+    return;
+  }
+  
   // Handle navigation requests
   if (request.mode === 'navigate') {
     event.respondWith(
@@ -121,8 +126,8 @@ self.addEventListener('fetch', (event) => {
         
         return fetch(request)
           .then((response) => {
-            // Cache successful responses
-            if (response.status === 200) {
+            // Cache successful responses (skip chrome-extension and other schemes)
+            if (response.status === 200 && url.protocol.startsWith('http')) {
               const responseClone = response.clone();
               caches.open(DYNAMIC_CACHE).then((cache) => {
                 cache.put(request, responseClone);
