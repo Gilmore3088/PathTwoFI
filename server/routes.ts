@@ -2,6 +2,16 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
+
+// Simple admin authentication middleware
+const isAdminAuthenticated = (req: any, res: any, next: any) => {
+  const adminPassword = req.headers['x-admin-password'];
+  if (adminPassword === 'PathTwo2024Admin!') {
+    next();
+  } else {
+    res.status(401).json({ message: "Unauthorized" });
+  }
+};
 import { 
   insertBlogPostSchema, 
   insertWealthDataSchema, 
@@ -305,7 +315,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin Contact Management Routes
-  app.get("/api/contact-submissions", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/contact-submissions", isAdminAuthenticated, async (req, res) => {
     try {
       const submissions = await storage.getContactSubmissions();
       res.json(submissions);
@@ -316,7 +326,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Count endpoints for admin dashboard
-  app.get("/api/contact-submissions/count", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/contact-submissions/count", isAdminAuthenticated, async (req, res) => {
     try {
       const submissions = await storage.getContactSubmissions();
       res.json(submissions.length);
@@ -336,7 +346,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/contact-submissions/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/contact-submissions/:id", isAdminAuthenticated, async (req, res) => {
     try {
       const { id } = req.params;
       const submission = await storage.getContactSubmission(id);
@@ -350,7 +360,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/contact-submissions/:id", isAuthenticated, isAdmin, async (req, res) => {
+  app.delete("/api/contact-submissions/:id", isAdminAuthenticated, async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deleteContactSubmission(id);

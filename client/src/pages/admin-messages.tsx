@@ -28,11 +28,31 @@ export default function AdminMessages() {
     queryKey: ["/api/contact-submissions"],
     enabled: isAuthenticated,
     retry: false,
+    queryFn: async () => {
+      const response = await fetch('/api/contact-submissions', {
+        headers: {
+          'x-admin-password': 'PathTwo2024Admin!'
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    }
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest(`/api/contact-submissions/${id}`, 'DELETE');
+      const response = await fetch(`/api/contact-submissions/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-admin-password': 'PathTwo2024Admin!'
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/contact-submissions"] });
