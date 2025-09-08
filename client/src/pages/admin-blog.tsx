@@ -24,7 +24,7 @@ import type { UploadResult } from '@uppy/core';
 import { Link } from "wouter";
 
 export default function AdminBlog() {
-  const { isAuthenticated, isAdmin, isLoading } = useAuth();
+  const { isAuthenticated, isAdmin, isLoading: authLoading } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<BlogPost | null>(null);
@@ -39,7 +39,7 @@ export default function AdminBlog() {
 
   // Redirect to login if not authenticated or not admin
   useEffect(() => {
-    if (!isLoading && (!isAuthenticated || !isAdmin)) {
+    if (!authLoading && (!isAuthenticated || !isAdmin)) {
       toast({
         title: "Access Denied",
         description: "You need admin access to view this page. Redirecting to login...",
@@ -50,9 +50,9 @@ export default function AdminBlog() {
       }, 1000);
       return;
     }
-  }, [isAuthenticated, isAdmin, isLoading, toast]);
+  }, [isAuthenticated, isAdmin, authLoading, toast]);
 
-  if (isLoading) {
+  if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

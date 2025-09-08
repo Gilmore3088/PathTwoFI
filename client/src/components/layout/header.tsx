@@ -2,16 +2,18 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { MobileOptimizedButton } from "@/components/ui/mobile-optimized-button";
 import { useTheme } from "@/components/ui/theme-provider";
-import { Mountain, Moon, Sun, Menu } from "lucide-react";
+import { Mountain, Moon, Sun, Menu, Settings, LogOut, LogIn } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useTouchGestures } from "@/hooks/use-touch";
+import { useAuth } from "@/hooks/useAuth";
 
 export function Header() {
   const { theme, setTheme } = useTheme();
   const [location] = useLocation();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const { isAuthenticated, isAdmin, user } = useAuth();
 
   const navItems = [
     { href: "/blog", label: "Blog" },
@@ -19,6 +21,13 @@ export function Header() {
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ];
+  
+  const adminItems = [
+    { href: "/admin", label: "Admin" },
+  ];
+  
+  // Combine nav items with admin items if user is admin
+  const allNavItems = isAdmin ? [...navItems, ...adminItems] : navItems;
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -56,12 +65,13 @@ export function Header() {
           </div>
           
           <nav className="hidden md:flex items-center space-x-6">
-            {navItems.map((item) => (
+            {allNavItems.map((item) => (
               <Link key={item.href} href={item.href} data-testid={`link-nav-${item.label.toLowerCase().replace(' ', '-')}`}>
                 <span className={cn(
-                  "text-muted-foreground hover:text-foreground transition-colors cursor-pointer",
+                  "text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center gap-1",
                   location === item.href && "text-foreground font-medium"
                 )}>
+                  {item.label === "Admin" && <Settings className="w-4 h-4" />}
                   {item.label}
                 </span>
               </Link>
@@ -69,6 +79,36 @@ export function Header() {
           </nav>
           
           <div className="flex items-center space-x-4">
+            {/* Authentication buttons */}
+            {isAuthenticated ? (
+              <div className="hidden md:flex items-center space-x-3">
+                <span className="text-sm text-muted-foreground">
+                  Welcome, {user?.firstName || user?.email}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.location.href = '/api/logout'}
+                  data-testid="button-logout"
+                  className="flex items-center gap-1"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.href = '/api/login'}
+                data-testid="button-login"
+                className="hidden md:flex items-center gap-1"
+              >
+                <LogIn className="w-4 h-4" />
+                Login
+              </Button>
+            )}
+            
             <MobileOptimizedButton
               variant="ghost"
               size="icon"
@@ -98,7 +138,7 @@ export function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="w-64">
                 <nav className="flex flex-col space-y-2 mt-8">
-                  {navItems.map((item) => (
+                  {allNavItems.map((item) => (
                     <Link 
                       key={item.href} 
                       href={item.href} 
@@ -106,13 +146,48 @@ export function Header() {
                       onClick={() => setIsSheetOpen(false)}
                     >
                       <div className={cn(
-                        "text-muted-foreground hover:text-foreground transition-colors text-lg cursor-pointer p-3 rounded-lg hover:bg-accent/50 min-h-[48px] flex items-center touch-feedback",
+                        "text-muted-foreground hover:text-foreground transition-colors text-lg cursor-pointer p-3 rounded-lg hover:bg-accent/50 min-h-[48px] flex items-center touch-feedback gap-2",
                         location === item.href && "text-foreground font-medium bg-accent/20"
                       )}>
+                        {item.label === "Admin" && <Settings className="w-4 h-4" />}
                         {item.label}
                       </div>
                     </Link>
                   ))}
+                  
+                  {/* Mobile auth buttons */}
+                  <div className="border-t border-border mt-4 pt-4">
+                    {isAuthenticated ? (
+                      <>
+                        <div className="px-3 py-2 text-sm text-muted-foreground">
+                          Welcome, {user?.firstName || user?.email}
+                        </div>
+                        <button
+                          onClick={() => {
+                            setIsSheetOpen(false);
+                            window.location.href = '/api/logout';
+                          }}
+                          className="w-full text-left text-muted-foreground hover:text-foreground transition-colors text-lg cursor-pointer p-3 rounded-lg hover:bg-accent/50 min-h-[48px] flex items-center touch-feedback gap-2"
+                          data-testid="button-mobile-logout"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Logout
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setIsSheetOpen(false);
+                          window.location.href = '/api/login';
+                        }}
+                        className="w-full text-left text-muted-foreground hover:text-foreground transition-colors text-lg cursor-pointer p-3 rounded-lg hover:bg-accent/50 min-h-[48px] flex items-center touch-feedback gap-2"
+                        data-testid="button-mobile-login"
+                      >
+                        <LogIn className="w-4 h-4" />
+                        Login
+                      </button>
+                    )}
+                  </div>
                 </nav>
               </SheetContent>
             </Sheet>
