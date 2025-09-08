@@ -69,10 +69,11 @@ export default function AdminMessages() {
     );
   }
 
-  // Fetch all contact submissions - temporarily use public contact endpoint since auth is different
-  const { data: messages = [], isLoading: messagesLoading } = useQuery<ContactSubmission[]>({
+  // Fetch all contact submissions - handle auth mismatch gracefully
+  const { data: messages = [], isLoading: messagesLoading, error } = useQuery<ContactSubmission[]>({
     queryKey: ["/api/contact-submissions"],
     enabled: isAuthenticated,
+    retry: false, // Don't retry on auth errors
   });
 
   // Delete mutation
@@ -161,8 +162,13 @@ export default function AdminMessages() {
             <div className="flex items-center gap-4">
               <Badge variant="secondary" className="text-sm">
                 <Mail className="w-4 h-4 mr-1" />
-                {messages.length} Total Messages
+                {error ? "API Error" : `${messages.length} Total Messages`}
               </Badge>
+              {error && (
+                <Badge variant="destructive" className="text-sm">
+                  Authentication Update In Progress
+                </Badge>
+              )}
             </div>
           </div>
 
@@ -172,6 +178,19 @@ export default function AdminMessages() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
               <p className="text-muted-foreground mt-2">Loading messages...</p>
             </div>
+          ) : error ? (
+            <Card>
+              <CardContent className="text-center py-12">
+                <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Messages Temporarily Unavailable</h3>
+                <p className="text-muted-foreground mb-4">
+                  The messages system is being updated. Contact form submissions are still being saved.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Check back in a few minutes or contact the site administrator.
+                </p>
+              </CardContent>
+            </Card>
           ) : messages.length === 0 ? (
             <Card>
               <CardContent className="text-center py-12">

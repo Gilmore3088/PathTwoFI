@@ -1,0 +1,102 @@
+[vite] connecting...
+client:536 WebSocket connection to 'wss://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/?token=I9uWQ8YENeG5' failed: 
+setupWebSocket @ client:536Understand this error
+client:536 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=I9uWQ8YENeG5' is invalid.
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)Understand this error
+chunk-RPCDYKBN.js?v=cc2c9f8f:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+chunk-RPCDYKBN.js?v=cc2c9f8f:521 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=cc2c9f8f:205:18
+    at div
+    at div
+    at div
+    at div
+    at div
+    at footer
+    at Footer
+    at div
+    at ThemeProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/hooks/use-theme.tsx:25:3)
+    at Layout (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/components/layout/layout.tsx:20:26)
+    at Provider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=cc2c9f8f:38:15)
+    at TooltipProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=cc2c9f8f:61:5)
+    at QueryClientProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=cc2c9f8f:2805:3)
+    at _a (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-helmet-async.js?v=cc2c9f8f:624:5)
+    at App
+printWarning @ chunk-RPCDYKBN.js?v=cc2c9f8f:521Understand this error
+chunk-RPCDYKBN.js?v=cc2c9f8f:521 Warning: React has detected a change in the order of Hooks called by AdminMessages. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://reactjs.org/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+1. useState                   useState
+2. useState                   useState
+3. useState                   useState
+4. useState                   useState
+5. useState                   useState
+6. useEffect                  useEffect
+7. useContext                 useContext
+8. useEffect                  useEffect
+9. undefined                  useContext
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    at AdminMessages (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/pages/admin-messages.tsx?t=1757369002971:31:49)
+    at Route (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=cc2c9f8f:191:16)
+    at Switch (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=cc2c9f8f:247:17)
+    at Router
+    at main
+    at div
+    at ThemeProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/hooks/use-theme.tsx:25:3)
+    at Layout (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/components/layout/layout.tsx:20:26)
+    at Provider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=cc2c9f8f:38:15)
+    at TooltipProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=cc2c9f8f:61:5)
+    at QueryClientProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=cc2c9f8f:2805:3)
+    at _a (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-helmet-async.js?v=cc2c9f8f:624:5)
+    at App
+printWarning @ chunk-RPCDYKBN.js?v=cc2c9f8f:521Understand this error
+2chunk-RPCDYKBN.js?v=cc2c9f8f:11678 Uncaught Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (chunk-RPCDYKBN.js?v=cc2c9f8f:11678:21)
+    at updateEffectImpl (chunk-RPCDYKBN.js?v=cc2c9f8f:12074:22)
+    at updateEffect (chunk-RPCDYKBN.js?v=cc2c9f8f:12099:18)
+    at Object.useEffect (chunk-RPCDYKBN.js?v=cc2c9f8f:12703:22)
+    at Object.useEffect (chunk-QCHXOAYK.js?v=cc2c9f8f:1078:29)
+    at useClearResetErrorBoundary (@tanstack_react-query.js?v=cc2c9f8f:2871:10)
+    at useBaseQuery (@tanstack_react-query.js?v=cc2c9f8f:3010:3)
+    at useQuery (@tanstack_react-query.js?v=cc2c9f8f:3068:10)
+    at AdminMessages (admin-messages.tsx:73:63)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=cc2c9f8f:11548:26)Understand this error
+chunk-RPCDYKBN.js?v=cc2c9f8f:14032 The above error occurred in the <AdminMessages> component:
+
+    at AdminMessages (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/pages/admin-messages.tsx?t=1757369002971:31:49)
+    at Route (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=cc2c9f8f:191:16)
+    at Switch (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=cc2c9f8f:247:17)
+    at Router
+    at main
+    at div
+    at ThemeProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/hooks/use-theme.tsx:25:3)
+    at Layout (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/components/layout/layout.tsx:20:26)
+    at Provider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=cc2c9f8f:38:15)
+    at TooltipProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=cc2c9f8f:61:5)
+    at QueryClientProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=cc2c9f8f:2805:3)
+    at _a (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-helmet-async.js?v=cc2c9f8f:624:5)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-RPCDYKBN.js?v=cc2c9f8f:14032Understand this error
+chunk-RPCDYKBN.js?v=cc2c9f8f:19413 Uncaught Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (chunk-RPCDYKBN.js?v=cc2c9f8f:11678:21)
+    at updateEffectImpl (chunk-RPCDYKBN.js?v=cc2c9f8f:12074:22)
+    at updateEffect (chunk-RPCDYKBN.js?v=cc2c9f8f:12099:18)
+    at Object.useEffect (chunk-RPCDYKBN.js?v=cc2c9f8f:12703:22)
+    at Object.useEffect (chunk-QCHXOAYK.js?v=cc2c9f8f:1078:29)
+    at useClearResetErrorBoundary (@tanstack_react-query.js?v=cc2c9f8f:2871:10)
+    at useBaseQuery (@tanstack_react-query.js?v=cc2c9f8f:3010:3)
+    at useQuery (@tanstack_react-query.js?v=cc2c9f8f:3068:10)
+    at AdminMessages (admin-messages.tsx:73:63)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=cc2c9f8f:11548:26)Understand this error
+messages:178 ServiceWorker registration successful
+messages:1 Error while trying to use the following icon from the Manifest: https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/icon-192.png (Download error or resource isn't a valid image)Understand this error
+2sw.js:128 Uncaught (in promise) TypeError: Failed to execute 'put' on 'Cache': Request scheme 'chrome-extension' is unsupported
+    at sw.js:128:23Understand this error
