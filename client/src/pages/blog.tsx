@@ -142,39 +142,6 @@ export default function BlogPage() {
             Real insights, transparent progress, and practical strategies on our
             path to Financial Independence
           </p>
-
-          {/* Stats */}
-          <div className="flex flex-wrap justify-center gap-8 mt-12">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                {posts.length}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Articles
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                {posts
-                  .reduce((acc, post) => acc + (post.views || 0), 0)
-                  .toLocaleString()}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Total Views
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                {Math.round(
-                  posts.reduce((acc, post) => acc + post.readTime, 0) /
-                    posts.length,
-                ) || 0}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Avg. Read Time
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
