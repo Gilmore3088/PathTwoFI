@@ -304,6 +304,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Contact Management Routes
+  app.get("/api/contact-submissions", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const submissions = await storage.getContactSubmissions();
+      res.json(submissions);
+    } catch (error) {
+      console.error("Error fetching contact submissions:", error);
+      res.status(500).json({ message: "Failed to fetch contact submissions" });
+    }
+  });
+
+  app.get("/api/contact-submissions/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const submission = await storage.getContactSubmission(id);
+      if (!submission) {
+        return res.status(404).json({ message: "Contact submission not found" });
+      }
+      res.json(submission);
+    } catch (error) {
+      console.error("Error fetching contact submission:", error);
+      res.status(500).json({ message: "Failed to fetch contact submission" });
+    }
+  });
+
+  app.delete("/api/contact-submissions/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteContactSubmission(id);
+      res.json({ message: "Contact submission deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting contact submission:", error);
+      res.status(500).json({ message: "Failed to delete contact submission" });
+    }
+  });
+
   // Financial Goals routes
   app.get("/api/financial-goals", isAdmin, async (req, res) => {
     try {

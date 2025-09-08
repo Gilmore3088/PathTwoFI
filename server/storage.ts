@@ -60,6 +60,9 @@ export interface IStorage {
 
   // Contact methods
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
+  getContactSubmissions(): Promise<ContactSubmission[]>;
+  getContactSubmission(id: string): Promise<ContactSubmission | undefined>;
+  deleteContactSubmission(id: string): Promise<void>;
 
   // Financial Goals methods
   getFinancialGoals(category?: string): Promise<FinancialGoal[]>;
@@ -418,6 +421,19 @@ export class DatabaseStorage implements IStorage {
   async createContactSubmission(insertSubmission: InsertContactSubmission): Promise<ContactSubmission> {
     const [submission] = await db.insert(contactSubmissions).values(insertSubmission).returning();
     return submission;
+  }
+
+  async getContactSubmissions(): Promise<ContactSubmission[]> {
+    return await db.select().from(contactSubmissions).orderBy(desc(contactSubmissions.submittedAt));
+  }
+
+  async getContactSubmission(id: string): Promise<ContactSubmission | undefined> {
+    const [submission] = await db.select().from(contactSubmissions).where(eq(contactSubmissions.id, id));
+    return submission;
+  }
+
+  async deleteContactSubmission(id: string): Promise<void> {
+    await db.delete(contactSubmissions).where(eq(contactSubmissions.id, id));
   }
 
   // Financial Goals methods
