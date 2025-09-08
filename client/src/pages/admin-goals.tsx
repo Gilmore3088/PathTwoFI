@@ -30,6 +30,19 @@ export default function AdminGoals() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Fetch all financial goals (must be before conditional returns)
+  const { data: goals = [], isLoading } = useQuery<FinancialGoal[]>({
+    queryKey: ["/api/financial-goals"],
+    enabled: isAuthenticated,
+    queryFn: async () => {
+      const response = await makeAdminRequest('/api/financial-goals');
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    }
+  });
+
   // Check localStorage authentication
   useEffect(() => {
     const checkAuth = () => {
@@ -78,19 +91,6 @@ export default function AdminGoals() {
       </div>
     );
   }
-
-  // Fetch all financial goals
-  const { data: goals = [], isLoading } = useQuery<FinancialGoal[]>({
-    queryKey: ["/api/financial-goals"],
-    enabled: isAuthenticated,
-    queryFn: async () => {
-      const response = await makeAdminRequest('/api/financial-goals');
-      if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
-      }
-      return response.json();
-    }
-  });
 
   // Filtered goals
   const filteredGoals = useMemo(() => {

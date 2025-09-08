@@ -34,6 +34,19 @@ export default function AdminWealth() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Fetch all wealth data (must be before conditional returns)
+  const { data: allWealthData = [], isLoading } = useQuery<WealthData[]>({
+    queryKey: ["/api/wealth-data"],
+    enabled: isAuthenticated,
+    queryFn: async () => {
+      const response = await makeAdminRequest('/api/wealth-data');
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    }
+  });
+
   // Check localStorage authentication
   useEffect(() => {
     const checkAuth = () => {
@@ -82,19 +95,6 @@ export default function AdminWealth() {
       </div>
     );
   }
-
-  // Fetch all wealth data
-  const { data: allWealthData = [], isLoading } = useQuery<WealthData[]>({
-    queryKey: ["/api/wealth-data"],
-    enabled: isAuthenticated,
-    queryFn: async () => {
-      const response = await makeAdminRequest('/api/wealth-data');
-      if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
-      }
-      return response.json();
-    }
-  });
 
   // Filtered and searched wealth data
   const filteredWealthData = useMemo(() => {

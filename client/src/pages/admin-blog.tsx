@@ -38,6 +38,19 @@ export default function AdminBlog() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Fetch blog posts (must be before conditional returns)
+  const { data: allBlogPosts = [], isLoading } = useQuery<BlogPost[]>({
+    queryKey: ["/api/blog-posts"],
+    enabled: isAuthenticated,
+    queryFn: async () => {
+      const response = await makeAdminRequest('/api/blog-posts');
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    }
+  });
+
   // Check localStorage authentication
   useEffect(() => {
     const checkAuth = () => {
@@ -86,19 +99,6 @@ export default function AdminBlog() {
       </div>
     );
   }
-
-  // Fetch blog posts
-  const { data: allBlogPosts = [], isLoading } = useQuery<BlogPost[]>({
-    queryKey: ["/api/blog-posts"],
-    enabled: isAuthenticated,
-    queryFn: async () => {
-      const response = await makeAdminRequest('/api/blog-posts');
-      if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
-      }
-      return response.json();
-    }
-  });
 
   // Filtered and searched blog posts
   const blogPosts = useMemo(() => {
