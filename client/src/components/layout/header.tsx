@@ -21,13 +21,6 @@ export function Header() {
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ];
-  
-  const adminItems = [
-    { href: "/admin", label: "Admin" },
-  ];
-  
-  // Combine nav items with admin items if user is admin
-  const allNavItems = isAdmin ? [...navItems, ...adminItems] : navItems;
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -65,13 +58,12 @@ export function Header() {
           </div>
           
           <nav className="hidden md:flex items-center space-x-6">
-            {allNavItems.map((item) => (
+            {navItems.map((item) => (
               <Link key={item.href} href={item.href} data-testid={`link-nav-${item.label.toLowerCase().replace(' ', '-')}`}>
                 <span className={cn(
-                  "text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center gap-1",
+                  "text-muted-foreground hover:text-foreground transition-colors cursor-pointer",
                   location === item.href && "text-foreground font-medium"
                 )}>
-                  {item.label === "Admin" && <Settings className="w-4 h-4" />}
                   {item.label}
                 </span>
               </Link>
@@ -108,7 +100,7 @@ export function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="w-64">
                 <nav className="flex flex-col space-y-2 mt-8">
-                  {allNavItems.map((item) => (
+                  {navItems.map((item) => (
                     <Link 
                       key={item.href} 
                       href={item.href} 
@@ -116,10 +108,9 @@ export function Header() {
                       onClick={() => setIsSheetOpen(false)}
                     >
                       <div className={cn(
-                        "text-muted-foreground hover:text-foreground transition-colors text-lg cursor-pointer p-3 rounded-lg hover:bg-accent/50 min-h-[48px] flex items-center touch-feedback gap-2",
+                        "text-muted-foreground hover:text-foreground transition-colors text-lg cursor-pointer p-3 rounded-lg hover:bg-accent/50 min-h-[48px] flex items-center touch-feedback",
                         location === item.href && "text-foreground font-medium bg-accent/20"
                       )}>
-                        {item.label === "Admin" && <Settings className="w-4 h-4" />}
                         {item.label}
                       </div>
                     </Link>
