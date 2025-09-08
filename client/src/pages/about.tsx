@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { SEO } from "@/components/ui/seo";
+import { FIRE_TARGET } from "@/lib/constants";
 import {
   Mountain,
   TrendingUp,
@@ -16,6 +17,9 @@ import {
 } from "lucide-react";
 
 export default function About() {
+  // Calculate progress percentage (current $631K toward $1M target)
+  const currentValue = 631000;
+  const progressPercentage = (currentValue / FIRE_TARGET) * 100;
   const milestones = [
     {
       year: "2030",
