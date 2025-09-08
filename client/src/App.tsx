@@ -38,18 +38,26 @@ function Router() {
 }
 
 function App() {
-  return (
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Layout>
-            <Router />
-          </Layout>
-          <Toaster />
-        </TooltipProvider>
-      </QueryClientProvider>
-    </HelmetProvider>
-  );
+  console.log("📍 App component rendering...");
+  
+  try {
+    console.log("📍 Initializing providers and layout...");
+    return (
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Layout>
+              <Router />
+            </Layout>
+            <Toaster />
+          </TooltipProvider>
+        </QueryClientProvider>
+      </HelmetProvider>
+    );
+  } catch (error) {
+    console.error("❌ Error in App component:", error);
+    return <div>App Error: {error instanceof Error ? error.message : 'Unknown error'}</div>;
+  }
 }
 
 export default App;
