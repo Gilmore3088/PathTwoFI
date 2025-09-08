@@ -197,7 +197,7 @@ export default function BlogPostPage() {
         </div>
       </article>
 
-      <style jsx>{`
+      <style>{`
         /* Additional custom styles for blog content */
         .blog-content table {
           border-collapse: collapse;

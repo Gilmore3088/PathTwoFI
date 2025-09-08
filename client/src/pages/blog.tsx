@@ -14,13 +14,15 @@ export default function BlogPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<"newest" | "popular" | "readTime">("newest");
+  const [sortBy, setSortBy] = useState<"newest" | "popular" | "readTime">(
+    "newest",
+  );
 
   const formatDate = (date: Date | string) => {
-    return new Date(date).toLocaleDateString('en-US', { 
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -41,7 +43,7 @@ export default function BlogPage() {
 
   // Get unique categories from posts
   const categories = useMemo(() => {
-    const cats = new Set(posts.map(post => post.category));
+    const cats = new Set(posts.map((post) => post.category));
     return Array.from(cats);
   }, [posts]);
 
@@ -51,30 +53,34 @@ export default function BlogPage() {
 
     // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(post => 
-        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.category.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (post) =>
+          post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          post.category.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
     // Category filter
     if (selectedCategory) {
-      filtered = filtered.filter(post => post.category === selectedCategory);
+      filtered = filtered.filter((post) => post.category === selectedCategory);
     }
 
     // Sorting
     switch (sortBy) {
       case "popular":
-        filtered = [...filtered].sort((a, b) => (b.views || 0) - (a.views || 0));
+        filtered = [...filtered].sort(
+          (a, b) => (b.views || 0) - (a.views || 0),
+        );
         break;
       case "readTime":
         filtered = [...filtered].sort((a, b) => a.readTime - b.readTime);
         break;
       case "newest":
       default:
-        filtered = [...filtered].sort((a, b) => 
-          new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+        filtered = [...filtered].sort(
+          (a, b) =>
+            new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime(),
         );
     }
 
@@ -82,9 +88,12 @@ export default function BlogPage() {
   }, [posts, searchTerm, selectedCategory, sortBy]);
 
   // Featured post (most recent or most viewed)
-  const featuredPost = posts.length > 0 ? posts.reduce((prev, current) => 
-    (current.views || 0) > (prev.views || 0) ? current : prev
-  ) : null;
+  const featuredPost =
+    posts.length > 0
+      ? posts.reduce((prev, current) =>
+          (current.views || 0) > (prev.views || 0) ? current : prev,
+        )
+      : null;
 
   if (isLoading) {
     return (
@@ -101,7 +110,7 @@ export default function BlogPage() {
 
   return (
     <>
-      <SEO 
+      <SEO
         title="Blog - PathTwo FIRE Journey"
         description="Follow our journey to Financial Independence, Retire Early (FIRE) through in-depth articles about wealth tracking, investment strategies, and personal finance insights."
         keywords="FIRE, Financial Independence, Retire Early, personal finance, wealth tracking, investment strategies, blog"
@@ -121,33 +130,49 @@ export default function BlogPage() {
         <div className="container mx-auto px-4 text-center relative z-10">
           <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full mb-6">
             <TrendingUp className="w-4 h-4 mr-2" />
-            <span className="text-sm font-medium">Journey to Financial Independence</span>
+            <span className="text-sm font-medium">
+              Journey to Financial Independence
+            </span>
           </div>
 
           <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
             The FIRE Journey
           </h1>
           <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8 leading-relaxed">
-            Real insights, transparent progress, and practical strategies on our path to Financial Independence
+            Real insights, transparent progress, and practical strategies on our
+            path to Financial Independence
           </p>
 
           {/* Stats */}
           <div className="flex flex-wrap justify-center gap-8 mt-12">
             <div className="text-center">
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">{posts.length}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Articles</div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                {posts.length}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Articles
+              </div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                {posts.reduce((acc, post) => acc + (post.views || 0), 0).toLocaleString()}
+                {posts
+                  .reduce((acc, post) => acc + (post.views || 0), 0)
+                  .toLocaleString()}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Total Views</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Total Views
+              </div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                {Math.round(posts.reduce((acc, post) => acc + post.readTime, 0) / posts.length) || 0}
+                {Math.round(
+                  posts.reduce((acc, post) => acc + post.readTime, 0) /
+                    posts.length,
+                ) || 0}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Avg. Read Time</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Avg. Read Time
+              </div>
             </div>
           </div>
         </div>
@@ -177,21 +202,21 @@ export default function BlogPage() {
               <button
                 onClick={() => setSelectedCategory(null)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  !selectedCategory 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  !selectedCategory
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
                 }`}
               >
                 All
               </button>
-              {categories.map(category => (
+              {categories.map((category) => (
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    selectedCategory === category 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    selectedCategory === category
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
                   }`}
                 >
                   {category}
@@ -217,12 +242,14 @@ export default function BlogPage() {
       {featuredPost && !searchTerm && !selectedCategory && (
         <div className="py-12 bg-gray-50 dark:bg-gray-800/50">
           <div className="container mx-auto px-4 max-w-6xl">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Featured Article</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+              Featured Article
+            </h2>
             <article className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
               <div className="grid lg:grid-cols-2 gap-0">
                 {featuredPost.imageUrl && (
                   <div className="relative h-full min-h-[300px]">
-                    <LazyImage 
+                    <LazyImage
                       src={featuredPost.imageUrl}
                       alt={featuredPost.title}
                       className="w-full h-full object-cover"
@@ -235,11 +262,16 @@ export default function BlogPage() {
                   </div>
                 )}
                 <div className="p-8 lg:p-12 flex flex-col justify-center">
-                  <Badge className={`${getCategoryColor(featuredPost.category)} font-medium mb-4 self-start`}>
+                  <Badge
+                    className={`${getCategoryColor(featuredPost.category)} font-medium mb-4 self-start`}
+                  >
                     {featuredPost.category}
                   </Badge>
                   <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                    <Link href={`/blog/${featuredPost.slug}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                    <Link
+                      href={`/blog/${featuredPost.slug}`}
+                      className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    >
                       {featuredPost.title}
                     </Link>
                   </h3>
@@ -252,9 +284,11 @@ export default function BlogPage() {
                       <span>•</span>
                       <span>{featuredPost.readTime} min read</span>
                       <span>•</span>
-                      <span>{featuredPost.views?.toLocaleString() || 0} views</span>
+                      <span>
+                        {featuredPost.views?.toLocaleString() || 0} views
+                      </span>
                     </div>
-                    <Link 
+                    <Link
                       href={`/blog/${featuredPost.slug}`}
                       className="inline-flex items-center text-blue-600 dark:text-blue-400 font-medium hover:underline"
                     >
@@ -274,13 +308,13 @@ export default function BlogPage() {
           {filteredPosts.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredPosts.map((post) => (
-                <article 
-                  key={post.id} 
+                <article
+                  key={post.id}
                   className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                 >
                   {post.imageUrl && (
                     <div className="relative h-48 overflow-hidden">
-                      <LazyImage 
+                      <LazyImage
                         src={post.imageUrl}
                         alt={post.title}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
@@ -291,7 +325,9 @@ export default function BlogPage() {
                   <div className="p-6">
                     {/* Category and Date */}
                     <div className="flex items-center justify-between mb-3">
-                      <Badge className={`${getCategoryColor(post.category)} font-medium text-xs`}>
+                      <Badge
+                        className={`${getCategoryColor(post.category)} font-medium text-xs`}
+                      >
                         {post.category}
                       </Badge>
                       <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
@@ -302,7 +338,10 @@ export default function BlogPage() {
 
                     {/* Title */}
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2">
-                      <Link href={`/blog/${post.slug}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                      <Link
+                        href={`/blog/${post.slug}`}
+                        className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      >
                         {post.title}
                       </Link>
                     </h3>
@@ -325,7 +364,7 @@ export default function BlogPage() {
                         </div>
                       </div>
 
-                      <Link 
+                      <Link
                         href={`/blog/${post.slug}`}
                         className="text-blue-600 dark:text-blue-400 font-medium text-sm hover:underline"
                       >
@@ -342,11 +381,13 @@ export default function BlogPage() {
                 {searchTerm || selectedCategory ? "🔍" : "📝"}
               </div>
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                {searchTerm || selectedCategory ? "No matching posts" : "No posts yet"}
+                {searchTerm || selectedCategory
+                  ? "No matching posts"
+                  : "No posts yet"}
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                {searchTerm || selectedCategory 
-                  ? "Try adjusting your filters or search terms" 
+                {searchTerm || selectedCategory
+                  ? "Try adjusting your filters or search terms"
                   : "Check back soon for new content!"}
               </p>
             </div>
@@ -357,7 +398,9 @@ export default function BlogPage() {
       {/* Newsletter CTA */}
       <div className="py-16 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="container mx-auto px-4 max-w-4xl text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Stay Updated on Our FIRE Journey</h2>
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Stay Updated on Our FIRE Journey
+          </h2>
           <p className="text-blue-100 mb-8 text-lg">
             Get our latest insights and progress updates delivered to your inbox
           </p>
@@ -369,10 +412,18 @@ export default function BlogPage() {
 
       <style jsx>{`
         @keyframes blob {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
+          0% {
+            transform: translate(0px, 0px) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+          100% {
+            transform: translate(0px, 0px) scale(1);
+          }
         }
         .animate-blob {
           animation: blob 7s infinite;
