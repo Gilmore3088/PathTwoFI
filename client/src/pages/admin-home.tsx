@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SEO } from "@/components/ui/seo";
-import { TrendingUp, Edit, Target, Mail, Settings } from "lucide-react";
+import { TrendingUp, Edit, Target, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -63,13 +63,6 @@ export default function AdminHome() {
       description: "Set and track financial goals and milestones",
       icon: Target,
       color: "text-accent"
-    },
-    {
-      href: "/admin/contact",
-      title: "Contact Messages",
-      description: "View and manage contact form submissions",
-      icon: Mail,
-      color: "text-blue-600"
     }
   ];
 
