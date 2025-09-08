@@ -1,0 +1,55 @@
+main.tsx:20 ❌ Error details: 
+Object
+chunk-QCHXOAYK.js?v=cc2c9f8f:1074 Uncaught TypeError: Cannot read properties of null (reading 'useRef')
+    at Object.useRef (chunk-QCHXOAYK.js?v=cc2c9f8f:1074:29)
+    at TooltipProvider (@radix-ui_react-tool…js?v=cc2c9f8f:67:34)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=6a54bb03:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=6a54bb03:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=6a54bb03:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=6a54bb03:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=6a54bb03:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=6a54bb03:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=6a54bb03:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=6a54bb03:19198:20)
+chunk-RPCDYKBN.js?v=6a54bb03:14032 The above error occurred in the <TooltipProvider> component:
+
+    at TooltipProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…rkspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=cc2c9f8f:61:5)
+    at QueryClientProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=6a54bb03:2805:3)
+    at _a (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…r/workspace/node_modules/.vite/deps/react-helmet-async.js?v=6a54bb03:624:5)
+    at App
+    at ErrorBoundary (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/main.tsx?v=SkopiPNUud-GC41-gGQ6W:21:26)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+main.tsx:19 ❌ Global error: TypeError: Cannot read properties of null (reading 'useRef')
+    at Object.useRef (chunk-QCHXOAYK.js?v=cc2c9f8f:1074:29)
+    at TooltipProvider (@radix-ui_react-tool…js?v=cc2c9f8f:67:34)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=6a54bb03:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=6a54bb03:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=6a54bb03:15914:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=6a54bb03:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=6a54bb03:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=6a54bb03:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=6a54bb03:19116:15)
+    at recoverFromConcurrentError (chunk-RPCDYKBN.js?v=6a54bb03:18736:28)
+main.tsx:20 ❌ Error details: 
+Object
+chunk-RPCDYKBN.js?v=6a54bb03:19413 Uncaught TypeError: Cannot read properties of null (reading 'useRef')
+    at Object.useRef (chunk-QCHXOAYK.js?v=cc2c9f8f:1074:29)
+    at TooltipProvider (@radix-ui_react-tool…js?v=cc2c9f8f:67:34)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=6a54bb03:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=6a54bb03:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=6a54bb03:15914:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=6a54bb03:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=6a54bb03:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=6a54bb03:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=6a54bb03:19116:15)
+    at recoverFromConcurrentError (chunk-RPCDYKBN.js?v=6a54bb03:18736:28)
+(index):178 ServiceWorker registration successful
+(index):1 Error while trying to use the following icon from the Manifest: https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/icon-192.png (Download error or resource isn't a valid image)
+sw.js:128 Uncaught (in promise) TypeError: Failed to execute 'put' on 'Cache': Request scheme 'chrome-extension' is unsupported
+    at sw.js:128:23
+sw.js:128 Uncaught (in promise) TypeError: Failed to execute 'put' on 'Cache': Request scheme 'chrome-extension' is unsupported
+    at sw.js:128:23
+﻿
+
