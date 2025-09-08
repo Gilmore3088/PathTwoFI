@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { 
   insertBlogPostSchema, 
   insertWealthDataSchema, 
@@ -10,6 +11,20 @@ import {
 import { ObjectStorageService } from "./objectStorage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Auth middleware
+  await setupAuth(app);
+
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
   // SEO Routes
   app.get("/sitemap.xml", async (req, res) => {
     try {
@@ -156,7 +171,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/blog-posts", async (req, res) => {
+  app.post("/api/blog-posts", isAdmin, async (req, res) => {
     try {
       console.log('Received blog post data:', JSON.stringify(req.body, null, 2));
       const validatedData = insertBlogPostSchema.parse(req.body);
@@ -172,7 +187,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/blog-posts/:id", async (req, res) => {
+  app.put("/api/blog-posts/:id", isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const validatedData = insertBlogPostSchema.partial().parse(req.body);
@@ -186,7 +201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/blog-posts/:id", async (req, res) => {
+  app.delete("/api/blog-posts/:id", isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const success = await storage.deleteBlogPost(id);
@@ -200,7 +215,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wealth data routes
-  app.get("/api/wealth-data", async (req, res) => {
+  app.get("/api/wealth-data", isAdmin, async (req, res) => {
     try {
       const category = req.query.category as string | undefined;
       const data = await storage.getWealthData(category);
@@ -223,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/wealth-data/:id", async (req, res) => {
+  app.put("/api/wealth-data/:id", isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const validatedData = insertWealthDataSchema.partial().parse(req.body);
@@ -237,7 +252,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/wealth-data/:id", async (req, res) => {
+  app.delete("/api/wealth-data/:id", isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const success = await storage.deleteWealthData(id);
@@ -250,7 +265,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/wealth-data", async (req, res) => {
+  app.post("/api/wealth-data", isAdmin, async (req, res) => {
     try {
       const validatedData = insertWealthDataSchema.parse(req.body);
       const data = await storage.createWealthData(validatedData);
@@ -290,7 +305,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Financial Goals routes
-  app.get("/api/financial-goals", async (req, res) => {
+  app.get("/api/financial-goals", isAdmin, async (req, res) => {
     try {
       const category = req.query.category as string;
       const goals = await storage.getFinancialGoals(category);
@@ -300,7 +315,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/financial-goals", async (req, res) => {
+  app.post("/api/financial-goals", isAdmin, async (req, res) => {
     try {
       const goal = await storage.createFinancialGoal(req.body);
       res.json(goal);
@@ -309,7 +324,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/financial-goals/:id", async (req, res) => {
+  app.put("/api/financial-goals/:id", isAdmin, async (req, res) => {
     try {
       const goal = await storage.updateFinancialGoal(req.params.id, req.body);
       if (!goal) {
@@ -321,7 +336,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/financial-goals/:id", async (req, res) => {
+  app.delete("/api/financial-goals/:id", isAdmin, async (req, res) => {
     try {
       const success = await storage.deleteFinancialGoal(req.params.id);
       if (!success) {
@@ -334,7 +349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wealth Reports routes
-  app.get("/api/wealth-reports", async (req, res) => {
+  app.get("/api/wealth-reports", isAdmin, async (req, res) => {
     try {
       const category = req.query.category as string;
       const reportType = req.query.reportType as string;
@@ -345,7 +360,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/wealth-reports", async (req, res) => {
+  app.post("/api/wealth-reports", isAdmin, async (req, res) => {
     try {
       const report = await storage.createWealthReport(req.body);
       res.json(report);
@@ -355,7 +370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Object storage routes
-  app.post("/api/objects/upload", async (req, res) => {
+  app.post("/api/objects/upload", isAdmin, async (req, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
