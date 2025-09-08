@@ -46,17 +46,19 @@ export default function AdminWealth() {
         
         if (now < expiry) {
           setIsAuthenticated(true);
+          setAuthLoading(false);
         } else {
           localStorage.removeItem("adminAuth");
           localStorage.removeItem("adminAuthExpiry");
+          setAuthLoading(false);
           window.location.href = "/admin";
           return;
         }
       } else {
+        setAuthLoading(false);
         window.location.href = "/admin";
         return;
       }
-      setAuthLoading(false);
     };
     
     checkAuth();
