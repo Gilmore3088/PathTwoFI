@@ -16,6 +16,18 @@ import {
 } from "lucide-react";
 
 export default function About() {
+  // FIRE calculations
+  const fireGoalToday = 3500000;
+  const stretchGoalToday = 4000000;
+  const yearsToFire = 14;
+  const inflationRate = 0.03;
+  const inflationMultiplier = Math.pow(1 + inflationRate, yearsToFire);
+  const fireGoalFuture = fireGoalToday * inflationMultiplier;
+  const stretchGoalFuture = stretchGoalToday * inflationMultiplier;
+  const currentNetWorth = 679000; // Your current net worth excluding home
+  const progressToFire = (currentNetWorth / fireGoalFuture) * 100;
+  const progressToStretch = (currentNetWorth / stretchGoalFuture) * 100;
+
   const milestones = [
     {
       year: "2030",
@@ -141,21 +153,6 @@ export default function About() {
     }
   };
 
-  // FIRE calculations with inflation adjustment
-  const currentNetWorthExclHome = 679; // $679K (combined assets excluding home)
-  const fireGoalToday = 3500; // $3.5M in today's dollars
-  const stretchGoalToday = 4000; // $4M stretch goal
-  const yearsToFire = 14; // Target date: Jan 2040
-  const inflationRate = 0.03;
-  const inflationMultiplier = Math.pow(1 + inflationRate, yearsToFire); // ~1.51
-
-  // Future value of goals with inflation
-  const fireGoalFuture = fireGoalToday * inflationMultiplier; // ~$5.29M
-  const stretchGoalFuture = stretchGoalToday * inflationMultiplier; // ~$6.05M
-
-  // Progress percentages
-  const progressToFire = (currentNetWorthExclHome / fireGoalFuture) * 100; // ~13%
-  const progressToStretch = (currentNetWorthExclHome / stretchGoalFuture) * 100; // ~11%
 
   const principles = [
     {
