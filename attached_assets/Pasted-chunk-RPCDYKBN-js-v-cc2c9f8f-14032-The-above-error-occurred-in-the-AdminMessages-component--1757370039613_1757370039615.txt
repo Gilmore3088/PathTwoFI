@@ -1,0 +1,41 @@
+chunk-RPCDYKBN.js?v=cc2c9f8f:14032 The above error occurred in the <AdminMessages> component:
+
+    at AdminMessages (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/pages/admin-messages.tsx?t=1757369986786:32:49)
+    at Route (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=cc2c9f8f:191:16)
+    at Switch (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=cc2c9f8f:247:17)
+    at Router
+    at main
+    at div
+    at ThemeProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/hooks/use-theme.tsx:25:3)
+    at Layout (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/components/layout/layout.tsx:20:26)
+    at Provider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…unner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=cc2c9f8f:38:15)
+    at TooltipProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…rkspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=cc2c9f8f:61:5)
+    at QueryClientProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=cc2c9f8f:2805:3)
+    at _a (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…r/workspace/node_modules/.vite/deps/react-helmet-async.js?v=cc2c9f8f:624:5)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError	@	chunk-RPCDYKBN.js?v=cc2c9f8f:14032
+update.callback	@	chunk-RPCDYKBN.js?v=cc2c9f8f:14052
+callCallback	@	chunk-RPCDYKBN.js?v=cc2c9f8f:11248
+commitUpdateQueue	@	chunk-RPCDYKBN.js?v=cc2c9f8f:11265
+commitLayoutEffectOnFiber	@	chunk-RPCDYKBN.js?v=cc2c9f8f:17093
+commitLayoutMountEffects_complete	@	chunk-RPCDYKBN.js?v=cc2c9f8f:17980
+commitLayoutEffects_begin	@	chunk-RPCDYKBN.js?v=cc2c9f8f:17969
+commitLayoutEffects	@	chunk-RPCDYKBN.js?v=cc2c9f8f:17920
+commitRootImpl	@	chunk-RPCDYKBN.js?v=cc2c9f8f:19353
+commitRoot	@	chunk-RPCDYKBN.js?v=cc2c9f8f:19277
+finishConcurrentRender	@	chunk-RPCDYKBN.js?v=cc2c9f8f:18760
+performConcurrentWorkOnRoot	@	chunk-RPCDYKBN.js?v=cc2c9f8f:18718
+workLoop	@	chunk-RPCDYKBN.js?v=cc2c9f8f:197
+flushWork	@	chunk-RPCDYKBN.js?v=cc2c9f8f:176
+performWorkUntilDeadline	@	chunk-RPCDYKBN.js?v=cc2c9f8f:384
+
+chunk-RPCDYKBN.js?v=cc2c9f8f:11678 Uncaught Error: Rendered more hooks than during the previous render.
+    at AdminMessages (admin-messages.tsx:77:70)
+messages:1 Error while trying to use the following icon from the Manifest: https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/icon-192.png (Download error or resource isn't a valid image)
+sw.js:128 Uncaught (in promise) TypeError: Failed to execute 'put' on 'Cache': Request scheme 'chrome-extension' is unsupported
+    at sw.js:128:23
+﻿
+

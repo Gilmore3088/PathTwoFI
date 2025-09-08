@@ -12,75 +12,24 @@ import { Link } from "wouter";
 import type { ContactSubmission } from "@shared/schema";
 
 export default function AdminMessages() {
-  // DEBUGGING: This should appear in console
-  console.log("🔴 ADMIN MESSAGES LOADING - Check if you see this!");
+  
+  // STATE HOOKS FIRST
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [selectedMessage, setSelectedMessage] = useState<ContactSubmission | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
+  // OTHER HOOKS
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Check localStorage authentication
-  useEffect(() => {
-    const checkAuth = () => {
-      const authToken = localStorage.getItem("adminAuth");
-      const authExpiry = localStorage.getItem("adminAuthExpiry");
-      
-      if (authToken && authExpiry) {
-        const now = new Date().getTime();
-        const expiry = parseInt(authExpiry);
-        
-        if (now < expiry) {
-          setIsAuthenticated(true);
-        } else {
-          // Token expired, redirect to admin login
-          localStorage.removeItem("adminAuth");
-          localStorage.removeItem("adminAuthExpiry");
-          window.location.href = "/admin";
-          return;
-        }
-      } else {
-        // Not authenticated, redirect to admin login
-        window.location.href = "/admin";
-        return;
-      }
-      setAuthLoading(false);
-    };
-    
-    checkAuth();
-  }, []);
-
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        <p className="ml-4">Loading messages page...</p>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    console.log("🔴 Messages page: Not authenticated, redirecting...");
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">🔴 DEBUG: Redirecting to login...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Fetch all contact submissions - handle auth mismatch gracefully
+  // DATA HOOKS - MUST BE BEFORE CONDITIONAL RETURNS!
   const { data: messages = [], isLoading: messagesLoading, error } = useQuery<ContactSubmission[]>({
     queryKey: ["/api/contact-submissions"],
     enabled: isAuthenticated,
-    retry: false, // Don't retry on auth errors
+    retry: false,
   });
 
-  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       return await apiRequest(`/api/contact-submissions/${id}`, 'DELETE');
@@ -103,6 +52,56 @@ export default function AdminMessages() {
     }
   });
 
+  // EFFECT HOOKS
+  useEffect(() => {
+    const checkAuth = () => {
+      const authToken = localStorage.getItem("adminAuth");
+      const authExpiry = localStorage.getItem("adminAuthExpiry");
+      
+      if (authToken && authExpiry) {
+        const now = new Date().getTime();
+        const expiry = parseInt(authExpiry);
+        
+        if (now < expiry) {
+          setIsAuthenticated(true);
+        } else {
+          localStorage.removeItem("adminAuth");
+          localStorage.removeItem("adminAuthExpiry");
+          window.location.href = "/admin";
+          return;
+        }
+      } else {
+        window.location.href = "/admin";
+        return;
+      }
+      setAuthLoading(false);
+    };
+    
+    checkAuth();
+  }, []);
+
+  // NOW CONDITIONAL RETURNS ARE SAFE
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p className="ml-4">Loading messages page...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    console.log("🔴 Messages page: Not authenticated, redirecting...");
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">🔴 DEBUG: Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
+
   const handleDelete = (id: string) => {
     if (confirm("Are you sure you want to delete this message? This action cannot be undone.")) {
       deleteMutation.mutate(id);
@@ -114,241 +113,204 @@ export default function AdminMessages() {
     setIsDialogOpen(true);
   };
 
-  const formatDate = (date: Date | null) => {
-    if (!date) return "No date";
-    return format(new Date(date), "MMM dd, yyyy 'at' h:mm a");
+  const handleLogout = () => {
+    localStorage.removeItem("adminAuth");
+    localStorage.removeItem("adminAuthExpiry");
+    window.location.href = "/admin";
   };
 
-  return (
-    <div className="min-h-screen bg-background py-12">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Admin Navigation */}
-          <div className="flex gap-2 mb-6">
-            <Link href="/admin/wealth">
-              <Button variant="outline">Wealth Data</Button>
-            </Link>
-            <Link href="/admin/blog">
-              <Button variant="outline">Blog Posts</Button>
-            </Link>
-            <Link href="/admin/goals">
-              <Button variant="outline">Financial Goals</Button>
-            </Link>
-            <Link href="/admin/messages">
-              <Button variant="outline" className="bg-primary text-primary-foreground">
-                Messages
-              </Button>
-            </Link>
-          </div>
-
-          {/* Admin Logout */}
-          <div className="flex justify-end mb-4">
-            <button
-              onClick={() => window.location.href = '/api/logout'}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
-              data-testid="button-admin-logout"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
-          </div>
-
-          {/* Header */}
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground" data-testid="text-admin-messages-title">
-                Contact Messages
-              </h1>
-              <p className="text-muted-foreground mt-2" data-testid="text-admin-messages-subtitle">
-                View and manage contact form submissions from your website
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <Badge variant="secondary" className="text-sm">
-                <Mail className="w-4 h-4 mr-1" />
-                {error ? "API Error" : `${messages.length} Total Messages`}
-              </Badge>
-              {error && (
-                <Badge variant="destructive" className="text-sm">
-                  Authentication Update In Progress
-                </Badge>
-              )}
+  if (messagesLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        {/* Admin Header */}
+        <div className="bg-white dark:bg-gray-800 shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center space-x-3">
+                <MessageSquare className="w-8 h-8 text-blue-600" />
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Contact Messages</h1>
+              </div>
+              <div className="flex items-center space-x-4">
+                <Link href="/admin">
+                  <Button variant="outline">← Back to Dashboard</Button>
+                </Link>
+                <Button variant="destructive" onClick={handleLogout}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
             </div>
           </div>
-
-          {/* Messages List */}
-          {messagesLoading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="text-muted-foreground mt-2">Loading messages...</p>
-            </div>
-          ) : error ? (
-            <Card>
-              <CardContent className="text-center py-12">
-                <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Messages Temporarily Unavailable</h3>
-                <p className="text-muted-foreground mb-4">
-                  The messages system is being updated. Contact form submissions are still being saved.
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Check back in a few minutes or contact the site administrator.
-                </p>
-              </CardContent>
-            </Card>
-          ) : messages.length === 0 ? (
-            <Card>
-              <CardContent className="text-center py-12">
-                <Mail className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Messages Yet</h3>
-                <p className="text-muted-foreground">
-                  Contact form submissions will appear here when visitors send messages through your website.
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {messages.map((message) => (
-                <Card key={message.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-muted-foreground" />
-                            <span className="font-semibold" data-testid={`text-message-name-${message.id}`}>
-                              {message.name}
-                            </span>
-                          </div>
-                          <Badge variant="outline" className="text-xs">
-                            {message.email}
-                          </Badge>
-                        </div>
-                        
-                        <h3 className="text-lg font-medium mb-2" data-testid={`text-message-subject-${message.id}`}>
-                          {message.subject}
-                        </h3>
-                        
-                        <p className="text-muted-foreground text-sm mb-3 line-clamp-2" data-testid={`text-message-preview-${message.id}`}>
-                          {message.message}
-                        </p>
-                        
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar className="w-4 h-4" />
-                          <span>{formatDate(message.submittedAt)}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleViewMessage(message)}
-                          data-testid={`button-view-${message.id}`}
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          View
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(message.id)}
-                          data-testid={`button-delete-${message.id}`}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {/* Message Detail Dialog */}
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5" />
-                  Message from {selectedMessage?.name}
-                </DialogTitle>
-              </DialogHeader>
-              
-              {selectedMessage && (
-                <div className="space-y-6">
-                  {/* Contact Info */}
-                  <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Name</label>
-                      <p className="font-medium">{selectedMessage.name}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Email</label>
-                      <p className="font-medium">
-                        <a 
-                          href={`mailto:${selectedMessage.email}`}
-                          className="text-primary hover:underline"
-                          data-testid="link-reply-email"
-                        >
-                          {selectedMessage.email}
-                        </a>
-                      </p>
-                    </div>
-                    <div className="col-span-2">
-                      <label className="text-sm font-medium text-muted-foreground">Submitted</label>
-                      <p className="font-medium">{formatDate(selectedMessage.submittedAt)}</p>
-                    </div>
-                  </div>
-
-                  {/* Subject */}
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Subject</label>
-                    <h3 className="text-lg font-semibold mt-1">{selectedMessage.subject}</h3>
-                  </div>
-
-                  {/* Message Content */}
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Message</label>
-                    <div className="mt-2 p-4 bg-muted/30 rounded-lg">
-                      <p className="whitespace-pre-wrap leading-relaxed">{selectedMessage.message}</p>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex justify-between pt-4 border-t">
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsDialogOpen(false)}
-                      data-testid="button-close-dialog"
-                    >
-                      Close
-                    </Button>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => window.open(`mailto:${selectedMessage.email}?subject=Re: ${selectedMessage.subject}`)}
-                        data-testid="button-reply"
-                      >
-                        <Mail className="w-4 h-4 mr-2" />
-                        Reply
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={() => handleDelete(selectedMessage.id)}
-                        disabled={deleteMutation.isPending}
-                        data-testid="button-delete-dialog"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        {deleteMutation.isPending ? "Deleting..." : "Delete"}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </DialogContent>
-          </Dialog>
         </div>
+
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="ml-4">Loading messages...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        {/* Admin Header */}
+        <div className="bg-white dark:bg-gray-800 shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center space-x-3">
+                <MessageSquare className="w-8 h-8 text-blue-600" />
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Contact Messages</h1>
+              </div>
+              <div className="flex items-center space-x-4">
+                <Link href="/admin">
+                  <Button variant="outline">← Back to Dashboard</Button>
+                </Link>
+                <Button variant="destructive" onClick={handleLogout}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-red-600 dark:text-red-400">Error loading messages. Please try again.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Admin Header */}
+      <div className="bg-white dark:bg-gray-800 shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-3">
+              <MessageSquare className="w-8 h-8 text-blue-600" />
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Contact Messages</h1>
+              <Badge variant="secondary">{messages.length} total</Badge>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link href="/admin">
+                <Button variant="outline">← Back to Dashboard</Button>
+              </Link>
+              <Button variant="destructive" onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {messages.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Mail className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No messages yet</h3>
+              <p className="text-gray-500 dark:text-gray-400">
+                Contact form submissions will appear here when visitors send messages.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-6">
+            {messages.map((message) => (
+              <Card key={message.id} className="hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
+                        <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">{message.name}</CardTitle>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{message.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Badge variant="outline" className="text-xs">
+                        <Calendar className="w-3 h-3 mr-1" />
+                        {format(new Date(message.createdAt), 'MMM d, yyyy')}
+                      </Badge>
+                      <Dialog open={isDialogOpen && selectedMessage?.id === message.id} onOpenChange={setIsDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleViewMessage(message)}
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Message from {message.name}</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email:</label>
+                              <p className="text-sm">{message.email}</p>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Subject:</label>
+                              <p className="text-sm">{message.subject}</p>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Message:</label>
+                              <p className="text-sm whitespace-pre-wrap bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+                                {message.message}
+                              </p>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Received:</label>
+                              <p className="text-sm">{format(new Date(message.createdAt), 'EEEE, MMMM d, yyyy \'at\' h:mm a')}</p>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        onClick={() => handleDelete(message.id)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="font-medium text-sm">Subject: </span>
+                      <span className="text-sm">{message.subject}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-sm">Message Preview: </span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {message.message.length > 150 
+                          ? `${message.message.substring(0, 150)}...` 
+                          : message.message
+                        }
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
