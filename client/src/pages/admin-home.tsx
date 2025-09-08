@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SEO } from "@/components/ui/seo";
-import { TrendingUp, Edit, Target, Settings, Mail, MessageSquare } from "lucide-react";
+import { TrendingUp, Edit, Target, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -68,7 +68,7 @@ export default function AdminHome() {
       href: "/admin/messages",
       title: "Message Management",
       description: "View and manage contact form submissions",
-      icon: MessageSquare,
+      icon: Settings,
       color: "text-muted-foreground"
     }
   ];
@@ -97,7 +97,7 @@ export default function AdminHome() {
           </div>
 
           {/* Admin Routes Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {adminRoutes.map((route) => {
               const IconComponent = route.icon;
               return (
