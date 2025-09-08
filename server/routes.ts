@@ -479,7 +479,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ uploadURL });
     } catch (error) {
       console.error("Error getting upload URL:", error);
-      res.status(500).json({ error: "Failed to get upload URL" });
+      if (error instanceof Error && error.message.includes("PRIVATE_OBJECT_DIR")) {
+        res.status(503).json({ error: "Object storage not configured properly", details: error.message });
+      } else if (error instanceof Error) {
+        res.status(500).json({ error: "Failed to get upload URL", details: error.message });
+      } else {
+        res.status(500).json({ error: "Failed to get upload URL" });
+      }
     }
   });
 

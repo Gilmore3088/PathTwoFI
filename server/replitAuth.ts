@@ -175,13 +175,21 @@ export const isAdmin: RequestHandler = async (req, res, next) => {
     const userId = user.claims.sub;
     const dbUser = await storage.getUser(userId);
     
-    if (!dbUser || dbUser.role !== "admin") {
+    if (!dbUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    if (dbUser.role !== "admin") {
       return res.status(403).json({ message: "Admin access required" });
     }
 
     return next();
   } catch (error) {
     console.error("Error checking admin status:", error);
-    res.status(500).json({ message: "Internal server error" });
+    if (error instanceof Error) {
+      res.status(500).json({ message: "Authentication check failed", error: error.message });
+    } else {
+      res.status(500).json({ message: "Internal server error" });
+    }
   }
 };
