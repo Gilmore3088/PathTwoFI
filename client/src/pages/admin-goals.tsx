@@ -80,6 +80,7 @@ export default function AdminGoals() {
   // Fetch all financial goals
   const { data: goals = [], isLoading } = useQuery<FinancialGoal[]>({
     queryKey: ["/api/financial-goals"],
+    enabled: isAuthenticated,
     queryFn: async () => {
       const response = await makeAdminRequest('/api/financial-goals');
       if (!response.ok) {

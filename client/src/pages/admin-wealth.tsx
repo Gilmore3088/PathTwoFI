@@ -84,6 +84,7 @@ export default function AdminWealth() {
   // Fetch all wealth data
   const { data: allWealthData = [], isLoading } = useQuery<WealthData[]>({
     queryKey: ["/api/wealth-data"],
+    enabled: isAuthenticated,
     queryFn: async () => {
       const response = await makeAdminRequest('/api/wealth-data');
       if (!response.ok) {

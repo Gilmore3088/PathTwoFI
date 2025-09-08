@@ -88,6 +88,7 @@ export default function AdminBlog() {
   // Fetch blog posts
   const { data: allBlogPosts = [], isLoading } = useQuery<BlogPost[]>({
     queryKey: ["/api/blog-posts"],
+    enabled: isAuthenticated,
     queryFn: async () => {
       const response = await makeAdminRequest('/api/blog-posts');
       if (!response.ok) {
