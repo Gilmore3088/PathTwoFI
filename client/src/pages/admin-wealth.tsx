@@ -1,12 +1,11 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
@@ -28,13 +27,13 @@ export default function AdminWealth() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState<string>("all");
-  const [selectedEntries, setSelectedEntries] = useState<Set<string>>(new Set());
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch all wealth data (must be before conditional returns)
+  // ALL HOOKS MUST BE BEFORE CONDITIONAL RETURNS
+  // Fetch all wealth data
   const { data: allWealthData = [], isLoading } = useQuery<WealthData[]>({
     queryKey: ["/api/wealth-data"],
     enabled: isAuthenticated,
@@ -46,6 +45,194 @@ export default function AdminWealth() {
       return response.json();
     }
   });
+
+  // Filtered and searched wealth data
+  const filteredWealthData = useMemo(() => {
+    return allWealthData.filter(entry => {
+      const matchesSearch = searchTerm === "" || 
+        format(new Date(entry.date!), 'MMM dd, yyyy').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.category.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesCategory = selectedCategory === "all" || entry.category === selectedCategory;
+      
+      const matchesPeriod = selectedPeriod === "all" || (() => {
+        const entryDate = new Date(entry.date!);
+        const now = new Date();
+        switch (selectedPeriod) {
+          case "30d": return (now.getTime() - entryDate.getTime()) <= 30 * 24 * 60 * 60 * 1000;
+          case "90d": return (now.getTime() - entryDate.getTime()) <= 90 * 24 * 60 * 60 * 1000;
+          case "1y": return (now.getTime() - entryDate.getTime()) <= 365 * 24 * 60 * 60 * 1000;
+          default: return true;
+        }
+      })();
+      
+      return matchesSearch && matchesCategory && matchesPeriod;
+    });
+  }, [allWealthData, searchTerm, selectedCategory, selectedPeriod]);
+
+  const form = useForm<InsertWealthData>({
+    resolver: zodResolver(insertWealthDataSchema),
+    defaultValues: {
+      date: new Date(),
+      category: "Both",
+      netWorth: "",
+      investments: "",
+      cash: "",
+      liabilities: "",
+      fireTarget: "1000000.00",
+      savingsRate: "",
+      // Asset breakdown
+      stocks: "0",
+      bonds: "0",
+      realEstate: "0",
+      crypto: "0",
+      commodities: "0",
+      alternativeInvestments: "0",
+      // Debt breakdown
+      mortgage: "0",
+      creditCards: "0",
+      studentLoans: "0",
+      autoLoans: "0"
+    }
+  });
+
+  // Create/Update mutation
+  const createMutation = useMutation({
+    mutationFn: async (data: InsertWealthData) => {
+      const response = await makeAdminRequest('/api/wealth-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to create wealth data' }));
+        throw new Error(errorData.message || 'Failed to create wealth data');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/wealth-data"] });
+      setIsDialogOpen(false);
+      setEditingItem(null);
+      form.reset();
+      toast({ description: "Wealth data created successfully" });
+    },
+    onError: (error) => {
+      toast({ 
+        variant: "destructive", 
+        description: error.message || "Failed to create wealth data" 
+      });
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: InsertWealthData }) => {
+      const response = await makeAdminRequest(`/api/wealth-data/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to update wealth data' }));
+        throw new Error(errorData.message || 'Failed to update wealth data');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/wealth-data"] });
+      setIsDialogOpen(false);
+      setEditingItem(null);
+      form.reset();
+      toast({ description: "Wealth data updated successfully" });
+    },
+    onError: (error) => {
+      toast({ 
+        variant: "destructive", 
+        description: error.message || "Failed to update wealth data" 
+      });
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await makeAdminRequest(`/api/wealth-data/${id}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to delete wealth data' }));
+        throw new Error(errorData.message || 'Failed to delete wealth data');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/wealth-data"] });
+      toast({ description: "Wealth data deleted successfully" });
+    },
+    onError: (error) => {
+      toast({ 
+        variant: "destructive", 
+        description: error.message || "Failed to delete wealth data" 
+      });
+    }
+  });
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const response = await makeAdminRequest('/api/wealth-data/bulk-delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids })
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to delete wealth data' }));
+        throw new Error(errorData.message || 'Failed to delete wealth data');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/wealth-data"] });
+      setSelectedItems(new Set());
+      toast({ description: "Wealth data deleted successfully" });
+    },
+    onError: (error) => {
+      toast({ 
+        variant: "destructive", 
+        description: error.message || "Failed to delete wealth data" 
+      });
+    }
+  });
+
+  const handleExportCSV = useCallback(() => {
+    const csvData = filteredWealthData.map(item => ({
+      Date: format(new Date(item.date!), 'yyyy-MM-dd'),
+      Category: item.category,
+      'Net Worth': item.netWorth,
+      Investments: item.investments,
+      Cash: item.cash,
+      Liabilities: item.liabilities,
+      'FIRE Target': item.fireTarget,
+      'Savings Rate': item.savingsRate,
+      Stocks: item.stocks || '',
+      Bonds: item.bonds || '',
+      'Real Estate': item.realEstate || '',
+      Crypto: item.crypto || '',
+      Commodities: item.commodities || '',
+      'Alternative Investments': item.alternativeInvestments || '',
+      Mortgage: item.mortgage || '',
+      'Credit Cards': item.creditCards || '',
+      'Student Loans': item.studentLoans || '',
+      'Auto Loans': item.autoLoans || ''
+    }));
+
+    const csv = Papa.unparse(csvData);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `wealth-data-${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [filteredWealthData]);
 
   // Check localStorage authentication
   useEffect(() => {
@@ -96,150 +283,8 @@ export default function AdminWealth() {
     );
   }
 
-  // Filtered and searched wealth data
-  const filteredWealthData = useMemo(() => {
-    return allWealthData.filter(entry => {
-      const matchesSearch = searchTerm === "" || 
-        format(new Date(entry.date!), 'MMM dd, yyyy').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entry.category.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesCategory = selectedCategory === "all" || entry.category === selectedCategory;
-      
-      const matchesPeriod = selectedPeriod === "all" || (() => {
-        const entryDate = new Date(entry.date!);
-        const now = new Date();
-        switch (selectedPeriod) {
-          case "30d": return (now.getTime() - entryDate.getTime()) <= 30 * 24 * 60 * 60 * 1000;
-          case "90d": return (now.getTime() - entryDate.getTime()) <= 90 * 24 * 60 * 60 * 1000;
-          case "1y": return (now.getTime() - entryDate.getTime()) <= 365 * 24 * 60 * 60 * 1000;
-          default: return true;
-        }
-      })();
-      
-      return matchesSearch && matchesCategory && matchesPeriod;
-    });
-  }, [allWealthData, searchTerm, selectedCategory, selectedPeriod]);
-
   // Keep wealthData for backward compatibility
   const wealthData = filteredWealthData;
-
-  const form = useForm<InsertWealthData>({
-    resolver: zodResolver(insertWealthDataSchema),
-    defaultValues: {
-      date: new Date(),
-      category: "Both",
-      netWorth: "",
-      investments: "",
-      cash: "",
-      liabilities: "",
-      fireTarget: "1000000.00",
-      savingsRate: "",
-      // Asset breakdown
-      stocks: "0",
-      bonds: "0",
-      realEstate: "0",
-      crypto: "0",
-      commodities: "0",
-      alternativeInvestments: "0",
-      // Debt breakdown
-      mortgage: "0",
-      creditCards: "0",
-      studentLoans: "0",
-      autoLoans: "0"
-    }
-  });
-
-  // Create/Update mutation
-  const createMutation = useMutation({
-    mutationFn: async (data: InsertWealthData) => {
-      return await apiRequest('/api/wealth-data', 'POST', data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/wealth-data"] });
-      setIsDialogOpen(false);
-      setEditingItem(null);
-      form.reset();
-      toast({
-        title: "Success",
-        description: "Wealth data saved successfully!"
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to save wealth data",
-        variant: "destructive"
-      });
-    }
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string, data: Partial<InsertWealthData> }) => {
-      return await apiRequest(`/api/wealth-data/${id}`, 'PUT', data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/wealth-data"] });
-      setIsDialogOpen(false);
-      setEditingItem(null);
-      form.reset();
-      toast({
-        title: "Success",
-        description: "Wealth data updated successfully!"
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error", 
-        description: "Failed to update wealth data",
-        variant: "destructive"
-      });
-    }
-  });
-
-  // Delete mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await apiRequest(`/api/wealth-data/${id}`, 'DELETE');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/wealth-data"] });
-      toast({
-        title: "Success",
-        description: "Wealth data deleted successfully!"
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to delete wealth data",
-        variant: "destructive"
-      });
-    }
-  });
-
-  // Bulk delete mutation
-  const bulkDeleteMutation = useMutation({
-    mutationFn: async (ids: string[]) => {
-      await Promise.all(ids.map(id => 
-        apiRequest(`/api/wealth-data/${id}`, 'DELETE')
-      ));
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/wealth-data"] });
-      setSelectedEntries(new Set());
-      toast({
-        title: "Success",
-        description: "Selected entries deleted successfully!"
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to delete selected entries",
-        variant: "destructive"
-      });
-    }
-  });
 
   const onSubmit = (data: InsertWealthData) => {
     if (editingItem) {
@@ -252,266 +297,192 @@ export default function AdminWealth() {
   const handleEdit = (item: WealthData) => {
     setEditingItem(item);
     form.reset({
-      date: new Date(item.date),
-      category: item.category as "His" | "Her" | "Both",
+      date: new Date(item.date!),
+      category: item.category,
       netWorth: item.netWorth,
       investments: item.investments,
       cash: item.cash,
       liabilities: item.liabilities,
-      fireTarget: item.fireTarget,
+      fireTarget: item.fireTarget || "1000000.00",
       savingsRate: item.savingsRate,
       // Asset breakdown
-      stocks: item.stocks?.toString() || "0",
-      bonds: item.bonds?.toString() || "0",
-      realEstate: item.realEstate?.toString() || "0",
-      crypto: item.crypto?.toString() || "0",
-      commodities: item.commodities?.toString() || "0",
-      alternativeInvestments: item.alternativeInvestments?.toString() || "0",
+      stocks: item.stocks || "0",
+      bonds: item.bonds || "0",
+      realEstate: item.realEstate || "0",
+      crypto: item.crypto || "0",
+      commodities: item.commodities || "0",
+      alternativeInvestments: item.alternativeInvestments || "0",
       // Debt breakdown
-      mortgage: item.mortgage?.toString() || "0",
-      creditCards: item.creditCards?.toString() || "0",
-      studentLoans: item.studentLoans?.toString() || "0",
-      autoLoans: item.autoLoans?.toString() || "0"
+      mortgage: item.mortgage || "0",
+      creditCards: item.creditCards || "0",
+      studentLoans: item.studentLoans || "0",
+      autoLoans: item.autoLoans || "0"
     });
     setIsDialogOpen(true);
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this wealth entry?")) {
+    if (confirm("Are you sure you want to delete this wealth data entry?")) {
       deleteMutation.mutate(id);
     }
   };
 
   const handleBulkDelete = () => {
-    if (selectedEntries.size === 0) return;
-    if (confirm(`Are you sure you want to delete ${selectedEntries.size} selected entries?`)) {
-      bulkDeleteMutation.mutate(Array.from(selectedEntries));
-    }
-  };
-
-  const handleSelectAll = () => {
-    if (selectedEntries.size === wealthData.length) {
-      setSelectedEntries(new Set());
-    } else {
-      setSelectedEntries(new Set(wealthData.map(entry => entry.id)));
-    }
-  };
-
-  const handleSelectEntry = (entryId: string) => {
-    const newSelected = new Set(selectedEntries);
-    if (newSelected.has(entryId)) {
-      newSelected.delete(entryId);
-    } else {
-      newSelected.add(entryId);
-    }
-    setSelectedEntries(newSelected);
-  };
-
-  const handleExportCSV = useCallback(() => {
-    const csvData = wealthData.map(entry => ({
-      Date: format(new Date(entry.date!), 'yyyy-MM-dd'),
-      Category: entry.category,
-      'Net Worth': entry.netWorth,
-      Investments: entry.investments,
-      Cash: entry.cash,
-      Liabilities: entry.liabilities,
-      'FIRE Target': entry.fireTarget,
-      'Savings Rate': entry.savingsRate,
-      // Asset breakdown
-      Stocks: entry.stocks || '0',
-      Bonds: entry.bonds || '0',
-      'Real Estate': entry.realEstate || '0',
-      Crypto: entry.crypto || '0',
-      Commodities: entry.commodities || '0',
-      'Alternative Investments': entry.alternativeInvestments || '0',
-      // Debt breakdown
-      Mortgage: entry.mortgage || '0',
-      'Credit Cards': entry.creditCards || '0',
-      'Student Loans': entry.studentLoans || '0',
-      'Auto Loans': entry.autoLoans || '0'
-    }));
-
-    const csv = Papa.unparse(csvData);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `pathwo-wealth-data-${format(new Date(), 'yyyy-MM-dd')}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (selectedItems.size === 0) return;
     
-    toast({
-      title: "Success",
-      description: "Wealth data exported successfully!"
-    });
-  }, [wealthData, toast]);
+    if (confirm(`Are you sure you want to delete ${selectedItems.size} selected entries?`)) {
+      bulkDeleteMutation.mutate(Array.from(selectedItems));
+    }
+  };
 
-  const resetForm = () => {
-    setEditingItem(null);
-    form.reset();
+  const toggleEntrySelection = (id: string) => {
+    const newSelection = new Set(selectedItems);
+    if (newSelection.has(id)) {
+      newSelection.delete(id);
+    } else {
+      newSelection.add(id);
+    }
+    setSelectedItems(newSelection);
+  };
+
+  const toggleAllEntries = () => {
+    if (selectedItems.size === wealthData.length) {
+      setSelectedItems(new Set());
+    } else {
+      setSelectedItems(new Set(wealthData.map(item => item.id)));
+    }
   };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case "His": return <User className="h-4 w-4 text-blue-600" />;
-      case "Her": return <Heart className="h-4 w-4 text-pink-600" />;
-      case "Both": return <Users className="h-4 w-4 text-purple-600" />;
-      default: return <TrendingUp className="h-4 w-4" />;
+      case "Both": return <Users className="w-5 h-5 text-blue-500" />;
+      case "Individual 1": return <User className="w-5 h-5 text-green-500" />;
+      case "Individual 2": return <Heart className="w-5 h-5 text-pink-500" />;
+      default: return <TrendingUp className="w-5 h-5 text-gray-500" />;
     }
   };
 
+  const logout = () => {
+    localStorage.removeItem("adminAuth");
+    localStorage.removeItem("adminAuthExpiry");
+    window.location.href = "/admin";
+  };
+
   return (
-    <div className="min-h-screen bg-background py-12">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Admin Navigation */}
-          <div className="flex gap-2 mb-6">
-            <Link href="/admin/wealth">
-              <Button variant="outline" className="bg-primary text-primary-foreground">
-                Wealth Data
-              </Button>
-            </Link>
-            <Link href="/admin/blog">
-              <Button variant="outline">Blog Posts</Button>
-            </Link>
-            <Link href="/admin/goals">
-              <Button variant="outline">Financial Goals</Button>
-            </Link>
-            <Link href="/admin/messages">
-              <Button variant="outline">Messages</Button>
-            </Link>
-          </div>
-
-          {/* Admin Logout */}
-          <div className="flex justify-end mb-4">
-            <button
-              onClick={() => window.location.href = '/api/logout'}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
-              data-testid="button-admin-logout"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
-          </div>
-
-          {/* Header */}
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground" data-testid="text-admin-wealth-title">
-                Wealth Data Management
-              </h1>
-              <p className="text-muted-foreground mt-2" data-testid="text-admin-wealth-subtitle">
-                Manage wealth data for His, Her, and Both categories
-              </p>
+    <div className="min-h-screen bg-background">
+      {/* Admin Header */}
+      <div className="border-b bg-card">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+              <nav className="flex gap-4">
+                <Link href="/admin/home">
+                  <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+                    Dashboard
+                  </Button>
+                </Link>
+                <Link href="/admin/blog">
+                  <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+                    Blog Posts
+                  </Button>
+                </Link>
+                <Link href="/admin/wealth">
+                  <Button variant="default">
+                    Wealth Data
+                  </Button>
+                </Link>
+                <Link href="/admin/goals">
+                  <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+                    Goals
+                  </Button>
+                </Link>
+              </nav>
             </div>
+            <Button onClick={logout} variant="outline" size="sm" data-testid="button-logout">
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="space-y-8">
+          {/* Header */}
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-3xl font-bold text-foreground">Wealth Data Management</h2>
+              <p className="text-muted-foreground mt-1">Track and manage wealth tracking data entries</p>
+            </div>
+            
             <div className="flex gap-2">
-              <Button
-                onClick={handleExportCSV}
-                variant="outline"
-                data-testid="button-export-csv"
-              >
+              <Button onClick={handleExportCSV} variant="outline" data-testid="button-export-csv">
                 <Download className="w-4 h-4 mr-2" />
                 Export CSV
               </Button>
-              <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                setIsDialogOpen(open);
-                if (!open) resetForm();
-              }}>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button data-testid="button-add-wealth">
                     <PlusCircle className="w-4 h-4 mr-2" />
                     Add Wealth Data
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle data-testid="text-dialog-title">
-                    {editingItem ? "Edit Wealth Data" : "Add New Wealth Data"}
-                  </DialogTitle>
-                </DialogHeader>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>{editingItem ? "Edit" : "Add"} Wealth Data</DialogTitle>
+                  </DialogHeader>
+                  
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="date"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Date</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="date"
-                              {...field}
-                              value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : field.value}
-                              onChange={(e) => field.onChange(new Date(e.target.value))}
-                              data-testid="input-date"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="category"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger data-testid="select-category">
-                                <SelectValue placeholder="Select category" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="His">His</SelectItem>
-                              <SelectItem value="Her">Her</SelectItem>
-                              <SelectItem value="Both">Both</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* FIRE Settings */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="fireTarget"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>FIRE Target ($)</FormLabel>
-                            <FormControl>
-                              <Input type="number" step="0.01" placeholder="1000000.00" {...field} data-testid="input-fire-target" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="savingsRate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Savings Rate (%)</FormLabel>
-                            <FormControl>
-                              <Input type="number" step="0.01" placeholder="47.00" {...field} data-testid="input-savings-rate" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {/* To FIRE Goal Section */}
-                    <div className="pt-6 border-t">
-                      <h3 className="text-lg font-semibold mb-4 text-blue-600">To FIRE Goal</h3>
-                      
-                      <div className="grid grid-cols-2 gap-4 mb-4">
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Basic Information */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold">Basic Information</h3>
+                        
+                        <FormField
+                          control={form.control}
+                          name="date"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Date</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="date" 
+                                  {...field} 
+                                  value={field.value ? format(new Date(field.value), 'yyyy-MM-dd') : ''}
+                                  onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
+                                  data-testid="input-date" 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="category"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Category</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger data-testid="select-category">
+                                    <SelectValue placeholder="Select category" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="Individual 1">Individual 1</SelectItem>
+                                  <SelectItem value="Individual 2">Individual 2</SelectItem>
+                                  <SelectItem value="Both">Both (Combined)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
                         <FormField
                           control={form.control}
                           name="netWorth"
@@ -519,7 +490,7 @@ export default function AdminWealth() {
                             <FormItem>
                               <FormLabel>Net Worth ($)</FormLabel>
                               <FormControl>
-                                <Input type="number" step="0.01" placeholder="3000000.00" {...field} data-testid="input-net-worth" />
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-net-worth" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -531,9 +502,9 @@ export default function AdminWealth() {
                           name="investments"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Net Worth Less Home ($)</FormLabel>
+                              <FormLabel>Investments ($)</FormLabel>
                               <FormControl>
-                                <Input type="number" step="0.01" placeholder="1500000.00" {...field} data-testid="input-net-worth-less-home" />
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-investments" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -545,200 +516,127 @@ export default function AdminWealth() {
                           name="cash"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Working Cap ($)</FormLabel>
+                              <FormLabel>Cash ($)</FormLabel>
                               <FormControl>
-                                <Input type="number" step="0.01" placeholder="100000.00" {...field} data-testid="input-working-cap" />
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-cash" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="liabilities"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Liabilities ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-liabilities" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="fireTarget"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>FIRE Target ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="1000000.00" {...field} value={field.value || ""} data-testid="input-fire-target" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="savingsRate"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Savings Rate (%)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-savings-rate" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                       </div>
-                    </div>
 
-                    {/* Assets Section */}
-                    <div className="pt-6 border-t">
-                      <h3 className="text-lg font-semibold mb-4 text-green-600">Assets</h3>
-                      
-                      {/* Retirement Accounts */}
-                      <div className="mb-6">
-                        <h4 className="text-md font-medium mb-3 text-green-700">Retirement Accounts</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="retirement401k"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Traditional 401(k) ($)</FormLabel>
-                                <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-401k" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                      {/* Asset & Debt Breakdown */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold">Asset Breakdown</h3>
+                        
+                        <FormField
+                          control={form.control}
+                          name="stocks"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Stocks ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-stocks" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="bonds"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Bonds ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-bonds" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="realEstate"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Real Estate ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-real-estate" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="crypto"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Crypto ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-crypto" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <div className="pt-4">
+                          <h3 className="text-lg font-semibold mb-4">Debt Breakdown</h3>
                           
-                          <FormField
-                            control={form.control}
-                            name="retirementRoth"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Roth IRA ($)</FormLabel>
-                                <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-roth-ira" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="retirementIRA"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Other IRA ($)</FormLabel>
-                                <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-other-ira" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="hsa"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>HSA ($)</FormLabel>
-                                <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-hsa" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Cash & Banking */}
-                      <div className="mb-6">
-                        <h4 className="text-md font-medium mb-3 text-green-700">Cash & Banking</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="checkingAccounts"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Checking Account ($)</FormLabel>
-                                <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-checking" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="savingsAccounts"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Savings Account ($)</FormLabel>
-                                <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-savings" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Investments */}
-                      <div className="mb-6">
-                        <h4 className="text-md font-medium mb-3 text-green-700">Investments</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="stocks"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Brokerage Account ($)</FormLabel>
-                                <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-brokerage" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="crypto"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Crypto ($)</FormLabel>
-                                <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-crypto" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="alternativeInvestments"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Other ($)</FormLabel>
-                                <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-other-investments" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Real Estate */}
-                      <div className="mb-6">
-                        <h4 className="text-md font-medium mb-3 text-green-700">Real Estate</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="realEstate"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Primary Residence ($)</FormLabel>
-                                <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-primary-residence" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Liabilities Section */}
-                    <div className="pt-6 border-t">
-                      <h3 className="text-lg font-semibold mb-4 text-red-600">Liabilities</h3>
-                      
-                      {/* Housing */}
-                      <div className="mb-6">
-                        <h4 className="text-md font-medium mb-3 text-red-700">Housing</h4>
-                        <div className="grid grid-cols-2 gap-4">
                           <FormField
                             control={form.control}
                             name="mortgage"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Mortgage Balance ($)</FormLabel>
+                                <FormLabel>Mortgage ($)</FormLabel>
                                 <FormControl>
                                   <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-mortgage" />
                                 </FormControl>
@@ -746,13 +644,7 @@ export default function AdminWealth() {
                               </FormItem>
                             )}
                           />
-                        </div>
-                      </div>
-
-                      {/* Consumer Debt */}
-                      <div className="mb-6">
-                        <h4 className="text-md font-medium mb-3 text-red-700">Consumer Debt</h4>
-                        <div className="grid grid-cols-2 gap-4">
+                          
                           <FormField
                             control={form.control}
                             name="creditCards"
@@ -789,20 +681,6 @@ export default function AdminWealth() {
                                 <FormLabel>Student Loans ($)</FormLabel>
                                 <FormControl>
                                   <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-student-loans" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="personalLoans"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Other Loans ($)</FormLabel>
-                                <FormControl>
-                                  <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-other-loans" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -879,26 +757,11 @@ export default function AdminWealth() {
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <input
-                            type="checkbox"
-                            checked={selectedItems.has(item.id)}
-                            onChange={(e) => {
-                              const newSelected = new Set(selectedItems);
-                              if (e.target.checked) {
-                                newSelected.add(item.id);
-                              } else {
-                                newSelected.delete(item.id);
-                              }
-                              setSelectedItems(newSelected);
-                            }}
-                            className="rounded"
-                            data-testid={`checkbox-wealth-${item.id}`}
-                          />
                           {getCategoryIcon(item.category)}
                           <div>
-                            <CardTitle className="text-lg" data-testid={`text-wealth-date-${item.id}`}>
+                            <h3 className="text-lg font-semibold" data-testid={`text-wealth-date-${item.id}`}>
                               {format(new Date(item.date), "MMMM d, yyyy")}
-                            </CardTitle>
+                            </h3>
                             <p className="text-sm text-muted-foreground" data-testid={`text-wealth-category-${item.id}`}>
                               {item.category} • Net Worth: ${parseFloat(item.netWorth).toLocaleString()}
                             </p>
