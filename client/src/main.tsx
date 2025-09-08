@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import TestApp from "./test-app";
 import "./index.css";
 
 console.log("🚀 Starting React app...");
@@ -42,10 +43,10 @@ try {
   console.log("📍 Creating React root...");
   const root = createRoot(rootElement!);
   
-  console.log("📍 Rendering App component...");
+  console.log("📍 Rendering Test App first...");
   root.render(
     <ErrorBoundary>
-      <App />
+      <TestApp />
     </ErrorBoundary>
   );
   
