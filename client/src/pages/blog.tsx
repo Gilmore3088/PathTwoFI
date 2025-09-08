@@ -1,15 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 import { BlogPost } from "@shared/schema";
-import { Clock, Eye, Calendar } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Clock, Eye, Calendar, Search, Filter } from "lucide-react";
 import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { LazyImage } from "@/components/ui/lazy-image";
 import { SEO } from "@/components/ui/seo";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function BlogPage() {
   const { data: posts = [], isLoading } = useQuery<BlogPost[]>({
     queryKey: ["/api/blog-posts"],
   });
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const formatDate = (date: Date | string) => {
     return new Date(date).toLocaleDateString('en-US', { 
@@ -33,6 +39,25 @@ export default function BlogPage() {
         return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100";
     }
   };
+
+  const categories = useMemo(() => {
+    const cats = new Set(posts.map(post => post.category));
+    return Array.from(cats);
+  }, [posts]);
+
+  const filteredPosts = useMemo(() => {
+    let filtered = posts;
+    if (searchTerm) {
+      filtered = filtered.filter(post => 
+        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.excerpt.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    if (selectedCategory) {
+      filtered = filtered.filter(post => post.category === selectedCategory);
+    }
+    return filtered;
+  }, [posts, searchTerm, selectedCategory]);
 
   if (isLoading) {
     return (
@@ -72,12 +97,53 @@ export default function BlogPage() {
         </div>
       </div>
 
+      {/* Search and Filter Bar */}
+      <div className="sticky top-0 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 py-4">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  type="text"
+                  placeholder="Search articles..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 items-center flex-wrap">
+              <Filter className="text-gray-400 w-5 h-5" />
+              <Button
+                size="sm"
+                variant={!selectedCategory ? "default" : "outline"}
+                onClick={() => setSelectedCategory(null)}
+              >
+                All
+              </Button>
+              {categories.map(category => (
+                <Button
+                  key={category}
+                  size="sm"
+                  variant={selectedCategory === category ? "default" : "outline"}
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Blog Posts */}
       <div className="py-16">
         <div className="container mx-auto px-4 max-w-4xl">
-          <div className="space-y-12">
-            {posts.map((post) => (
-              <article key={post.id} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
+          {filteredPosts.length > 0 ? (
+            <div className="space-y-12">
+              {filteredPosts.map((post) => (
+                <article key={post.id} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
                 {post.imageUrl && (
                   <div className="relative h-64 overflow-hidden">
                     <LazyImage 
@@ -137,14 +203,19 @@ export default function BlogPage() {
                   </div>
                 </div>
               </article>
-            ))}
-          </div>
-
-          {posts.length === 0 && (
+              ))}
+            </div>
+          ) : (
             <div className="text-center py-16">
-              <div className="text-6xl mb-4">📝</div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No posts yet</h3>
-              <p className="text-gray-600 dark:text-gray-400">Check back soon for new content!</p>
+              <div className="text-6xl mb-4">🔍</div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                {searchTerm || selectedCategory ? "No matching posts" : "No posts yet"}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                {searchTerm || selectedCategory 
+                  ? "Try adjusting your filters or search terms" 
+                  : "Check back soon for new content!"}
+              </p>
             </div>
           )}
         </div>
