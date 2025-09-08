@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SEO } from "@/components/ui/seo";
-import { TrendingUp, Edit, Target, Settings } from "lucide-react";
+import { TrendingUp, Edit, Target, Settings, Mail } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -68,7 +68,7 @@ export default function AdminHome() {
       href: "/admin/messages",
       title: "Message Management",
       description: "View and manage contact form submissions",
-      icon: Settings,
+      icon: Mail,
       color: "text-muted-foreground"
     }
   ];
