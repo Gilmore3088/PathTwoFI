@@ -1,0 +1,58 @@
+chunk-RPCDYKBN.js?v=cc2c9f8f:521 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=cc2c9f8f:205:18
+    at div
+    at div
+    at div
+    at div
+    at div
+    at footer
+    at Footer
+    at div
+    at ThemeProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/hooks/use-theme.tsx:25:3)
+    at Layout (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/components/layout/layout.tsx:20:26)
+    at Provider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…unner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=cc2c9f8f:38:15)
+    at TooltipProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…rkspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=cc2c9f8f:61:5)
+    at QueryClientProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=cc2c9f8f:2805:3)
+    at _a (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…r/workspace/node_modules/.vite/deps/react-helmet-async.js?v=cc2c9f8f:624:5)
+    at App
+useAuth.ts:5 Warning: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem.
+useAuth.ts:5 Warning: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem.
+chunk-QCHXOAYK.js?v=3079b241:1062 Uncaught TypeError: Cannot read properties of null (reading 'useContext')
+    at useAuth (useAuth.ts:5:37)
+    at AdminMessages (admin-messages.tsx:10:61)
+chunk-RPCDYKBN.js?v=cc2c9f8f:14032 The above error occurred in the <AdminMessages> component:
+
+    at AdminMessages (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/pages/admin-messages.tsx:26:61)
+    at Route (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=cc2c9f8f:191:16)
+    at Switch (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=cc2c9f8f:247:17)
+    at Router
+    at main
+    at div
+    at ThemeProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/hooks/use-theme.tsx:25:3)
+    at Layout (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/src/components/layout/layout.tsx:20:26)
+    at Provider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…unner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=cc2c9f8f:38:15)
+    at TooltipProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…rkspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=cc2c9f8f:61:5)
+    at QueryClientProvider (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=cc2c9f8f:2805:3)
+    at _a (https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.d…r/workspace/node_modules/.vite/deps/react-helmet-async.js?v=cc2c9f8f:624:5)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+chunk-RPCDYKBN.js?v=cc2c9f8f:19413 Uncaught TypeError: Cannot read properties of null (reading 'useContext')
+    at useAuth (useAuth.ts:5:37)
+    at AdminMessages (admin-messages.tsx:10:61)
+sw.js:128 Uncaught (in promise) TypeError: Failed to execute 'put' on 'Cache': Request scheme 'chrome-extension' is unsupported
+    at sw.js:128:23
+messages:1 Error while trying to use the following icon from the Manifest: https://124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev/icon-192.png (Download error or resource isn't a valid image)
+﻿
+

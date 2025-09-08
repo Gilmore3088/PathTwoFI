@@ -239,7 +239,7 @@ export default function AdminMessages() {
                     <div className="flex items-center space-x-2">
                       <Badge variant="outline" className="text-xs">
                         <Calendar className="w-3 h-3 mr-1" />
-                        {format(new Date(message.createdAt), 'MMM d, yyyy')}
+                        {format(new Date(message.submittedAt!), 'MMM d, yyyy')}
                       </Badge>
                       <Dialog open={isDialogOpen && selectedMessage?.id === message.id} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
@@ -273,7 +273,7 @@ export default function AdminMessages() {
                             </div>
                             <div>
                               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Received:</label>
-                              <p className="text-sm">{format(new Date(message.createdAt), 'EEEE, MMMM d, yyyy \'at\' h:mm a')}</p>
+                              <p className="text-sm">{format(new Date(message.submittedAt!), 'EEEE, MMMM d, yyyy \'at\' h:mm a')}</p>
                             </div>
                           </div>
                         </DialogContent>

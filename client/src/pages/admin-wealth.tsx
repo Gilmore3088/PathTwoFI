@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +20,8 @@ import Papa from 'papaparse';
 import { Link, useLocation } from "wouter";
 
 export default function AdminWealth() {
-  const { isAuthenticated, isAdmin, isLoading: authLoading } = useAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<WealthData | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -33,19 +33,33 @@ export default function AdminWealth() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Redirect to login if not authenticated or not admin
+  // Check localStorage authentication
   useEffect(() => {
-    if (!authLoading && (!isAuthenticated || !isAdmin)) {
-      toast({
-        title: "Authentication Required",
-        description: "Redirecting to login...",
-        variant: "destructive",
-      });
-      // Immediate redirect to login
-      window.location.href = "/api/login";
-      return;
-    }
-  }, [isAuthenticated, isAdmin, authLoading, toast]);
+    const checkAuth = () => {
+      const authToken = localStorage.getItem("adminAuth");
+      const authExpiry = localStorage.getItem("adminAuthExpiry");
+      
+      if (authToken && authExpiry) {
+        const now = new Date().getTime();
+        const expiry = parseInt(authExpiry);
+        
+        if (now < expiry) {
+          setIsAuthenticated(true);
+        } else {
+          localStorage.removeItem("adminAuth");
+          localStorage.removeItem("adminAuthExpiry");
+          window.location.href = "/admin";
+          return;
+        }
+      } else {
+        window.location.href = "/admin";
+        return;
+      }
+      setAuthLoading(false);
+    };
+    
+    checkAuth();
+  }, []);
 
   if (authLoading) {
     return (
@@ -55,7 +69,7 @@ export default function AdminWealth() {
     );
   }
 
-  if (!isAuthenticated || !isAdmin) {
+  if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
