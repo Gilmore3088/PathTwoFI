@@ -45,23 +45,33 @@ export default function AdminHome() {
     checkAuth();
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     
-    // Simple password check - CHANGE THIS PASSWORD!
-    const ADMIN_PASSWORD = "PathTwo2024Admin!"; // Change this to your secure password!
-    
-    if (password === ADMIN_PASSWORD) {
-      // Set auth in localStorage with 24 hour expiry
-      const now = new Date().getTime();
-      const expiry = now + (24 * 60 * 60 * 1000); // 24 hours
+    try {
+      // Verify password with backend
+      const response = await fetch('/api/admin/verify-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
       
-      localStorage.setItem("adminAuth", "true");
-      localStorage.setItem("adminAuthExpiry", expiry.toString());
-      setIsAuthenticated(true);
-    } else {
-      setError("Invalid password");
+      if (response.ok) {
+        // Set auth in localStorage with 24 hour expiry
+        const now = new Date().getTime();
+        const expiry = now + (24 * 60 * 60 * 1000); // 24 hours
+        
+        localStorage.setItem("adminAuth", password); // Store the verified password
+        localStorage.setItem("adminAuthExpiry", expiry.toString());
+        setIsAuthenticated(true);
+      } else {
+        setError("Invalid password");
+      }
+    } catch (error) {
+      setError("Authentication failed");
     }
   };
 

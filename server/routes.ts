@@ -6,7 +6,9 @@ import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 // Simple admin authentication middleware
 const isAdminAuthenticated = (req: any, res: any, next: any) => {
   const adminPassword = req.headers['x-admin-password'];
-  if (adminPassword === 'PathTwo2024Admin!') {
+  const expectedPassword = process.env.ADMIN_PASSWORD || 'PathTwo2024Admin!'; // Fallback for development
+  
+  if (adminPassword === expectedPassword) {
     next();
   } else {
     res.status(401).json({ message: "Unauthorized" });
@@ -33,6 +35,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Admin password verification endpoint
+  app.post('/api/admin/verify-password', async (req, res) => {
+    try {
+      const { password } = req.body;
+      const expectedPassword = process.env.ADMIN_PASSWORD || 'PathTwo2024Admin!'; // Fallback for development
+      
+      if (password === expectedPassword) {
+        res.json({ success: true });
+      } else {
+        res.status(401).json({ message: "Invalid password" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Authentication failed" });
     }
   });
   // SEO Routes

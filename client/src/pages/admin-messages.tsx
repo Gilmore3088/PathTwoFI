@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
 import type { ContactSubmission } from "@shared/schema";
+import { makeAdminRequest, isAdminAuthenticated, redirectToAdminLogin } from "@/lib/adminAuth";
 
 export default function AdminMessages() {
   
@@ -29,12 +30,7 @@ export default function AdminMessages() {
     enabled: isAuthenticated,
     retry: false,
     queryFn: async () => {
-      const response = await fetch('/api/contact-submissions', {
-        headers: {
-          'x-admin-password': 'PathTwo2024Admin!',
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await makeAdminRequest('/api/contact-submissions');
       if (!response.ok) {
         throw new Error(`${response.status}: ${response.statusText}`);
       }
@@ -44,11 +40,8 @@ export default function AdminMessages() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/contact-submissions/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'x-admin-password': 'PathTwo2024Admin!'
-        }
+      const response = await makeAdminRequest(`/api/contact-submissions/${id}`, {
+        method: 'DELETE'
       });
       if (!response.ok) {
         throw new Error(`${response.status}: ${response.statusText}`);
