@@ -1,33 +1,24 @@
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Mail, Calendar, User, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 import type { ContactSubmission } from "@shared/schema";
 
 export default function AdminMessages() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { toast } = useToast();
   
   const isAdmin = user?.role === "admin";
 
   // Redirect to login if not authenticated or not admin
   useEffect(() => {
     if (!authLoading && (!isAuthenticated || !isAdmin)) {
-      toast({
-        title: "Authentication Required",
-        description: "Redirecting to login...",
-        variant: "destructive",
-      });
       // Immediate redirect to login
       window.location.href = "/api/login";
       return;
     }
-  }, [isAuthenticated, isAdmin, authLoading, toast]);
+  }, [isAuthenticated, isAdmin, authLoading]);
 
   const { data: messages = [], isLoading, error } = useQuery<ContactSubmission[]>({
     queryKey: ["/api/contact-submissions"],
@@ -75,7 +66,7 @@ export default function AdminMessages() {
         <p className="text-muted-foreground">
           Messages submitted through the contact form
         </p>
-        <Separator className="mt-4" />
+        <div className="border-t border-border mt-4" />
       </div>
 
       {messages.length === 0 ? (
@@ -108,10 +99,10 @@ export default function AdminMessages() {
                       {message.email}
                     </CardDescription>
                   </div>
-                  <Badge variant="outline" className="flex items-center gap-1">
+                  <span className="inline-flex items-center gap-1 text-sm text-muted-foreground border border-border rounded-md px-2 py-1">
                     <Calendar className="h-3 w-3" />
                     {format(new Date(message.submittedAt!), 'MMM d, yyyy')}
-                  </Badge>
+                  </span>
                 </div>
               </CardHeader>
               
@@ -127,7 +118,7 @@ export default function AdminMessages() {
                     </p>
                   </div>
                   
-                  <Separator />
+                  <div className="border-t border-border" />
                   
                   <div>
                     <h4 className="font-semibold text-sm text-muted-foreground mb-3">
