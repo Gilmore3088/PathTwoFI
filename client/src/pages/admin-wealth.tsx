@@ -298,7 +298,7 @@ export default function AdminWealth() {
     setEditingItem(item);
     form.reset({
       date: new Date(item.date!),
-      category: item.category,
+      category: item.category as "Both" | "His" | "Her",
       netWorth: item.netWorth,
       investments: item.investments,
       cash: item.cash,
