@@ -7,13 +7,11 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useTouchGestures } from "@/hooks/use-touch";
-import { useAuth } from "@/hooks/useAuth";
 
 export function Header() {
   const { theme, setTheme } = useTheme();
   const [location] = useLocation();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const { isAuthenticated, isAdmin, user } = useAuth();
 
   const navItems = [
     { href: "/blog", label: "Blog" },

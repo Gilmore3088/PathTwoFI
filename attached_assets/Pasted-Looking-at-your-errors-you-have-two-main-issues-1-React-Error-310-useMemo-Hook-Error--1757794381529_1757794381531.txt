@@ -1,0 +1,132 @@
+Looking at your errors, you have two main issues:
+
+## 1. React Error #310 (useMemo Hook Error)
+
+The minified React error #310 indicates that hooks are being called incorrectly. Based on the stack trace pointing to `useMemo`, this typically means:
+
+- **Hooks are being called conditionally** (inside an if statement, loop, or after an early return)
+- **Hooks are being called in the wrong order** between renders
+- **A component is being called as a function instead of being rendered as JSX**
+
+To debug this:
+
+1. **Check your route components** - Look for any conditional hook usage in your blog components:
+```javascript
+// ❌ Wrong - conditional hook
+if (someCondition) {
+  const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
+}
+
+// ✅ Correct - hook at top level
+const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
+if (someCondition) {
+  // use memoizedValue
+}
+```
+
+2. **Check how you're rendering components**:
+```javascript
+// ❌ Wrong - calling component as function
+{SomeComponent()}
+
+// ✅ Correct - rendering as JSX
+<SomeComponent />
+```
+
+## 2. 401 Unauthorized Error
+
+The `/api/auth/user` endpoint is returning 401, which suggests authentication issues. This might be why your admin routes are showing blank pages.
+
+## 3. Admin Routes Showing Blank
+
+The combination of the React hook error and auth failure is likely causing your admin routes to fail to render. Here's what to check:
+
+### Check Your Route Protection
+Look for your admin route setup. It might look something like:
+
+```javascript
+// In your routing file
+function AdminRoute({ children }) {
+  const { user, loading } = useAuth(); // This might be failing
+  
+  // Make sure hooks are called unconditionally
+  const memoizedValue = useMemo(() => /* ... */, []); // Check this isn't conditional
+  
+  if (loading) return <Loading />;
+  if (!user) return <Navigate to="/login" />;
+  
+  return children;
+}
+```
+
+### Check Your Blog Component
+In your `/admin/blog` component, ensure:
+
+```javascript
+// BlogAdmin.jsx or similar
+function BlogAdmin() {
+  // All hooks at the top level
+  const [posts, setPosts] = useState([]);
+  const memoizedData = useMemo(() => /* ... */, []); // Check this line
+  
+  // No early returns before hooks
+  
+  return (
+    <div>
+      {/* Your blog admin UI */}
+    </div>
+  );
+}
+```
+
+## Quick Fixes to Try:
+
+1. **Add error boundaries** to catch and display errors:
+```javascript
+class ErrorBoundary extends React.Component {
+  state = { hasError: false, error: null };
+  
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  
+  render() {
+    if (this.state.hasError) {
+      return <div>Error: {this.state.error?.message}</div>;
+    }
+    return this.props.children;
+  }
+}
+
+// Wrap your admin routes
+<ErrorBoundary>
+  <AdminRoutes />
+</ErrorBoundary>
+```
+
+2. **Check authentication flow** - Ensure your auth check handles the 401 properly:
+```javascript
+// In your auth hook or component
+useEffect(() => {
+  fetch('/api/auth/user')
+    .then(res => {
+      if (!res.ok) throw new Error('Not authenticated');
+      return res.json();
+    })
+    .catch(err => {
+      console.error('Auth failed:', err);
+      // Handle unauthenticated state
+    });
+}, []);
+```
+
+3. **Run in development mode** to get better error messages:
+```bash
+# If using Vite
+npm run dev
+
+# Set NODE_ENV
+NODE_ENV=development npm start
+```
+
+The key issue appears to be a combination of authentication failure and incorrect hook usage in your admin components. Check the components rendered at `/admin/blog` for conditional hook calls, especially any `useMemo` hooks.
