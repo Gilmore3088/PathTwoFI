@@ -43,15 +43,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin password verification endpoint
   app.post('/api/admin/verify-password', async (req, res) => {
     try {
+      console.log('Admin password verification request received');
       const { password } = req.body;
       const expectedPassword = process.env.ADMIN_PASSWORD || 'PathTwo2024Admin!'; // Fallback for development
       
+      console.log('Password check:', { 
+        provided: password ? '***PROVIDED***' : 'MISSING',
+        expected: expectedPassword ? '***SET***' : 'NOT SET'
+      });
+      
+      if (!password) {
+        console.log('No password provided in request body');
+        return res.status(400).json({ message: "Password is required" });
+      }
+      
       if (password === expectedPassword) {
+        console.log('Password verification successful');
         res.json({ success: true });
       } else {
+        console.log('Password verification failed - invalid password');
         res.status(401).json({ message: "Invalid password" });
       }
     } catch (error) {
+      console.error('Error in admin password verification:', error);
       res.status(500).json({ message: "Authentication failed" });
     }
   });

@@ -1,0 +1,61 @@
+Error while trying to use the following icon from the Manifest: https://pathtwo.replit.app/icon-192.png (Download error or resource isn't a valid image)Understand this error
+index-78p68d1B.js:362  POST https://pathtwo.replit.app/api/admin/verify-password 500 (Internal Server Error)
+u @ index-78p68d1B.js:362
+qI @ index-78p68d1B.js:37
+HI @ index-78p68d1B.js:37
+WI @ index-78p68d1B.js:37
+N1 @ index-78p68d1B.js:37
+ck @ index-78p68d1B.js:37
+(anonymous) @ index-78p68d1B.js:37
+O0 @ index-78p68d1B.js:40
+IT @ index-78p68d1B.js:37
+Cm @ index-78p68d1B.js:37
+s0 @ index-78p68d1B.js:37
+lF @ index-78p68d1B.js:37Understand this error
+index-78p68d1B.js:40 Error: Minified React error #310; visit https://reactjs.org/docs/error-decoder.html?invariant=310 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at nr (index-78p68d1B.js:38:17615)
+    at Object.Fk [as useMemo] (index-78p68d1B.js:38:21308)
+    at Ve.useMemo (index-78p68d1B.js:9:6223)
+    at Nte (index-78p68d1B.js:441:20864)
+    at S0 (index-78p68d1B.js:38:17018)
+    at uy (index-78p68d1B.js:40:3139)
+    at cC (index-78p68d1B.js:40:44833)
+    at oC (index-78p68d1B.js:40:39790)
+    at _M (index-78p68d1B.js:40:39718)
+    at _h (index-78p68d1B.js:40:39570)
+ly @ index-78p68d1B.js:40
+n.callback @ index-78p68d1B.js:40
+M1 @ index-78p68d1B.js:38
+X1 @ index-78p68d1B.js:40
+rC @ index-78p68d1B.js:40
+xM @ index-78p68d1B.js:40
+EM @ index-78p68d1B.js:40
+ta @ index-78p68d1B.js:40
+iC @ index-78p68d1B.js:40
+_ @ index-78p68d1B.js:25
+E @ index-78p68d1B.js:25Understand this error
+index-78p68d1B.js:38 Uncaught Error: Minified React error #310; visit https://reactjs.org/docs/error-decoder.html?invariant=310 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at nr (index-78p68d1B.js:38:17615)
+    at Object.Fk [as useMemo] (index-78p68d1B.js:38:21308)
+    at Ve.useMemo (index-78p68d1B.js:9:6223)
+    at Nte (index-78p68d1B.js:441:20864)
+    at S0 (index-78p68d1B.js:38:17018)
+    at uy (index-78p68d1B.js:40:3139)
+    at cC (index-78p68d1B.js:40:44833)
+    at oC (index-78p68d1B.js:40:39790)
+    at _M (index-78p68d1B.js:40:39718)
+    at _h (index-78p68d1B.js:40:39570)
+nr @ index-78p68d1B.js:38
+Fk @ index-78p68d1B.js:38
+Ve.useMemo @ index-78p68d1B.js:9
+Nte @ index-78p68d1B.js:441
+S0 @ index-78p68d1B.js:38
+uy @ index-78p68d1B.js:40
+cC @ index-78p68d1B.js:40
+oC @ index-78p68d1B.js:40
+_M @ index-78p68d1B.js:40
+_h @ index-78p68d1B.js:40
+by @ index-78p68d1B.js:40
+iC @ index-78p68d1B.js:40
+_ @ index-78p68d1B.js:25
+E @ index-78p68d1B.js:25Understand this error

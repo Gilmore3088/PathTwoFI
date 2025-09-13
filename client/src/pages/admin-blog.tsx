@@ -81,26 +81,7 @@ export default function AdminBlog() {
     checkAuth();
   }, []);
 
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Filtered and searched blog posts
+  // ALL HOOKS MUST BE BEFORE CONDITIONAL RETURNS - Filtered and searched blog posts
   const blogPosts = useMemo(() => {
     return allBlogPosts.filter(post => {
       const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -112,7 +93,7 @@ export default function AdminBlog() {
     });
   }, [allBlogPosts, searchTerm, selectedCategory, selectedStatus]);
 
-  // Calculate statistics
+  // ALL HOOKS MUST BE BEFORE CONDITIONAL RETURNS - Calculate statistics
   const postStats = useMemo(() => {
     const total = allBlogPosts.length;
     const published = allBlogPosts.filter(post => post.status === 'published').length;
@@ -122,6 +103,7 @@ export default function AdminBlog() {
     return { total, published, drafts, scheduled, featured };
   }, [allBlogPosts]);
 
+  // ALL HOOKS MUST BE BEFORE CONDITIONAL RETURNS - Form hook
   const form = useForm<InsertBlogPost>({
     resolver: zodResolver(insertBlogPostSchema),
     defaultValues: {
@@ -138,10 +120,14 @@ export default function AdminBlog() {
     }
   });
 
-  // Create/Update mutations
+  // ALL HOOKS MUST BE BEFORE CONDITIONAL RETURNS - Create/Update mutations
   const createMutation = useMutation({
     mutationFn: async (data: InsertBlogPost) => {
-      const response = await apiRequest('POST', '/api/blog-posts', data);
+      const response = await makeAdminRequest('/api/blog-posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -165,7 +151,11 @@ export default function AdminBlog() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string, data: Partial<InsertBlogPost> }) => {
-      const response = await apiRequest('PUT', `/api/blog-posts/${id}`, data);
+      const response = await makeAdminRequest(`/api/blog-posts/${id}`, {
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -187,11 +177,11 @@ export default function AdminBlog() {
     }
   });
 
-  // Bulk delete mutation
+  // ALL HOOKS MUST BE BEFORE CONDITIONAL RETURNS - Bulk delete mutation
   const bulkDeleteMutation = useMutation({
     mutationFn: async (ids: string[]) => {
       await Promise.all(ids.map(id => 
-        apiRequest('DELETE', `/api/blog-posts/${id}`)
+        makeAdminRequest(`/api/blog-posts/${id}`, { method: 'DELETE' })
       ));
     },
     onSuccess: () => {
@@ -211,10 +201,10 @@ export default function AdminBlog() {
     }
   });
 
-  // Delete mutation
+  // ALL HOOKS MUST BE BEFORE CONDITIONAL RETURNS - Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest('DELETE', `/api/blog-posts/${id}`);
+      return await makeAdminRequest(`/api/blog-posts/${id}`, { method: 'DELETE' });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/blog-posts"] });
@@ -301,6 +291,7 @@ export default function AdminBlog() {
     setIsPreviewOpen(true);
   };
 
+  // ALL HOOKS MUST BE BEFORE CONDITIONAL RETURNS - Upload callbacks
   const handleImageUpload = useCallback(async () => {
     const response = await fetch('/api/objects/upload', {
       method: 'POST',
@@ -323,6 +314,26 @@ export default function AdminBlog() {
       });
     }
   }, [form, toast]);
+
+  // NOW WE CAN SAFELY DO CONDITIONAL RETURNS - CHECK AUTHENTICATION
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   const resetForm = () => {
     setEditingItem(null);
