@@ -116,7 +116,12 @@ export default function AdminGoals() {
   // Create/Update mutation
   const createMutation = useMutation({
     mutationFn: async (data: InsertFinancialGoal) => {
-      return await apiRequest('/api/financial-goals', 'POST', data);
+      const response = await makeAdminRequest('/api/financial-goals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/financial-goals"] });
@@ -139,7 +144,12 @@ export default function AdminGoals() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string, data: Partial<InsertFinancialGoal> }) => {
-      return await apiRequest(`/api/financial-goals/${id}`, 'PUT', data);
+      const response = await makeAdminRequest(`/api/financial-goals/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/financial-goals"] });
@@ -163,7 +173,8 @@ export default function AdminGoals() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest(`/api/financial-goals/${id}`, 'DELETE');
+      const response = await makeAdminRequest(`/api/financial-goals/${id}`, { method: 'DELETE' });
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/financial-goals"] });
@@ -184,7 +195,8 @@ export default function AdminGoals() {
   // Complete goal mutation
   const completeMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest(`/api/financial-goals/${id}/complete`, 'PUT');
+      const response = await makeAdminRequest(`/api/financial-goals/${id}/complete`, { method: 'PUT' });
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/financial-goals"] });

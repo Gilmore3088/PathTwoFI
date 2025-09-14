@@ -7,7 +7,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/hooks/use-toast";
 import { Mail, MailOpen, Trash2, Eye, User, Calendar, MessageSquare, LogOut } from "lucide-react";
 import { format } from "date-fns";
-import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
 import type { ContactSubmission } from "@shared/schema";
 import { makeAdminRequest, isAdminAuthenticated, redirectToAdminLogin } from "@/lib/adminAuth";
