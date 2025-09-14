@@ -75,12 +75,12 @@ export default function AdminWealth() {
     defaultValues: {
       date: new Date(),
       category: "Both",
-      netWorth: "",
-      investments: "",
-      cash: "",
-      liabilities: "",
+      netWorth: "0",
+      investments: "0",
+      cash: "0",
+      liabilities: "0",
       fireTarget: "1000000.00",
-      savingsRate: "",
+      savingsRate: "0",
       // Asset breakdown
       stocks: "0",
       bonds: "0",
@@ -92,7 +92,20 @@ export default function AdminWealth() {
       mortgage: "0",
       creditCards: "0",
       studentLoans: "0",
-      autoLoans: "0"
+      autoLoans: "0",
+      personalLoans: "0",
+      otherDebts: "0",
+      // Account Information
+      checkingAccounts: "0",
+      savingsAccounts: "0",
+      retirement401k: "0",
+      retirementIRA: "0",
+      retirementRoth: "0",
+      hsa: "0",
+      // Monthly Flow Data
+      monthlyIncome: "0",
+      monthlyExpenses: "0",
+      monthlySavings: "0"
     }
   });
 
@@ -356,8 +369,8 @@ export default function AdminWealth() {
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case "Both": return <Users className="w-5 h-5 text-blue-500" />;
-      case "Individual 1": return <User className="w-5 h-5 text-green-500" />;
-      case "Individual 2": return <Heart className="w-5 h-5 text-pink-500" />;
+      case "His": return <User className="w-5 h-5 text-green-500" />;
+      case "Her": return <Heart className="w-5 h-5 text-pink-500" />;
       default: return <TrendingUp className="w-5 h-5 text-gray-500" />;
     }
   };
@@ -473,8 +486,8 @@ export default function AdminWealth() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="Individual 1">Individual 1</SelectItem>
-                                  <SelectItem value="Individual 2">Individual 2</SelectItem>
+                                  <SelectItem value="His">His</SelectItem>
+                                  <SelectItem value="Her">Her</SelectItem>
                                   <SelectItem value="Both">Both (Combined)</SelectItem>
                                 </SelectContent>
                               </Select>

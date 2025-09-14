@@ -226,6 +226,7 @@ export const insertWealthDataSchema = createInsertSchema(wealthData).omit({
   updatedAt: true,
 }).extend({
   category: z.enum(["His", "Her", "Both"]).default("Both"),
+  date: z.coerce.date(),
 });
 
 export const insertFinancialGoalSchema = createInsertSchema(financialGoals).omit({
