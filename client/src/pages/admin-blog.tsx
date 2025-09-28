@@ -9,23 +9,23 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { PlusCircle, Edit, Trash2, FileText, Star, Eye, Search, Upload, ExternalLink, CheckSquare, Square, Download, LogOut } from "lucide-react";
 import { format } from "date-fns";
 import { insertBlogPostSchema, type BlogPost, type InsertBlogPost } from "@shared/schema";
+import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from '@uppy/core';
 import { Link } from "wouter";
-import { makeAdminRequest } from "@/lib/adminAuth";
 
 export default function AdminBlog() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true);
+  const { user, isLoading, isAuthenticated, isAdmin } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<BlogPost | null>(null);
@@ -39,47 +39,33 @@ export default function AdminBlog() {
   const queryClient = useQueryClient();
 
   // Fetch blog posts (must be before conditional returns)
-  const { data: allBlogPosts = [], isLoading } = useQuery<BlogPost[]>({
+  const { data: allBlogPosts = [], isLoading: postsLoading } = useQuery<BlogPost[]>({
     queryKey: ["/api/blog-posts"],
-    enabled: isAuthenticated,
-    queryFn: async () => {
-      const response = await makeAdminRequest('/api/blog-posts');
-      if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
-      }
-      return response.json();
-    }
+    enabled: isAuthenticated && isAdmin,
   });
 
-  // Check localStorage authentication
+  // Redirect to login if not authenticated or not admin
   useEffect(() => {
-    const checkAuth = () => {
-      const authToken = localStorage.getItem("adminAuth");
-      const authExpiry = localStorage.getItem("adminAuthExpiry");
-      
-      if (authToken && authExpiry) {
-        const now = new Date().getTime();
-        const expiry = parseInt(authExpiry);
-        
-        if (now < expiry) {
-          setIsAuthenticated(true);
-          setAuthLoading(false);
-        } else {
-          localStorage.removeItem("adminAuth");
-          localStorage.removeItem("adminAuthExpiry");
-          setAuthLoading(false);
-          window.location.href = "/admin";
-          return;
-        }
-      } else {
-        setAuthLoading(false);
-        window.location.href = "/admin";
-        return;
-      }
-    };
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+      return;
+    }
     
-    checkAuth();
-  }, []);
+    if (!isLoading && isAuthenticated && !isAdmin) {
+      toast({
+        title: "Access Denied", 
+        description: "Admin access required",
+        variant: "destructive",
+      });
+    }
+  }, [isAuthenticated, isAdmin, isLoading, toast]);
 
   // ALL HOOKS MUST BE BEFORE CONDITIONAL RETURNS - Filtered and searched blog posts
   const blogPosts = useMemo(() => {
@@ -123,12 +109,7 @@ export default function AdminBlog() {
   // ALL HOOKS MUST BE BEFORE CONDITIONAL RETURNS - Create/Update mutations
   const createMutation = useMutation({
     mutationFn: async (data: InsertBlogPost) => {
-      const response = await makeAdminRequest('/api/blog-posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      return response.json();
+      return await apiRequest('POST', '/api/blog-posts', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/blog-posts"] });
@@ -151,12 +132,7 @@ export default function AdminBlog() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string, data: Partial<InsertBlogPost> }) => {
-      const response = await makeAdminRequest(`/api/blog-posts/${id}`, {
-        method: 'PUT', 
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      return response.json();
+      return await apiRequest('PUT', `/api/blog-posts/${id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/blog-posts"] });
@@ -181,7 +157,7 @@ export default function AdminBlog() {
   const bulkDeleteMutation = useMutation({
     mutationFn: async (ids: string[]) => {
       await Promise.all(ids.map(id => 
-        makeAdminRequest(`/api/blog-posts/${id}`, { method: 'DELETE' })
+        apiRequest('DELETE', `/api/blog-posts/${id}`)
       ));
     },
     onSuccess: () => {
@@ -204,7 +180,7 @@ export default function AdminBlog() {
   // ALL HOOKS MUST BE BEFORE CONDITIONAL RETURNS - Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await makeAdminRequest(`/api/blog-posts/${id}`, { method: 'DELETE' });
+      return await apiRequest('DELETE', `/api/blog-posts/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/blog-posts"] });
@@ -315,11 +291,32 @@ export default function AdminBlog() {
     }
   }, [form, toast]);
 
-  // NOW WE CAN SAFELY DO CONDITIONAL RETURNS - CHECK AUTHENTICATION
-  if (authLoading) {
+  // Show loading or redirect if not authenticated/admin
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Access Denied</h2>
+          <p className="text-muted-foreground mb-4">
+            {!isAuthenticated 
+              ? "Please log in to access the admin area"
+              : "Admin access required"
+            }
+          </p>
+          {!isAuthenticated && (
+            <Button onClick={() => window.location.href = "/api/login"}>
+              Login with Google
+            </Button>
+          )}
+        </div>
       </div>
     );
   }

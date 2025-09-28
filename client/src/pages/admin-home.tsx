@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { SEO } from "@/components/ui/seo";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { 
   TrendingUp, 
   FileText, 
@@ -11,75 +12,38 @@ import {
   MessageSquare, 
   LogOut, 
   Shield,
-  ArrowRight,
-  Lock
+  ArrowRight
 } from "lucide-react";
 
 export default function AdminHome() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { user, isLoading, isAuthenticated, isAdmin } = useAuth();
+  const { toast } = useToast();
 
-  // Check if user is already authenticated
+  // Redirect to login if not authenticated or not admin
   useEffect(() => {
-    const checkAuth = () => {
-      const authToken = localStorage.getItem("adminAuth");
-      const authExpiry = localStorage.getItem("adminAuthExpiry");
-      
-      if (authToken && authExpiry) {
-        const now = new Date().getTime();
-        const expiry = parseInt(authExpiry);
-        
-        if (now < expiry) {
-          setIsAuthenticated(true);
-        } else {
-          // Token expired, clean up
-          localStorage.removeItem("adminAuth");
-          localStorage.removeItem("adminAuthExpiry");
-        }
-      }
-      setIsLoading(false);
-    };
-    
-    checkAuth();
-  }, []);
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    
-    try {
-      // Verify password with backend
-      const response = await fetch('/api/admin/verify-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password }),
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
       });
-      
-      if (response.ok) {
-        // Set auth in localStorage with 24 hour expiry
-        const now = new Date().getTime();
-        const expiry = now + (24 * 60 * 60 * 1000); // 24 hours
-        
-        localStorage.setItem("adminAuth", password); // Store the verified password
-        localStorage.setItem("adminAuthExpiry", expiry.toString());
-        setIsAuthenticated(true);
-      } else {
-        setError("Invalid password");
-      }
-    } catch (error) {
-      setError("Authentication failed");
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+      return;
     }
-  };
+    
+    if (!isLoading && isAuthenticated && !isAdmin) {
+      toast({
+        title: "Access Denied", 
+        description: "Admin access required",
+        variant: "destructive",
+      });
+    }
+  }, [isAuthenticated, isAdmin, isLoading, toast]);
 
   const handleLogout = () => {
-    localStorage.removeItem("adminAuth");
-    localStorage.removeItem("adminAuthExpiry");
-    setIsAuthenticated(false);
-    setPassword("");
+    window.location.href = "/api/logout";
   };
 
   // Admin routes configuration
@@ -126,48 +90,36 @@ export default function AdminHome() {
     );
   }
 
-  // Login Screen
-  if (!isAuthenticated) {
+  // Show loading or redirect if not authenticated/admin
+
+  if (!isAuthenticated || !isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-8 h-8 text-red-600 dark:text-red-400" />
+              <Shield className="w-8 h-8 text-red-600 dark:text-red-400" />
             </div>
-            <CardTitle className="text-2xl">Admin Access</CardTitle>
+            <CardTitle className="text-2xl">Access Denied</CardTitle>
             <p className="text-muted-foreground mt-2">
-              This area is restricted to authorized personnel only
+              {!isAuthenticated 
+                ? "Please log in to access the admin area"
+                : "Admin access required"
+              }
             </p>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <Input
-                  type="password"
-                  placeholder="Enter admin password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full"
-                  autoFocus
-                  data-testid="input-admin-password"
-                />
-                {error && (
-                  <p className="text-red-500 text-sm mt-2" data-testid="text-error-message">{error}</p>
-                )}
-              </div>
-              <Button type="submit" className="w-full" data-testid="button-admin-login">
+          <CardContent className="text-center space-y-4">
+            {!isAuthenticated && (
+              <Button onClick={() => window.location.href = "/api/login"} className="w-full">
                 <Shield className="w-4 h-4 mr-2" />
-                Authenticate
+                Login with Google
               </Button>
-            </form>
-            <div className="mt-6 text-center">
-              <Link href="/">
-                <span className="text-sm text-muted-foreground hover:text-foreground cursor-pointer" data-testid="link-back-to-site">
-                  ← Back to public site
-                </span>
-              </Link>
-            </div>
+            )}
+            <Link href="/">
+              <span className="text-sm text-muted-foreground hover:text-foreground cursor-pointer block">
+                ← Back to public site
+              </span>
+            </Link>
           </CardContent>
         </Card>
       </div>

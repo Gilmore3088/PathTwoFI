@@ -1,18 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-
-// Simple admin authentication middleware
-const isAdminAuthenticated = (req: any, res: any, next: any) => {
-  const adminPassword = req.headers['x-admin-password'];
-  const expectedPassword = process.env.ADMIN_PASSWORD || 'PathTwo2024Admin!'; // Fallback for development
-  
-  if (adminPassword === expectedPassword) {
-    next();
-  } else {
-    res.status(401).json({ message: "Unauthorized" });
-  }
-};
+import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { 
   insertBlogPostSchema, 
   insertWealthDataSchema, 
@@ -24,34 +13,18 @@ import {
 import { ObjectStorageService } from "./objectStorage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Auth middleware
+  await setupAuth(app);
 
-  // Admin password verification endpoint
-  app.post('/api/admin/verify-password', async (req, res) => {
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      console.log('Admin password verification request received');
-      const { password } = req.body;
-      const expectedPassword = process.env.ADMIN_PASSWORD || 'PathTwo2024Admin!'; // Fallback for development
-      
-      console.log('Password check:', { 
-        provided: password ? '***PROVIDED***' : 'MISSING',
-        expected: expectedPassword ? '***SET***' : 'NOT SET'
-      });
-      
-      if (!password) {
-        console.log('No password provided in request body');
-        return res.status(400).json({ message: "Password is required" });
-      }
-      
-      if (password === expectedPassword) {
-        console.log('Password verification successful');
-        res.json({ success: true });
-      } else {
-        console.log('Password verification failed - invalid password');
-        res.status(401).json({ message: "Invalid password" });
-      }
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
     } catch (error) {
-      console.error('Error in admin password verification:', error);
-      res.status(500).json({ message: "Authentication failed" });
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
     }
   });
   // SEO Routes
@@ -200,7 +173,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/blog-posts", isAdminAuthenticated, async (req, res) => {
+  app.post("/api/blog-posts", isAdmin, async (req, res) => {
     try {
       console.log('Received blog post data:', JSON.stringify(req.body, null, 2));
       const validatedData = insertBlogPostSchema.parse(req.body);
@@ -216,7 +189,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/blog-posts/:id", isAdminAuthenticated, async (req, res) => {
+  app.put("/api/blog-posts/:id", isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const validatedData = insertBlogPostSchema.partial().parse(req.body);
@@ -230,7 +203,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/blog-posts/:id", isAdminAuthenticated, async (req, res) => {
+  app.delete("/api/blog-posts/:id", isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const success = await storage.deleteBlogPost(id);
@@ -244,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wealth data routes
-  app.get("/api/wealth-data", isAdminAuthenticated, async (req, res) => {
+  app.get("/api/wealth-data", isAdmin, async (req, res) => {
     try {
       const category = req.query.category as string | undefined;
       const data = await storage.getWealthData(category);
@@ -267,7 +240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/wealth-data/:id", isAdminAuthenticated, async (req, res) => {
+  app.put("/api/wealth-data/:id", isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const validatedData = insertWealthDataSchema.partial().parse(req.body);
@@ -281,7 +254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/wealth-data/:id", isAdminAuthenticated, async (req, res) => {
+  app.delete("/api/wealth-data/:id", isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const success = await storage.deleteWealthData(id);
@@ -294,7 +267,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/wealth-data", isAdminAuthenticated, async (req, res) => {
+  app.post("/api/wealth-data", isAdmin, async (req, res) => {
     try {
       const validatedData = insertWealthDataSchema.parse(req.body);
       const data = await storage.createWealthData(validatedData);
@@ -334,7 +307,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin Contact Management Routes
-  app.get("/api/contact-submissions", isAdminAuthenticated, async (req, res) => {
+  app.get("/api/contact-submissions", isAdmin, async (req, res) => {
     try {
       const submissions = await storage.getContactSubmissions();
       res.json(submissions);
@@ -345,7 +318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Count endpoints for admin dashboard
-  app.get("/api/contact-submissions/count", isAdminAuthenticated, async (req, res) => {
+  app.get("/api/contact-submissions/count", isAdmin, async (req, res) => {
     try {
       const submissions = await storage.getContactSubmissions();
       res.json(submissions.length);
@@ -355,7 +328,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/blog-posts/count", isAdminAuthenticated, async (req, res) => {
+  app.get("/api/blog-posts/count", isAdmin, async (req, res) => {
     try {
       const posts = await storage.getBlogPosts();
       res.json(posts.length);
@@ -365,7 +338,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/contact-submissions/:id", isAdminAuthenticated, async (req, res) => {
+  app.get("/api/contact-submissions/:id", isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const submission = await storage.getContactSubmission(id);
@@ -379,7 +352,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/contact-submissions/:id", isAdminAuthenticated, async (req, res) => {
+  app.delete("/api/contact-submissions/:id", isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deleteContactSubmission(id);
@@ -391,7 +364,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Financial Goals routes
-  app.get("/api/financial-goals", isAdminAuthenticated, async (req, res) => {
+  app.get("/api/financial-goals", isAdmin, async (req, res) => {
     try {
       const category = req.query.category as string;
       const goals = await storage.getFinancialGoals(category);
@@ -401,7 +374,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/financial-goals", isAdminAuthenticated, async (req, res) => {
+  app.post("/api/financial-goals", isAdmin, async (req, res) => {
     try {
       const validatedData = insertFinancialGoalSchema.parse(req.body);
       const goal = await storage.createFinancialGoal(validatedData);
@@ -415,7 +388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/financial-goals/:id", isAdminAuthenticated, async (req, res) => {
+  app.put("/api/financial-goals/:id", isAdmin, async (req, res) => {
     try {
       const validatedData = insertFinancialGoalSchema.partial().parse(req.body);
       const goal = await storage.updateFinancialGoal(req.params.id, validatedData);
@@ -432,7 +405,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/financial-goals/:id", isAdminAuthenticated, async (req, res) => {
+  app.delete("/api/financial-goals/:id", isAdmin, async (req, res) => {
     try {
       const success = await storage.deleteFinancialGoal(req.params.id);
       if (!success) {
@@ -445,7 +418,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wealth Reports routes
-  app.get("/api/wealth-reports", isAdminAuthenticated, async (req, res) => {
+  app.get("/api/wealth-reports", isAdmin, async (req, res) => {
     try {
       const category = req.query.category as string;
       const reportType = req.query.reportType as string;
@@ -456,7 +429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/wealth-reports", isAdminAuthenticated, async (req, res) => {
+  app.post("/api/wealth-reports", isAdmin, async (req, res) => {
     try {
       const validatedData = insertWealthReportSchema.parse(req.body);
       const report = await storage.createWealthReport(validatedData);
@@ -471,7 +444,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Object storage routes
-  app.post("/api/objects/upload", isAdminAuthenticated, async (req, res) => {
+  app.post("/api/objects/upload", isAdmin, async (req, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
