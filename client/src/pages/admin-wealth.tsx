@@ -340,9 +340,7 @@ export default function AdminWealth() {
   };
 
   const logout = () => {
-    localStorage.removeItem("adminAuth");
-    localStorage.removeItem("adminAuthExpiry");
-    window.location.href = "/admin";
+    window.location.href = "/api/logout";
   };
 
   return (

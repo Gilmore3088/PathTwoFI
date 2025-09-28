@@ -117,9 +117,7 @@ export default function AdminMessages() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("adminAuth");
-    localStorage.removeItem("adminAuthExpiry");
-    window.location.href = "/admin";
+    window.location.href = "/api/logout";
   };
 
   if (messagesLoading) {
