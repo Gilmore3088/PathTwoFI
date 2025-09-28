@@ -9,13 +9,13 @@ import { Mail, MailOpen, Trash2, Eye, User, Calendar, MessageSquare, LogOut } fr
 import { format } from "date-fns";
 import { Link } from "wouter";
 import type { ContactSubmission } from "@shared/schema";
-import { makeAdminRequest, isAdminAuthenticated, redirectToAdminLogin } from "@/lib/adminAuth";
+import { useAuth } from "@/hooks/useAuth";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function AdminMessages() {
   
   // STATE HOOKS FIRST
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true);
+  const { user, isLoading, isAuthenticated, isAdmin } = useAuth();
   const [selectedMessage, setSelectedMessage] = useState<ContactSubmission | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
@@ -26,26 +26,13 @@ export default function AdminMessages() {
   // DATA HOOKS - MUST BE BEFORE CONDITIONAL RETURNS!
   const { data: messages = [], isLoading: messagesLoading, error } = useQuery<ContactSubmission[]>({
     queryKey: ["/api/contact-submissions"],
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && isAdmin,
     retry: false,
-    queryFn: async () => {
-      const response = await makeAdminRequest('/api/contact-submissions');
-      if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
-      }
-      return response.json();
-    }
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await makeAdminRequest(`/api/contact-submissions/${id}`, {
-        method: 'DELETE'
-      });
-      if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
-      }
-      return response.json();
+      return await apiRequest('DELETE', `/api/contact-submissions/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/contact-submissions"] });
@@ -65,51 +52,54 @@ export default function AdminMessages() {
     }
   });
 
-  // EFFECT HOOKS
+  // Redirect to login if not authenticated or not admin
   useEffect(() => {
-    const checkAuth = () => {
-      const authToken = localStorage.getItem("adminAuth");
-      const authExpiry = localStorage.getItem("adminAuthExpiry");
-      
-      if (authToken && authExpiry) {
-        const now = new Date().getTime();
-        const expiry = parseInt(authExpiry);
-        
-        if (now < expiry) {
-          setIsAuthenticated(true);
-        } else {
-          localStorage.removeItem("adminAuth");
-          localStorage.removeItem("adminAuthExpiry");
-          window.location.href = "/admin";
-          return;
-        }
-      } else {
-        window.location.href = "/admin";
-        return;
-      }
-      setAuthLoading(false);
-    };
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+      return;
+    }
     
-    checkAuth();
-  }, []);
+    if (!isLoading && isAuthenticated && !isAdmin) {
+      toast({
+        title: "Access Denied", 
+        description: "Admin access required",
+        variant: "destructive",
+      });
+    }
+  }, [isAuthenticated, isAdmin, isLoading, toast]);
 
-  // NOW CONDITIONAL RETURNS ARE SAFE
-  if (authLoading) {
+  // Show loading or redirect if not authenticated/admin
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        <p className="ml-4">Loading messages page...</p>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    console.log("🔴 Messages page: Not authenticated, redirecting...");
+  if (!isAuthenticated || !isAdmin) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">🔴 DEBUG: Redirecting to login...</p>
+          <h2 className="text-2xl font-bold mb-4">Access Denied</h2>
+          <p className="text-muted-foreground mb-4">
+            {!isAuthenticated 
+              ? "Please log in to access the admin area"
+              : "Admin access required"
+            }
+          </p>
+          {!isAuthenticated && (
+            <Button onClick={() => window.location.href = "/api/login"}>
+              Login with Google
+            </Button>
+          )}
         </div>
       </div>
     );

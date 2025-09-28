@@ -18,11 +18,10 @@ import { format } from "date-fns";
 import { insertFinancialGoalSchema, type FinancialGoal, type InsertFinancialGoal, type GoalMilestone } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
-import { makeAdminRequest } from "@/lib/adminAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminGoals() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true);
+  const { user, isLoading, isAuthenticated, isAdmin } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<FinancialGoal | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -31,49 +30,36 @@ export default function AdminGoals() {
   const queryClient = useQueryClient();
 
   // Fetch all financial goals (must be before conditional returns)
-  const { data: goals = [], isLoading } = useQuery<FinancialGoal[]>({
+  const { data: goals = [], isLoading: goalsLoading } = useQuery<FinancialGoal[]>({
     queryKey: ["/api/financial-goals"],
-    enabled: isAuthenticated,
-    queryFn: async () => {
-      const response = await makeAdminRequest('/api/financial-goals');
-      if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
-      }
-      return response.json();
-    }
+    enabled: isAuthenticated && isAdmin,
   });
 
-  // Check localStorage authentication
+  // Redirect to login if not authenticated or not admin
   useEffect(() => {
-    const checkAuth = () => {
-      const authToken = localStorage.getItem("adminAuth");
-      const authExpiry = localStorage.getItem("adminAuthExpiry");
-      
-      if (authToken && authExpiry) {
-        const now = new Date().getTime();
-        const expiry = parseInt(authExpiry);
-        
-        if (now < expiry) {
-          setIsAuthenticated(true);
-          setAuthLoading(false);
-        } else {
-          localStorage.removeItem("adminAuth");
-          localStorage.removeItem("adminAuthExpiry");
-          setAuthLoading(false);
-          window.location.href = "/admin";
-          return;
-        }
-      } else {
-        setAuthLoading(false);
-        window.location.href = "/admin";
-        return;
-      }
-    };
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+      return;
+    }
     
-    checkAuth();
-  }, []);
+    if (!isLoading && isAuthenticated && !isAdmin) {
+      toast({
+        title: "Access Denied", 
+        description: "Admin access required",
+        variant: "destructive",
+      });
+    }
+  }, [isAuthenticated, isAdmin, isLoading, toast]);
 
-  if (authLoading) {
+  // Show loading or redirect if not authenticated/admin
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -81,12 +67,22 @@ export default function AdminGoals() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !isAdmin) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Checking authentication...</p>
+          <h2 className="text-2xl font-bold mb-4">Access Denied</h2>
+          <p className="text-muted-foreground mb-4">
+            {!isAuthenticated 
+              ? "Please log in to access the admin area"
+              : "Admin access required"
+            }
+          </p>
+          {!isAuthenticated && (
+            <Button onClick={() => window.location.href = "/api/login"}>
+              Login with Google
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -116,12 +112,7 @@ export default function AdminGoals() {
   // Create/Update mutation
   const createMutation = useMutation({
     mutationFn: async (data: InsertFinancialGoal) => {
-      const response = await makeAdminRequest('/api/financial-goals', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      return response.json();
+      return await apiRequest('POST', '/api/financial-goals', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/financial-goals"] });
@@ -144,12 +135,7 @@ export default function AdminGoals() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string, data: Partial<InsertFinancialGoal> }) => {
-      const response = await makeAdminRequest(`/api/financial-goals/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      return response.json();
+      return await apiRequest('PUT', `/api/financial-goals/${id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/financial-goals"] });
@@ -173,8 +159,7 @@ export default function AdminGoals() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await makeAdminRequest(`/api/financial-goals/${id}`, { method: 'DELETE' });
-      return response;
+      return await apiRequest('DELETE', `/api/financial-goals/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/financial-goals"] });
@@ -195,8 +180,7 @@ export default function AdminGoals() {
   // Complete goal mutation
   const completeMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await makeAdminRequest(`/api/financial-goals/${id}/complete`, { method: 'PUT' });
-      return response.json();
+      return await apiRequest('PUT', `/api/financial-goals/${id}/complete`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/financial-goals"] });
