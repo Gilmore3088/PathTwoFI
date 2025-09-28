@@ -166,7 +166,7 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
   }
 };
 
-// Admin-only middleware that checks user role
+// Admin-only middleware that checks for authorized admin email
 export const isAdmin: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
@@ -175,10 +175,10 @@ export const isAdmin: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const userId = user.claims.sub;
-    const dbUser = await storage.getUser(userId);
+    const userEmail = user.claims.email;
+    const adminEmail = process.env.ADMIN_EMAIL;
     
-    if (!dbUser || dbUser.role !== "admin") {
+    if (!userEmail || userEmail !== adminEmail) {
       return res.status(403).json({ message: "Admin access required" });
     }
 
