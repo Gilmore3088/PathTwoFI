@@ -352,7 +352,7 @@ export default function AdminWealth() {
             <div className="flex items-center gap-6">
               <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
               <nav className="flex gap-4">
-                <Link href="/admin/home">
+                <Link href="/admin">
                   <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
                     Dashboard
                   </Button>
@@ -370,6 +370,11 @@ export default function AdminWealth() {
                 <Link href="/admin/goals">
                   <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
                     Goals
+                  </Button>
+                </Link>
+                <Link href="/admin/messages">
+                  <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+                    Messages
                   </Button>
                 </Link>
               </nav>

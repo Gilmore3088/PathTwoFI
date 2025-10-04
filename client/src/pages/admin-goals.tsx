@@ -267,33 +267,35 @@ export default function AdminGoals() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           {/* Admin Navigation */}
-          <div className="flex gap-2 mb-6">
-            <Link href="/admin/wealth">
-              <Button variant="outline">Wealth Data</Button>
-            </Link>
-            <Link href="/admin/blog">
-              <Button variant="outline">Blog Posts</Button>
-            </Link>
-            <Link href="/admin/goals">
-              <Button variant="outline" className="bg-primary text-primary-foreground">
-                Financial Goals
-              </Button>
-            </Link>
-            <Link href="/admin/messages">
-              <Button variant="outline">Messages</Button>
-            </Link>
-          </div>
-
-          {/* Admin Logout */}
-          <div className="flex justify-end mb-4">
-            <button
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex gap-2">
+              <Link href="/admin">
+                <Button variant="outline">Dashboard</Button>
+              </Link>
+              <Link href="/admin/wealth">
+                <Button variant="outline">Wealth Data</Button>
+              </Link>
+              <Link href="/admin/blog">
+                <Button variant="outline">Blog Posts</Button>
+              </Link>
+              <Link href="/admin/goals">
+                <Button variant="outline" className="bg-primary text-primary-foreground">
+                  Financial Goals
+                </Button>
+              </Link>
+              <Link href="/admin/messages">
+                <Button variant="outline">Messages</Button>
+              </Link>
+            </div>
+            <Button
               onClick={() => window.location.href = '/api/logout'}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+              variant="outline"
+              size="sm"
               data-testid="button-admin-logout"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4 mr-2" />
               Logout
-            </button>
+            </Button>
           </div>
 
           {/* Header */}
