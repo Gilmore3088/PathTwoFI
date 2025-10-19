@@ -9,8 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SEO } from "@/components/ui/seo";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
-import { apiRequest } from "@/lib/queryClient";
 import { TrendingUp, Wallet, PiggyBank, Calendar, ArrowDown, ArrowRight, ChartArea } from "lucide-react";
 import { FIRE_TARGET } from "@/lib/constants";
 
@@ -40,7 +38,12 @@ export default function Home() {
   const investmentsFormatted = latestWealth ? parseFloat(latestWealth.investments).toLocaleString() : "0";
   const savingsRate = latestWealth ? parseFloat(latestWealth.savingsRate) : 0;
   const currentNetWorth = latestWealth ? parseFloat(latestWealth.netWorth) : 0;
-  const yearsToFire = latestWealth ? ((FIRE_TARGET - currentNetWorth) / (currentNetWorth * savingsRate / 100 / 12)).toFixed(1) : "0";
+  const monthlySavingsAmount = latestWealth ? parseFloat(latestWealth.monthlySavings ?? "0") : 0;
+  const remainingToTarget = Math.max(FIRE_TARGET - currentNetWorth, 0);
+  const yearsToFireValue = monthlySavingsAmount > 0 ? (remainingToTarget / monthlySavingsAmount) / 12 : null;
+  const yearsToFire = yearsToFireValue !== null && Number.isFinite(yearsToFireValue)
+    ? yearsToFireValue.toFixed(1)
+    : "—";
 
   return (
     <div>
@@ -75,19 +78,19 @@ export default function Home() {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild data-testid="button-read-posts">
-                <Link href="#featured-posts">
-                  <a className="inline-flex items-center justify-center">
-                    Read Latest Posts
-                    <ArrowDown className="ml-2 h-4 w-4" />
-                  </a>
+                <Link href="#featured-posts" className="inline-flex items-center justify-center">
+                  Read Latest Posts
+                  <ArrowDown className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button variant="outline" asChild data-testid="button-view-dashboard">
-                <Link href="/dashboard">
-                  <a className="inline-flex items-center justify-center">
-                    View Dashboard
-                    <ChartArea className="ml-2 h-4 w-4" />
-                  </a>
+              <Button
+                variant="outline"
+                asChild
+                data-testid="button-view-dashboard"
+              >
+                <Link href="/dashboard" className="inline-flex items-center justify-center">
+                  View Dashboard
+                  <ChartArea className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
@@ -154,7 +157,7 @@ export default function Home() {
                 />
                 <MetricCard
                   title="Savings Rate"
-                  value={`${savingsRate}%`}
+                  value={`${savingsRate.toFixed(1)}%`}
                   change="of gross income"
                   icon={PiggyBank}
                   iconColor="text-accent"
@@ -162,8 +165,8 @@ export default function Home() {
                 <MetricCard
                   title="Years to FIRE"
                   value={yearsToFire}
-                  change="-0.4 years"
-                  changeType="positive"
+                  change={monthlySavingsAmount > 0 ? "at current savings pace" : "add monthly savings to estimate"}
+                  changeType={monthlySavingsAmount > 0 ? "positive" : "neutral"}
                   icon={Calendar}
                   iconColor="text-chart-4"
                 />
@@ -226,11 +229,9 @@ export default function Home() {
             
             <div className="text-center mt-12">
               <Button variant="outline" asChild data-testid="button-view-all-posts">
-                <Link href="/blog">
-                  <a className="inline-flex items-center justify-center">
-                    View All Posts
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </a>
+                <Link href="/blog" className="inline-flex items-center justify-center">
+                  View All Posts
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>

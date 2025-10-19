@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { PlusCircle, Edit, Trash2, FileText, Star, Eye, Search, Upload, ExternalLink, CheckSquare, Square, Download, LogOut } from "lucide-react";
+import { PlusCircle, Edit, Trash2, FileText, Star, Eye, Search, Upload, ExternalLink, CheckSquare, Square, Download } from "lucide-react";
 import { format } from "date-fns";
 import { insertBlogPostSchema, type BlogPost, type InsertBlogPost } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -22,10 +22,11 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from '@uppy/core';
-import { Link } from "wouter";
+import { SEO } from "@/components/ui/seo";
+import { AdminLayout } from "@/components/admin/admin-layout";
 
 export default function AdminBlog() {
-  const { user, isLoading, isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<BlogPost | null>(null);
@@ -43,29 +44,6 @@ export default function AdminBlog() {
     queryKey: ["/api/blog-posts"],
     enabled: isAuthenticated && isAdmin,
   });
-
-  // Redirect to login if not authenticated or not admin
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-      return;
-    }
-    
-    if (!isLoading && isAuthenticated && !isAdmin) {
-      toast({
-        title: "Access Denied", 
-        description: "Admin access required",
-        variant: "destructive",
-      });
-    }
-  }, [isAuthenticated, isAdmin, isLoading, toast]);
 
   // ALL HOOKS MUST BE BEFORE CONDITIONAL RETURNS - Filtered and searched blog posts
   const blogPosts = useMemo(() => {
@@ -291,50 +269,16 @@ export default function AdminBlog() {
     }
   }, [form, toast]);
 
-  // Show loading or redirect if not authenticated/admin
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated || !isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Access Denied</h2>
-          <p className="text-muted-foreground mb-4">
-            {!isAuthenticated 
-              ? "Please log in to access the admin area"
-              : "Admin access required"
-            }
-          </p>
-          {!isAuthenticated && (
-            <Button onClick={() => window.location.href = "/api/login"}>
-              Login with Google
-            </Button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
-
   const resetForm = () => {
     setEditingItem(null);
     form.reset();
+  };
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) {
+      resetForm();
+    }
   };
 
   const categories = [
@@ -346,96 +290,40 @@ export default function AdminBlog() {
   ];
 
   return (
-    <div className="min-h-screen bg-background py-12">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Admin Navigation */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex gap-2">
-              <Link href="/admin">
-                <Button variant="outline">Dashboard</Button>
-              </Link>
-              <Link href="/admin/wealth">
-                <Button variant="outline">Wealth Data</Button>
-              </Link>
-              <Link href="/admin/blog">
-                <Button variant="outline" className="bg-primary text-primary-foreground">
-                  Blog Posts
-                </Button>
-              </Link>
-              <Link href="/admin/goals">
-                <Button variant="outline">Financial Goals</Button>
-              </Link>
-              <Link href="/admin/messages">
-                <Button variant="outline">Messages</Button>
-              </Link>
-            </div>
-            <Button
-              onClick={() => window.location.href = '/api/logout'}
-              variant="outline"
-              size="sm"
-              data-testid="button-admin-logout"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
+    <AdminLayout
+      title="Blog Post Management"
+      description="Create and manage blog posts for the PathTwo journey"
+      titleTestId="text-admin-blog-title"
+      descriptionTestId="text-admin-blog-subtitle"
+      seo={
+        <SEO
+          title="Admin Blog Management - PathTwo"
+          description="Create, schedule, and curate PathTwo blog posts."
+          type="website"
+          url="/admin/blog"
+        />
+      }
+      actions={
+        <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
+          <DialogTrigger asChild>
+            <Button data-testid="button-add-post">
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Add Blog Post
             </Button>
-          </div>
+          </DialogTrigger>
+          <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden flex flex-col">
+            <DialogHeader className="shrink-0 pb-6">
+              <DialogTitle className="text-2xl font-semibold" data-testid="text-dialog-title">
+                {editingItem ? "Edit Blog Post" : "Create New Blog Post"}
+              </DialogTitle>
+              <DialogDescription className="text-base text-muted-foreground">
+                {editingItem ? "Update your blog post details and content" : "Share your PathTwo journey with a compelling blog post"}
+              </DialogDescription>
+            </DialogHeader>
 
-          {/* Header */}
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground" data-testid="text-admin-blog-title">
-                Blog Post Management
-              </h1>
-              <p className="text-muted-foreground mt-2" data-testid="text-admin-blog-subtitle">
-                Create and manage blog posts for the PathTwo journey
-              </p>
-              <div className="flex gap-6 mt-4 text-sm" data-testid="stats-blog-overview">
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">Total:</span>
-                  <span className="font-semibold text-foreground">{postStats.total}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">Published:</span>
-                  <span className="font-semibold text-green-600">{postStats.published}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">Drafts:</span>
-                  <span className="font-semibold text-yellow-600">{postStats.drafts}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">Scheduled:</span>
-                  <span className="font-semibold text-purple-600">{postStats.scheduled}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">Featured:</span>
-                  <span className="font-semibold text-blue-600">{postStats.featured}</span>
-                </div>
-              </div>
-            </div>
-            <Dialog open={isDialogOpen} onOpenChange={(open) => {
-              setIsDialogOpen(open);
-              if (!open) resetForm();
-            }}>
-              <DialogTrigger asChild>
-                <Button data-testid="button-add-post">
-                  <PlusCircle className="w-4 h-4 mr-2" />
-                  Add Blog Post
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden flex flex-col">
-                <DialogHeader className="shrink-0 pb-6">
-                  <DialogTitle className="text-2xl font-semibold" data-testid="text-dialog-title">
-                    {editingItem ? "Edit Blog Post" : "Create New Blog Post"}
-                  </DialogTitle>
-                  <DialogDescription className="text-base text-muted-foreground">
-                    {editingItem ? "Update your blog post details and content" : "Share your PathTwo journey with a compelling blog post"}
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <div className="flex-1 overflow-y-auto">
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <div className="flex-1 overflow-y-auto">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                       {/* Basic Information Section */}
                       <div className="space-y-6">
                         <div className="flex items-center gap-2 pb-2 border-b">
@@ -827,55 +715,87 @@ export default function AdminBlog() {
                           </div>
                         </div>
                       </div>
-                    </form>
-                  </Form>
-                </div>
+                </form>
+              </Form>
+            </div>
 
-                {/* Action Buttons - Fixed at bottom */}
-                <div className="shrink-0 pt-6 border-t bg-background">
-                  <div className="flex flex-wrap gap-3 justify-end">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsDialogOpen(false)}
-                      data-testid="button-cancel"
-                      className="h-11 px-6"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handlePreview}
-                      data-testid="button-preview"
-                      className="h-11 px-6"
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Preview
-                    </Button>
-                    <Button
-                      onClick={form.handleSubmit(onSubmit)}
-                      disabled={createMutation.isPending || updateMutation.isPending}
-                      data-testid="button-save-post"
-                      className="h-11 px-8"
-                    >
-                      {createMutation.isPending || updateMutation.isPending ? (
-                        <>
-                          <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          {editingItem ? "Updating..." : "Creating..."}
-                        </>
-                      ) : (
-                        <>
-                          {editingItem ? "Update Post" : "Create Post"}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
+            {/* Action Buttons - Fixed at bottom */}
+            <div className="shrink-0 pt-6 border-t bg-background">
+              <div className="flex flex-wrap gap-3 justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
+                  data-testid="button-cancel"
+                  className="h-11 px-6"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handlePreview}
+                  data-testid="button-preview"
+                  className="h-11 px-6"
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Preview
+                </Button>
+                <Button
+                  onClick={form.handleSubmit(onSubmit)}
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                  data-testid="button-save-post"
+                  className="h-11 px-8"
+                >
+                  {createMutation.isPending || updateMutation.isPending ? (
+                    <>
+                      <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      {editingItem ? "Updating..." : "Creating..."}
+                    </>
+                  ) : (
+                    <>
+                      {editingItem ? "Update Post" : "Create Post"}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      }
+    >
+      <div className="max-w-7xl mx-auto space-y-10">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>Blog Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-testid="stats-blog-overview">
+              <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+                <span className="text-muted-foreground">Total</span>
+                <span className="font-semibold text-foreground">{postStats.total}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+                <span className="text-muted-foreground">Published</span>
+                <span className="font-semibold text-green-600">{postStats.published}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+                <span className="text-muted-foreground">Drafts</span>
+                <span className="font-semibold text-yellow-600">{postStats.drafts}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+                <span className="text-muted-foreground">Scheduled</span>
+                <span className="font-semibold text-purple-600">{postStats.scheduled}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3 sm:col-span-2 lg:col-span-1">
+                <span className="text-muted-foreground">Featured</span>
+                <span className="font-semibold text-blue-600">{postStats.featured}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
+        <section className="space-y-6">
           {/* Search and Filters */}
           <Card className="mb-6">
             <CardContent className="p-6">
@@ -945,7 +865,7 @@ export default function AdminBlog() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
+              {postsLoading ? (
                 <div className="text-center py-8" data-testid="text-loading">
                   Loading blog posts...
                 </div>
@@ -1051,8 +971,9 @@ export default function AdminBlog() {
               )}
             </CardContent>
           </Card>
+        </section>
 
-          {/* Preview Dialog */}
+        {/* Preview Dialog */}
           <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
@@ -1097,7 +1018,6 @@ export default function AdminBlog() {
             </DialogContent>
           </Dialog>
         </div>
-      </div>
-    </div>
+    </AdminLayout>
   );
 }
