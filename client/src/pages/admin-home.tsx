@@ -10,11 +10,6 @@ const managementRoutes = adminRoutes.filter((route) => route.href !== "/admin");
 
 const quickActions = [
   {
-    href: "/admin/insights",
-    label: "Open Insights Dashboard",
-    testId: "button-quick-open-insights",
-  },
-  {
     href: "/admin/blog",
     label: "Create New Blog Post",
     testId: "button-quick-new-post",

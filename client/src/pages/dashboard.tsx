@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { ProgressIndicator } from "@/components/dashboard/progress-indicator";
@@ -9,11 +9,10 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/ui/seo";
-import { TrendingUp, Wallet, PiggyBank, Calendar, ChartArea, DollarSign, Target, Users, User, Heart, Shield, ListChecks } from "lucide-react";
+import { TrendingUp, Wallet, PiggyBank, Calendar, ChartArea, DollarSign, Target, Users, User, Heart } from "lucide-react";
 import { FIRE_TARGET } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import type { WealthData } from "@shared/schema";
 
 type AllocationPoint = {
   label: string;
@@ -78,7 +77,7 @@ export default function Dashboard() {
   });
 
   // Fetch latest wealth data for selected category for current metrics
-  const { data: latestWealth, isLoading: latestLoading } = useQuery<WealthData | undefined>({
+  const { data: latestWealth, isLoading: latestLoading } = useQuery<WealthData>({
     queryKey: ["/api/wealth-data/latest", selectedCategory],
     queryFn: async () => {
       const response = await fetch(`/api/wealth-data/latest?category=${selectedCategory}`);
@@ -89,25 +88,29 @@ export default function Dashboard() {
     }
   });
 
-  const latest = latestWealth ?? null;
-  const target = latest?.fireTarget ? parseFloat(latest.fireTarget) : FIRE_TARGET;
-  const netWorthValue = latest ? parseFloat(latest.netWorth) : 0;
-  const netWorthProgress = latest ? Math.min((netWorthValue / target) * 100, 999) : 0;
+  const summary = useMemo(
+    () => data?.categories.find((category) => category.category === selectedCategory) ?? null,
+    [data, selectedCategory],
+  );
 
-  const previousNetWorth = wealthData && wealthData.length > 1
-    ? parseFloat(wealthData[1].netWorth)
+  const latest = summary?.latest ?? null;
+  const target = latest?.fireTarget || FIRE_TARGET;
+  const netWorthProgress = latest ? Math.min((latest.netWorth / target) * 100, 999) : 0;
+
+  const previousNetWorth = summary && summary.trend.length > 1
+    ? summary.trend[summary.trend.length - 2].netWorth
     : null;
 
   const netWorthDelta = latest && previousNetWorth !== null
-    ? netWorthValue - previousNetWorth
+    ? latest.netWorth - previousNetWorth
     : 0;
 
-  const savingsRate = latest?.savingsRate ? parseFloat(latest.savingsRate) : 0;
-  const monthlySavings = latest?.monthlySavings ? parseFloat(latest.monthlySavings) : 0;
-  const remainingToTarget = latest ? Math.max(target - netWorthValue, 0) : target;
+  const savingsRate = latest?.savingsRate ?? 0;
+  const monthlySavings = latest?.monthlySavings ?? 0;
+  const remainingToTarget = latest ? Math.max(target - latest.netWorth, 0) : target;
   const monthsToFire = monthlySavings > 0 ? remainingToTarget / monthlySavings : null;
   const yearsToFire = monthsToFire !== null && Number.isFinite(monthsToFire) ? monthsToFire / 12 : null;
-  const monthlyGrowthPercent = 0;
+  const monthlyGrowthPercent = summary?.monthlyGrowth ?? 0;
 
   const formatCurrency = (amount: number | null | undefined) => {
     if (amount === null || amount === undefined || Number.isNaN(amount)) {
@@ -135,7 +138,7 @@ export default function Dashboard() {
 
   const portfolioChangeType = monthlyGrowthPercent > 0 ? "positive" : monthlyGrowthPercent < 0 ? "negative" : "neutral";
 
-  if (wealthLoading || latestLoading) {
+  if (isLoading) {
     return (
       <div className="py-16 lg:py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -155,8 +158,22 @@ export default function Dashboard() {
     );
   }
 
+  if (isError) {
+    return (
+      <div className="py-16 lg:py-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center space-y-4">
+            <h1 className="text-3xl font-bold">Wealth dashboard unavailable</h1>
+            <p className="text-muted-foreground">
+              We couldn't load the latest numbers right now. Please refresh the page or try again in a few minutes.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const hasData = Boolean(latestWealth);
+  const hasData = Boolean(summary && summary.latest);
 
   return (
     <div className="py-16 lg:py-20">
@@ -230,7 +247,7 @@ export default function Dashboard() {
               <h2 className="text-2xl font-bold text-foreground mb-6 text-center" data-testid="text-fire-progress-title">
                 FIRE Progress
               </h2>
-              <ProgressIndicator current={netWorthValue} target={target} />
+              <ProgressIndicator current={latest.netWorth} target={target} />
             </div>
           )}
 
@@ -238,14 +255,14 @@ export default function Dashboard() {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
               <MetricCard
                 title="Net Worth"
-                value={formatCurrency(netWorthValue)}
+                value={formatCurrency(latest.netWorth)}
                 change={netWorthChangeLabel}
                 changeType={netWorthChangeType}
                 icon={TrendingUp}
               />
               <MetricCard
                 title="Investment Portfolio"
-                value={formatCurrency(parseFloat(latest.investments))}
+                value={formatCurrency(latest.investments)}
                 change={portfolioChangeLabel}
                 changeType={portfolioChangeType}
                 icon={Wallet}
@@ -253,7 +270,7 @@ export default function Dashboard() {
               />
               <MetricCard
                 title="Cash & Savings"
-                value={formatCurrency(parseFloat(latest.cash))}
+                value={formatCurrency(latest.cash)}
                 icon={DollarSign}
                 iconColor="text-accent"
               />
@@ -271,7 +288,7 @@ export default function Dashboard() {
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               <MetricCard
                 title="Liabilities"
-                value={formatCurrency(parseFloat(latest.liabilities))}
+                value={formatCurrency(latest.liabilities)}
                 icon={Shield}
                 iconColor="text-destructive"
               />
@@ -296,57 +313,62 @@ export default function Dashboard() {
             </div>
           )}
 
-          {hasData && wealthData && wealthData.length > 0 ? (
+          {hasData ? (
             <div className="grid gap-8 lg:grid-cols-2">
-              <NetWorthChart data={wealthData.map(d => ({
-                id: d.id,
-                date: format(new Date(d.date!), 'MMM dd'),
-                netWorth: parseFloat(d.netWorth),
-                investments: parseFloat(d.investments),
-                cash: parseFloat(d.cash),
-                liabilities: parseFloat(d.liabilities),
-                savingsRate: parseFloat(d.savingsRate)
-              }))} />
-              <AssetAllocationChart data={null} />
-              <CashFlowChart data={latest ? {
-                income: latest.monthlyIncome ? parseFloat(latest.monthlyIncome) : 0,
-                expenses: latest.monthlyExpenses ? parseFloat(latest.monthlyExpenses) : 0,
-                savings: latest.monthlySavings ? parseFloat(latest.monthlySavings) : 0
-              } : null} />
+              <NetWorthChart data={summary?.trend ?? []} />
+              <AssetAllocationChart data={summary?.assetAllocation ?? null} />
+              <CashFlowChart data={summary?.cashFlow ?? null} />
               <Card className="h-full">
                 <CardHeader className="pb-0">
                   <CardTitle>Debt Breakdown</CardTitle>
                   <CardDescription>Monitoring remaining obligations across categories</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-6">
-                  <div className="flex h-full flex-col items-center justify-center gap-2 py-12 text-center text-muted-foreground">
-                    <ListChecks className="h-10 w-10" />
-                    <p className="text-sm font-medium">No outstanding liabilities recorded</p>
-                    <p className="text-xs">You're debt-free in this category—amazing progress!</p>
-                  </div>
+                  {summary?.debtBreakdown && summary.debtBreakdown.length > 0 ? (
+                    summary.debtBreakdown.map((item) => (
+                      <div key={item.label} className="space-y-2">
+                        <div className="flex items-center justify-between text-sm font-medium">
+                          <span className="capitalize">{item.label.replace(/([A-Z])/g, ' $1').trim()}</span>
+                          <span>{formatCurrency(item.value)}</span>
+                        </div>
+                        <div className="h-2 rounded-full bg-muted">
+                          <div
+                            className="h-2 rounded-full bg-destructive"
+                            style={{ width: `${Math.min(item.percentage, 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center gap-2 py-12 text-center text-muted-foreground">
+                      <ListChecks className="h-10 w-10" />
+                      <p className="text-sm font-medium">No outstanding liabilities recorded</p>
+                      <p className="text-xs">You're debt-free in this category—amazing progress!</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
-          ) : !latestLoading && !wealthLoading ? (
+          ) : (
             <Card>
               <CardHeader>
-                <CardTitle>Wealth Dashboard Coming Soon</CardTitle>
+                <CardTitle>Waiting for your first update</CardTitle>
                 <CardDescription>
-                  We're tracking our progress and will share updates here as we make progress toward FIRE.
+                  The dashboard will spring to life after you log the first wealth snapshot in the admin tools.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-3">
-                  <Button variant="outline" asChild>
-                    <a href="/blog">Read our journey</a>
+                  <Button asChild>
+                    <a href="/admin/wealth">Add wealth data</a>
                   </Button>
                   <Button variant="outline" asChild>
-                    <a href="/about">Learn about us</a>
+                    <a href="/blog">Read how we invest</a>
                   </Button>
                 </div>
               </CardContent>
             </Card>
-          ) : null}
+          )}
         </div>
       </div>
     </div>

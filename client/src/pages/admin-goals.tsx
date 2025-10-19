@@ -35,9 +35,12 @@ export default function AdminGoals() {
     enabled: isAuthenticated && isAdmin,
   });
 
-  const filteredGoals = goals.filter((goal) => selectedCategory === "all" || goal.category === selectedCategory);
+  const filteredGoals = useMemo(
+    () => goals.filter((goal) => selectedCategory === "all" || goal.category === selectedCategory),
+    [goals, selectedCategory],
+  );
 
-  const goalSummary = (() => {
+  const goalSummary = useMemo(() => {
     if (goals.length === 0) {
       return { total: 0, completed: 0, active: 0, averageProgress: 0 };
     }
@@ -52,7 +55,7 @@ export default function AdminGoals() {
       active: goals.length - completed,
       averageProgress: Number.isFinite(averageProgress) ? averageProgress : 0,
     };
-  })();
+  }, [goals]);
 
   const form = useForm<InsertFinancialGoal>({
     resolver: zodResolver(insertFinancialGoalSchema),
