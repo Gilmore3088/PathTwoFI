@@ -28,6 +28,7 @@ export default function AdminWealth() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState<string>("all");
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [isQuickMode, setIsQuickMode] = useState(true);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -277,6 +278,47 @@ export default function AdminWealth() {
       setSelectedItems(new Set(wealthData.map(item => item.id)));
     }
   };
+
+  const loadFromLatest = useCallback(() => {
+    if (allWealthData.length === 0) return;
+    
+    const latest = allWealthData[0];
+    form.reset({
+      date: new Date(),
+      category: latest.category as "Both" | "His" | "Her",
+      netWorth: latest.netWorth,
+      investments: latest.investments,
+      cash: latest.cash,
+      liabilities: latest.liabilities,
+      fireTarget: latest.fireTarget || "1000000.00",
+      savingsRate: latest.savingsRate,
+      stocks: latest.stocks || "0",
+      bonds: latest.bonds || "0",
+      realEstate: latest.realEstate || "0",
+      crypto: latest.crypto || "0",
+      commodities: latest.commodities || "0",
+      alternativeInvestments: latest.alternativeInvestments || "0",
+      mortgage: latest.mortgage || "0",
+      creditCards: latest.creditCards || "0",
+      studentLoans: latest.studentLoans || "0",
+      autoLoans: latest.autoLoans || "0",
+      personalLoans: latest.personalLoans || "0",
+      otherDebts: latest.otherDebts || "0",
+      checkingAccounts: latest.checkingAccounts || "0",
+      savingsAccounts: latest.savingsAccounts || "0",
+      retirement401k: latest.retirement401k || "0",
+      retirementIRA: latest.retirementIRA || "0",
+      retirementRoth: latest.retirementRoth || "0",
+      hsa: latest.hsa || "0",
+      monthlyIncome: latest.monthlyIncome || "0",
+      monthlyExpenses: latest.monthlyExpenses || "0",
+      monthlySavings: latest.monthlySavings || "0"
+    });
+    
+    toast({
+      description: "Loaded values from latest entry. Date set to today."
+    });
+  }, [allWealthData, form, toast]);
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -573,6 +615,7 @@ export default function AdminWealth() {
                         </div>
                       </div>
                     </div>
+                  )}
 
                     <div className="flex justify-end gap-2 pt-6">
                       <Button

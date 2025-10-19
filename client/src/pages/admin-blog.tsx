@@ -303,27 +303,63 @@ export default function AdminBlog() {
           url="/admin/blog"
         />
       }
-      actions={
-        <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
-          <DialogTrigger asChild>
-            <Button data-testid="button-add-post">
-              <PlusCircle className="w-4 h-4 mr-2" />
-              Add Blog Post
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden flex flex-col">
-            <DialogHeader className="shrink-0 pb-6">
-              <DialogTitle className="text-2xl font-semibold" data-testid="text-dialog-title">
-                {editingItem ? "Edit Blog Post" : "Create New Blog Post"}
-              </DialogTitle>
-              <DialogDescription className="text-base text-muted-foreground">
-                {editingItem ? "Update your blog post details and content" : "Share your PathTwo journey with a compelling blog post"}
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="flex-1 overflow-y-auto">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+    >
+      <div className="max-w-7xl mx-auto space-y-10">
+        <section className="space-y-6">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground" data-testid="text-admin-blog-title">
+                Blog Post Management
+              </h1>
+              <p className="mt-2 text-muted-foreground" data-testid="text-admin-blog-subtitle">
+                Create and manage blog posts for the PathTwo journey
+              </p>
+              <div className="mt-4 flex flex-wrap gap-6 text-sm" data-testid="stats-blog-overview">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Total:</span>
+                  <span className="font-semibold text-foreground">{postStats.total}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Published:</span>
+                  <span className="font-semibold text-green-600">{postStats.published}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Drafts:</span>
+                  <span className="font-semibold text-yellow-600">{postStats.drafts}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Scheduled:</span>
+                  <span className="font-semibold text-purple-600">{postStats.scheduled}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Featured:</span>
+                  <span className="font-semibold text-blue-600">{postStats.featured}</span>
+                </div>
+              </div>
+            </div>
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button data-testid="button-add-post">
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  Add Blog Post
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden flex flex-col">
+                <DialogHeader className="shrink-0 pb-6">
+                  <DialogTitle className="text-2xl font-semibold" data-testid="text-dialog-title">
+                    {editingItem ? "Edit Blog Post" : "Create New Blog Post"}
+                  </DialogTitle>
+                  <DialogDescription className="text-base text-muted-foreground">
+                    {editingItem ? "Update your blog post details and content" : "Share your PathTwo journey with a compelling blog post"}
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <div className="flex-1 overflow-y-auto">
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                       {/* Basic Information Section */}
                       <div className="space-y-6">
                         <div className="flex items-center gap-2 pb-2 border-b">

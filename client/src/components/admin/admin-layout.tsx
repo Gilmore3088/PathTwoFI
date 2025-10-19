@@ -98,6 +98,7 @@ export function AdminLayout({ title, description, actions, children, seo, titleT
                   variant={isActive ? "default" : "ghost"}
                 >
                   <Link href={route.href} className="font-medium">
+                  <Link href={route.href}>
                     {route.label}
                   </Link>
                 </Button>
