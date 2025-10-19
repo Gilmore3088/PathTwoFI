@@ -1,6 +1,6 @@
-const CACHE_NAME = 'pathtwo-v1';
-const STATIC_CACHE = 'pathtwo-static-v1';
-const DYNAMIC_CACHE = 'pathtwo-dynamic-v1';
+const CACHE_VERSION = 'v2';
+const STATIC_CACHE = `pathtwo-static-${CACHE_VERSION}`;
+const DYNAMIC_CACHE = `pathtwo-dynamic-${CACHE_VERSION}`;
 
 // Static assets to cache
 const STATIC_ASSETS = [
