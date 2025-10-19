@@ -71,24 +71,34 @@ export default function Dashboard() {
   // Fetch wealth summary data with trends, allocations, and analytics
   const { data, isLoading: summaryLoading, isError: summaryError } = useQuery<WealthSummaryResponse>({
     queryKey: ["/api/wealth-data/summary"],
+    queryFn: async () => {
+      const response = await fetch('/api/wealth-data/summary');
+      if (!response.ok) {
+        throw new Error('Failed to fetch wealth summary');
+      }
+      return response.json();
+    }
   });
 
   // Fetch all wealth data for selected category for charts
-  const { data: wealthData, isLoading: wealthLoading } = useQuery<WealthData[]>({
+  const { data: wealthData, isLoading: wealthLoading, isError: wealthError } = useQuery<WealthData[]>({
     queryKey: ["/api/wealth-data", selectedCategory],
     queryFn: async () => {
       const response = await fetch(`/api/wealth-data?category=${selectedCategory}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch wealth data');
+      }
       return response.json();
     }
   });
 
   // Fetch latest wealth data for selected category for current metrics
-  const { data: latestWealth, isLoading: latestLoading } = useQuery<WealthData>({
+  const { data: latestWealth, isLoading: latestLoading, isError: latestError } = useQuery<WealthData>({
     queryKey: ["/api/wealth-data/latest", selectedCategory],
     queryFn: async () => {
       const response = await fetch(`/api/wealth-data/latest?category=${selectedCategory}`);
       if (!response.ok) {
-        return undefined;
+        throw new Error('Failed to fetch latest wealth data');
       }
       return response.json();
     }
@@ -96,7 +106,7 @@ export default function Dashboard() {
 
   // Combined loading and error states
   const isLoading = summaryLoading || wealthLoading || latestLoading;
-  const isError = summaryError;
+  const isError = summaryError || wealthError || latestError;
 
   const summary = useMemo(
     () => data?.categories.find((category: WealthSummaryCategory) => category.category === selectedCategory) ?? null,

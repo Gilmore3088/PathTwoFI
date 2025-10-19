@@ -2,7 +2,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 // ⬇️ Replace with YOUR exact Replit host (the one you pasted from the console)
 const PUBLIC_HOST = "124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev";
@@ -10,7 +9,6 @@ const PUBLIC_HOST = "124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.
 export default defineConfig({
   plugins: [
     react(),
-    runtimeErrorOverlay(),
 
     // Re-enable later if you want; it can interfere with HMR host detection.
     // (async () => {
@@ -42,8 +40,6 @@ export default defineConfig({
       protocol: "wss",
       host: PUBLIC_HOST,
       clientPort: 443,
-      // Optional but helps prevent odd fallback paths:
-      path: "/hmr",
     },
     fs: { strict: true, deny: ["**/.*"] },
   },
