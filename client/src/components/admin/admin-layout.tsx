@@ -91,16 +91,15 @@ export function AdminLayout({ title, description, actions, children, seo, titleT
                 (route.href !== "/admin" && location.startsWith(route.href));
 
               return (
-                <Button
-                  key={route.href}
-                  asChild
-                  size="sm"
-                  variant={isActive ? "default" : "ghost"}
-                >
-                  <Link href={route.href} className="font-medium">
+                <Link key={route.href} href={route.href}>
+                  <Button
+                    size="sm"
+                    variant={isActive ? "default" : "ghost"}
+                    className="font-medium"
+                  >
                     {route.label}
-                  </Link>
-                </Button>
+                  </Button>
+                </Link>
               );
             })}
           </nav>
