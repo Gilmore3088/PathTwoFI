@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { SEO } from "@/components/ui/seo";
 import { Mail, MessageSquare, Send, Twitter, Linkedin } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ContactForm {
   name: string;
@@ -220,18 +221,28 @@ export default function Contact() {
                     </p>
                     
                     <div className="flex space-x-4">
-                      <Button variant="outline" size="sm" asChild data-testid="button-social-twitter">
-                        <a href="#" className="inline-flex items-center">
-                          <Twitter className="w-4 h-4 mr-2" />
-                          Twitter
-                        </a>
-                      </Button>
-                      <Button variant="outline" size="sm" asChild data-testid="button-social-linkedin">
-                        <a href="#" className="inline-flex items-center">
-                          <Linkedin className="w-4 h-4 mr-2" />
-                          LinkedIn
-                        </a>
-                      </Button>
+                      <a
+                        href="#"
+                        className={cn(
+                          buttonVariants({ variant: "outline", size: "sm" }),
+                          "inline-flex items-center",
+                        )}
+                        data-testid="button-social-twitter"
+                      >
+                        <Twitter className="w-4 h-4 mr-2" />
+                        Twitter
+                      </a>
+                      <a
+                        href="#"
+                        className={cn(
+                          buttonVariants({ variant: "outline", size: "sm" }),
+                          "inline-flex items-center",
+                        )}
+                        data-testid="button-social-linkedin"
+                      >
+                        <Linkedin className="w-4 h-4 mr-2" />
+                        LinkedIn
+                      </a>
                     </div>
                   </div>
                 </CardContent>
