@@ -660,7 +660,6 @@ export default function AdminWealth() {
                         </div>
                       </div>
                     </div>
-                  )}
 
                     <div className="flex justify-end gap-2 pt-6">
                       <Button
