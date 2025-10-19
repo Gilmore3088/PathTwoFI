@@ -12,12 +12,18 @@ export default defineConfig({
       "@assets": path.resolve(import.meta.dirname, "attached_assets")
     },
     // Prevent duplicate React instances -> avoids "invalid hook call"
+
     dedupe: ["react", "react-dom"]
+
   },
   root: path.resolve(import.meta.dirname, "client"),
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
+
     emptyOutDir: true
+
+    emptyOutDir: true,
+
   },
   // NOTE: No server.hmr config here because HMR is attached to the Express server we pass in
 });
