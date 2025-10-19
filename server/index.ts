@@ -1,43 +1,71 @@
-// server/index.ts
-import express from "express";
-import http from "http";
-import path from "path";
-import { fileURLToPath } from "url";
+import express, { type Request, Response, NextFunction } from "express";
+import { registerRoutes } from "./routes";
+import { setupVite, serveStatic, log } from "./vite";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-async function createServer() {
-  const app = express();
-  const server = http.createServer(app);
+app.use((req, res, next) => {
+  const start = Date.now();
+  const path = req.path;
+  let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
-  if (process.env.NODE_ENV !== "production") {
-    // --- DEV: use Vite as middleware so it injects /@vite/client and /@react-refresh
-    const vite = await (await import("vite")).createServer({
-      root: path.resolve(__dirname, "../client"),
-      server: { middlewareMode: true, hmr: { server } },
-      appType: "custom",
-    });
-    app.use(vite.middlewares);
-  } else {
-    // --- PROD: serve the built client
-    app.use(express.static(path.resolve(__dirname, "../dist/public")));
-  }
+  const originalResJson = res.json;
+  res.json = function (bodyJson, ...args) {
+    capturedJsonResponse = bodyJson;
+    return originalResJson.apply(res, [bodyJson, ...args]);
+  };
 
-  // --- API routes
-  app.get("/api/health", (_req, res) => res.json({ ok: true }));
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    if (path.startsWith("/api")) {
+      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+      if (capturedJsonResponse) {
+        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+      }
 
-  // (optional) If you have client-side routing, ensure index fallback in prod:
-  if (process.env.NODE_ENV === "production") {
-    app.get("*", (_req, res) => {
-      res.sendFile(path.resolve(__dirname, "../dist/public/index.html"));
-    });
-  }
+      if (logLine.length > 80) {
+        logLine = logLine.slice(0, 79) + "…";
+      }
 
-  const PORT = Number(process.env.PORT ?? 5173);
-  server.listen(PORT, () => {
-    console.log(`[server] listening on http://localhost:${PORT}`);
+      log(logLine);
+    }
   });
-}
 
-createServer();
+  next();
+});
+
+(async () => {
+  const server = await registerRoutes(app);
+
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+
+    res.status(status).json({ message });
+    throw err;
+  });
+
+  // importantly only setup vite in development and after
+  // setting up all the other routes so the catch-all route
+  // doesn't interfere with the other routes
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
+
+  // ALWAYS serve the app on the port specified in the environment variable PORT
+  // Other ports are firewalled. Default to 5000 if not specified.
+  // this serves both the API and the client.
+  // It is the only port that is not firewalled.
+  const port = parseInt(process.env.PORT || '5000', 10);
+  server.listen({
+    port,
+    host: "0.0.0.0",
+    reusePort: true,
+  }, () => {
+    log(`serving on port ${port}`);
+  });
+})();
