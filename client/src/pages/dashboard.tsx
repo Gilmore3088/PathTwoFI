@@ -78,7 +78,7 @@ export default function Dashboard() {
   });
 
   // Fetch latest wealth data for selected category for current metrics
-  const { data: latestWealth, isLoading: latestLoading } = useQuery<WealthData>({
+  const { data: latestWealth, isLoading: latestLoading } = useQuery<WealthData | undefined>({
     queryKey: ["/api/wealth-data/latest", selectedCategory],
     queryFn: async () => {
       const response = await fetch(`/api/wealth-data/latest?category=${selectedCategory}`);
