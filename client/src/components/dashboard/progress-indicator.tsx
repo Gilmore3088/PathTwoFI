@@ -5,7 +5,8 @@ interface ProgressIndicatorProps {
 }
 
 export function ProgressIndicator({ current, target, label = "FIRE Progress" }: ProgressIndicatorProps) {
-  const percentage = Math.min((current / target) * 100, 100);
+  const safeTarget = target > 0 ? target : 1;
+  const percentage = Math.min((current / safeTarget) * 100, 100);
   
   return (
     <div className="bg-card rounded-lg border border-border p-6 max-w-md mx-auto" data-testid="component-fire-progress">
@@ -21,7 +22,7 @@ export function ProgressIndicator({ current, target, label = "FIRE Progress" }: 
         />
       </div>
       <p className="text-xs text-muted-foreground mt-2" data-testid="text-progress-amount">
-        ${current.toLocaleString()} of ${target.toLocaleString()} target
+        ${current.toLocaleString()} of ${safeTarget.toLocaleString()} target
       </p>
     </div>
   );

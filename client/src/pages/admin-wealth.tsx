@@ -7,26 +7,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { PlusCircle, Edit, Trash2, TrendingUp, Users, User, Heart, Search, Download, CheckSquare, Square, LogOut } from "lucide-react";
+import { PlusCircle, Edit, Trash2, TrendingUp, Users, User, Heart, Search, Download, CheckSquare, Square } from "lucide-react";
 import { format } from "date-fns";
 import { insertWealthDataSchema, type WealthData, type InsertWealthData } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import Papa from 'papaparse';
-import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
+import { SEO } from "@/components/ui/seo";
+import { AdminLayout } from "@/components/admin/admin-layout";
 
 export default function AdminWealth() {
-  const { user, isLoading, isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<WealthData | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState<string>("all");
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [autoSavingsEnabled, setAutoSavingsEnabled] = useState(true);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -100,6 +103,49 @@ export default function AdminWealth() {
       monthlySavings: "0"
     }
   });
+
+  const parseAmount = (value: unknown) => {
+    if (typeof value === "number") return value;
+    if (typeof value === "string") {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
+  };
+
+  const watchedIncome = form.watch("monthlyIncome");
+  const watchedExpenses = form.watch("monthlyExpenses");
+
+  useEffect(() => {
+    if (!autoSavingsEnabled) return;
+    const income = parseAmount(watchedIncome);
+    const expenses = parseAmount(watchedExpenses);
+    const calculatedSavings = income - expenses;
+    if (Number.isFinite(calculatedSavings)) {
+      const currentSavings = parseAmount(form.getValues("monthlySavings"));
+      if (Math.abs(currentSavings - calculatedSavings) > 0.5) {
+        form.setValue("monthlySavings", calculatedSavings.toFixed(2), { shouldDirty: true });
+      }
+    }
+  }, [watchedIncome, watchedExpenses, form, autoSavingsEnabled]);
+
+  const watchedValues = form.watch();
+  const previewNetWorth = parseAmount(watchedValues.netWorth);
+  const previewLiabilities = parseAmount(watchedValues.liabilities);
+  const previewCash = parseAmount(watchedValues.cash);
+  const previewInvestments = parseAmount(watchedValues.investments);
+  const previewSavingsRate = parseAmount(watchedValues.savingsRate);
+  const previewMonthlySavings = parseAmount(watchedValues.monthlySavings);
+  const formatPreviewCurrency = (value: number) => `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  const formatPreviewPercent = (value: number) => `${value.toFixed(1)}%`;
+
+  useEffect(() => {
+    if (editingItem) {
+      setAutoSavingsEnabled(false);
+    } else {
+      setAutoSavingsEnabled(true);
+    }
+  }, [editingItem]);
 
   // Create/Update mutation
   const createMutation = useMutation({
@@ -207,59 +253,6 @@ export default function AdminWealth() {
     document.body.removeChild(link);
   }, [filteredWealthData]);
 
-  // Redirect to login if not authenticated or not admin
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-      return;
-    }
-    
-    if (!isLoading && isAuthenticated && !isAdmin) {
-      toast({
-        title: "Access Denied", 
-        description: "Admin access required",
-        variant: "destructive",
-      });
-    }
-  }, [isAuthenticated, isAdmin, isLoading, toast]);
-
-  // Show loading or redirect if not authenticated/admin
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated || !isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Access Denied</h2>
-          <p className="text-muted-foreground mb-4">
-            {!isAuthenticated 
-              ? "Please log in to access the admin area"
-              : "Admin access required"
-            }
-          </p>
-          {!isAuthenticated && (
-            <Button onClick={() => window.location.href = "/api/login"}>
-              Login with Google
-            </Button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
   // Keep wealthData for backward compatibility
   const wealthData = filteredWealthData;
 
@@ -296,6 +289,7 @@ export default function AdminWealth() {
       autoLoans: item.autoLoans || "0"
     });
     setIsDialogOpen(true);
+    setAutoSavingsEnabled(false);
   };
 
   const handleDelete = (id: string) => {
@@ -339,83 +333,64 @@ export default function AdminWealth() {
     }
   };
 
-  const logout = () => {
-    window.location.href = "/api/logout";
-  };
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Admin Header */}
-      <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
-              <nav className="flex gap-4">
-                <Link href="/admin">
-                  <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-                    Dashboard
-                  </Button>
-                </Link>
-                <Link href="/admin/blog">
-                  <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-                    Blog Posts
-                  </Button>
-                </Link>
-                <Link href="/admin/wealth">
-                  <Button variant="default">
-                    Wealth Data
-                  </Button>
-                </Link>
-                <Link href="/admin/goals">
-                  <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-                    Goals
-                  </Button>
-                </Link>
-                <Link href="/admin/messages">
-                  <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-                    Messages
-                  </Button>
-                </Link>
-              </nav>
-            </div>
-            <Button onClick={logout} variant="outline" size="sm" data-testid="button-logout">
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-8">
-        <div className="space-y-8">
-          {/* Header */}
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-3xl font-bold text-foreground">Wealth Data Management</h2>
-              <p className="text-muted-foreground mt-1">Track and manage wealth tracking data entries</p>
-            </div>
-            
-            <div className="flex gap-2">
-              <Button onClick={handleExportCSV} variant="outline" data-testid="button-export-csv">
-                <Download className="w-4 h-4 mr-2" />
-                Export CSV
+    <AdminLayout
+      title="Wealth Data Management"
+      description="Track and manage wealth tracking data entries"
+      seo={
+        <SEO
+          title="Wealth Management - PathTwo Admin"
+          description="Manage wealth tracking entries, exports, and historical updates for PathTwo."
+          type="website"
+          url="/admin/wealth"
+        />
+      }
+      actions={
+        <div className="flex gap-2">
+          <Button onClick={handleExportCSV} variant="outline" data-testid="button-export-csv">
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button data-testid="button-add-wealth">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Wealth Data
               </Button>
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button data-testid="button-add-wealth">
-                    <PlusCircle className="w-4 h-4 mr-2" />
-                    Add Wealth Data
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>{editingItem ? "Edit" : "Add"} Wealth Data</DialogTitle>
-                  </DialogHeader>
-                  
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editingItem ? "Edit" : "Add"} Wealth Data</DialogTitle>
+              </DialogHeader>
+
+              <div className="grid gap-4 rounded-lg border border-border bg-muted/40 p-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div>
+                  <p className="text-xs uppercase text-muted-foreground">Projected Net Worth</p>
+                  <p className="text-lg font-semibold">{formatPreviewCurrency(previewNetWorth)}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase text-muted-foreground">Investments</p>
+                  <p className="text-lg font-semibold">{formatPreviewCurrency(previewInvestments)}</p>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="uppercase">Monthly Savings</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">Auto</span>
+                      <Switch checked={autoSavingsEnabled} onCheckedChange={setAutoSavingsEnabled} />
+                    </div>
+                  </div>
+                  <p className="text-lg font-semibold">{formatPreviewCurrency(previewMonthlySavings)}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase text-muted-foreground">Savings Rate</p>
+                  <p className="text-lg font-semibold">{formatPreviewPercent(previewSavingsRate)}</p>
+                </div>
+              </div>
+
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       {/* Basic Information */}
                       <div className="space-y-4">
                         <h3 className="text-lg font-semibold">Basic Information</h3>
@@ -671,7 +646,15 @@ export default function AdminWealth() {
                     </div>
 
                     <div className="flex justify-end gap-2 pt-6">
-                      <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} data-testid="button-cancel">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setEditingItem(null);
+                          setIsDialogOpen(false);
+                        }}
+                        data-testid="button-cancel"
+                      >
                         Cancel
                       </Button>
                       <Button type="submit" data-testid="button-submit">
@@ -680,120 +663,119 @@ export default function AdminWealth() {
                     </div>
                   </form>
                 </Form>
-                </DialogContent>
-              </Dialog>
-            </div>
+              </DialogContent>
+            </Dialog>
           </div>
-
-          {/* Wealth Data Table */}
-          <div className="space-y-4">
-            {/* Search and Filter Controls */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Search wealth data..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                  data-testid="input-search-wealth"
-                />
-              </div>
-              <div className="flex gap-2">
-                {selectedItems.size > 0 && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleBulkDelete}
-                    data-testid="button-bulk-delete"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete Selected ({selectedItems.size})
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {isLoading ? (
-              <div className="space-y-3">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-16 bg-muted rounded-lg animate-pulse" />
-                ))}
-              </div>
-            ) : filteredWealthData.length === 0 ? (
-              <div className="text-center py-12">
-                <TrendingUp className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">No wealth data yet</h3>
-                <p className="text-muted-foreground mb-4">Start tracking your financial journey by adding your first wealth snapshot.</p>
-                <Button onClick={() => setIsDialogOpen(true)} data-testid="button-add-first-wealth">
-                  <PlusCircle className="w-4 h-4 mr-2" />
-                  Add Your First Wealth Data
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {filteredWealthData.map((item) => (
-                  <Card key={item.id} className="hover:shadow-md transition-shadow">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {getCategoryIcon(item.category)}
-                          <div>
-                            <h3 className="text-lg font-semibold" data-testid={`text-wealth-date-${item.id}`}>
-                              {format(new Date(item.date), "MMMM d, yyyy")}
-                            </h3>
-                            <p className="text-sm text-muted-foreground" data-testid={`text-wealth-category-${item.id}`}>
-                              {item.category} • Net Worth: ${parseFloat(item.netWorth).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEdit(item)}
-                            data-testid={`button-edit-wealth-${item.id}`}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDelete(item.id)}
-                            data-testid={`button-delete-wealth-${item.id}`}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <p className="text-muted-foreground">Investments</p>
-                          <p className="font-medium">${parseFloat(item.investments).toLocaleString()}</p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Cash</p>
-                          <p className="font-medium">${parseFloat(item.cash).toLocaleString()}</p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Liabilities</p>
-                          <p className="font-medium">${parseFloat(item.liabilities).toLocaleString()}</p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Savings Rate</p>
-                          <p className="font-medium">{parseFloat(item.savingsRate)}%</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+        }
+      >
+      <section className="space-y-4">
+        {/* Search and Filter Controls */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search wealth data..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+              data-testid="input-search-wealth"
+            />
+          </div>
+          <div className="flex gap-2">
+            {selectedItems.size > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleBulkDelete}
+                data-testid="button-bulk-delete"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Selected ({selectedItems.size})
+              </Button>
             )}
           </div>
         </div>
-      </div>
-    </div>
+
+        {wealthLoading ? (
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-16 rounded-lg bg-muted animate-pulse" />
+            ))}
+          </div>
+        ) : filteredWealthData.length === 0 ? (
+          <div className="py-12 text-center">
+            <TrendingUp className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+            <h3 className="mb-2 text-lg font-medium text-foreground">No wealth data yet</h3>
+            <p className="mb-4 text-muted-foreground">
+              Start tracking your financial journey by adding your first wealth snapshot.
+            </p>
+            <Button onClick={() => setIsDialogOpen(true)} data-testid="button-add-first-wealth">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Your First Wealth Data
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredWealthData.map((item) => (
+              <Card key={item.id} className="transition-shadow hover:shadow-md">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {getCategoryIcon(item.category)}
+                      <div>
+                        <h3 className="text-lg font-semibold" data-testid={`text-wealth-date-${item.id}`}>
+                          {format(new Date(item.date), "MMMM d, yyyy")}
+                        </h3>
+                        <p className="text-sm text-muted-foreground" data-testid={`text-wealth-category-${item.id}`}>
+                          {item.category} • Net Worth: ${parseFloat(item.netWorth).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(item)}
+                        data-testid={`button-edit-wealth-${item.id}`}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(item.id)}
+                        data-testid={`button-delete-wealth-${item.id}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
+                    <div>
+                      <p className="text-muted-foreground">Investments</p>
+                      <p className="font-medium">${parseFloat(item.investments).toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Cash</p>
+                      <p className="font-medium">${parseFloat(item.cash).toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Liabilities</p>
+                      <p className="font-medium">${parseFloat(item.liabilities).toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Savings Rate</p>
+                      <p className="font-medium">{parseFloat(item.savingsRate)}%</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
+    </AdminLayout>
   );
 }
