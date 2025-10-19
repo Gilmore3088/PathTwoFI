@@ -16,13 +16,19 @@ export function Footer() {
                 Tracking our combined journey to financial independence through data-driven wealth tracking and transparent reporting.
               </p>
               <div className="flex space-x-4">
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-social-twitter">
+                <a
+                  href="#"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                  data-testid="link-social-twitter"
+                >
                   <Twitter className="h-5 w-5" />
                 </a>
-                <Link href="/contact" data-testid="link-social-email">
-                  <a className="text-muted-foreground hover:text-primary transition-colors">
-                    <Mail className="h-5 w-5" />
-                  </a>
+                <Link
+                  href="/contact"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                  data-testid="link-social-email"
+                >
+                  <Mail className="h-5 w-5" />
                 </Link>
               </div>
             </div>
@@ -30,18 +36,50 @@ export function Footer() {
             <div>
               <h3 className="font-semibold text-foreground mb-4">Content</h3>
               <ul className="space-y-2">
-                <li><Link href="/blog" data-testid="link-footer-blog"><a className="text-muted-foreground hover:text-foreground transition-colors">Blog Posts</a></Link></li>
-                <li><Link href="/dashboard" data-testid="link-footer-dashboard"><a className="text-muted-foreground hover:text-foreground transition-colors">Wealth Dashboard</a></Link></li>
+                <li>
+                  <Link
+                    href="/blog"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    data-testid="link-footer-blog"
+                  >
+                    Blog Posts
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    data-testid="link-footer-dashboard"
+                  >
+                    Wealth Dashboard
+                  </Link>
+                </li>
                 <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-updates">Monthly Updates</a></li>
                 <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-strategy">Investment Strategy</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h3 className="font-semibold text-foreground mb-4">Resources</h3>
               <ul className="space-y-2">
-                <li><Link href="/about" data-testid="link-footer-about"><a className="text-muted-foreground hover:text-foreground transition-colors">About</a></Link></li>
-                <li><Link href="/contact" data-testid="link-footer-contact"><a className="text-muted-foreground hover:text-foreground transition-colors">Contact</a></Link></li>
+                <li>
+                  <Link
+                    href="/about"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    data-testid="link-footer-about"
+                  >
+                    About
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/contact"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    data-testid="link-footer-contact"
+                  >
+                    Contact
+                  </Link>
+                </li>
                 <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-privacy">Privacy Policy</a></li>
               </ul>
             </div>
