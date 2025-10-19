@@ -38,7 +38,12 @@ export default function Home() {
   const investmentsFormatted = latestWealth ? parseFloat(latestWealth.investments).toLocaleString() : "0";
   const savingsRate = latestWealth ? parseFloat(latestWealth.savingsRate) : 0;
   const currentNetWorth = latestWealth ? parseFloat(latestWealth.netWorth) : 0;
-  const yearsToFire = latestWealth ? ((FIRE_TARGET - currentNetWorth) / (currentNetWorth * savingsRate / 100 / 12)).toFixed(1) : "0";
+  const monthlySavingsAmount = latestWealth ? parseFloat(latestWealth.monthlySavings ?? "0") : 0;
+  const remainingToTarget = Math.max(FIRE_TARGET - currentNetWorth, 0);
+  const yearsToFireValue = monthlySavingsAmount > 0 ? (remainingToTarget / monthlySavingsAmount) / 12 : null;
+  const yearsToFire = yearsToFireValue !== null && Number.isFinite(yearsToFireValue)
+    ? yearsToFireValue.toFixed(1)
+    : "—";
 
   return (
     <div>
@@ -152,7 +157,7 @@ export default function Home() {
                 />
                 <MetricCard
                   title="Savings Rate"
-                  value={`${savingsRate}%`}
+                  value={`${savingsRate.toFixed(1)}%`}
                   change="of gross income"
                   icon={PiggyBank}
                   iconColor="text-accent"
@@ -160,8 +165,8 @@ export default function Home() {
                 <MetricCard
                   title="Years to FIRE"
                   value={yearsToFire}
-                  change="-0.4 years"
-                  changeType="positive"
+                  change={monthlySavingsAmount > 0 ? "at current savings pace" : "add monthly savings to estimate"}
+                  changeType={monthlySavingsAmount > 0 ? "positive" : "neutral"}
                   icon={Calendar}
                   iconColor="text-chart-4"
                 />

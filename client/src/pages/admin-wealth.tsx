@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -102,6 +103,49 @@ export default function AdminWealth() {
       monthlySavings: "0"
     }
   });
+
+  const parseAmount = (value: unknown) => {
+    if (typeof value === "number") return value;
+    if (typeof value === "string") {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
+  };
+
+  const watchedIncome = form.watch("monthlyIncome");
+  const watchedExpenses = form.watch("monthlyExpenses");
+
+  useEffect(() => {
+    if (!autoSavingsEnabled) return;
+    const income = parseAmount(watchedIncome);
+    const expenses = parseAmount(watchedExpenses);
+    const calculatedSavings = income - expenses;
+    if (Number.isFinite(calculatedSavings)) {
+      const currentSavings = parseAmount(form.getValues("monthlySavings"));
+      if (Math.abs(currentSavings - calculatedSavings) > 0.5) {
+        form.setValue("monthlySavings", calculatedSavings.toFixed(2), { shouldDirty: true });
+      }
+    }
+  }, [watchedIncome, watchedExpenses, form, autoSavingsEnabled]);
+
+  const watchedValues = form.watch();
+  const previewNetWorth = parseAmount(watchedValues.netWorth);
+  const previewLiabilities = parseAmount(watchedValues.liabilities);
+  const previewCash = parseAmount(watchedValues.cash);
+  const previewInvestments = parseAmount(watchedValues.investments);
+  const previewSavingsRate = parseAmount(watchedValues.savingsRate);
+  const previewMonthlySavings = parseAmount(watchedValues.monthlySavings);
+  const formatPreviewCurrency = (value: number) => `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  const formatPreviewPercent = (value: number) => `${value.toFixed(1)}%`;
+
+  useEffect(() => {
+    if (editingItem) {
+      setAutoSavingsEnabled(false);
+    } else {
+      setAutoSavingsEnabled(true);
+    }
+  }, [editingItem]);
 
   // Create/Update mutation
   const createMutation = useMutation({
@@ -245,6 +289,7 @@ export default function AdminWealth() {
       autoLoans: item.autoLoans || "0"
     });
     setIsDialogOpen(true);
+    setAutoSavingsEnabled(false);
   };
 
   const handleDelete = (id: string) => {

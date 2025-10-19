@@ -227,6 +227,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/wealth-data/summary", async (req, res) => {
+    try {
+      const categoryParam = req.query.category as string | undefined;
+      const requestedCategories = categoryParam ? [categoryParam] : ["Both", "His", "Her"];
+
+      const parseAmount = (value: string | number | null | undefined): number => {
+        if (value === null || value === undefined) return 0;
+        if (typeof value === "number") return value;
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : 0;
+      };
+
+      const summaries = await Promise.all(
+        requestedCategories.map(async (category) => {
+          const entries = await storage.getWealthData(category);
+          if (!entries.length) {
+            return {
+              category,
+              totalEntries: 0,
+              range: null,
+              latest: null,
+              monthlyGrowth: 0,
+              averageSavingsRate: 0,
+              trend: [],
+              assetAllocation: null,
+              debtBreakdown: null,
+              cashFlow: null,
+            };
+          }
+
+          const lastEntry = entries[entries.length - 1];
+          const previousEntry = entries.length > 1 ? entries[entries.length - 2] : null;
+
+          const trend = entries.map((entry) => ({
+            id: entry.id,
+            date: entry.date,
+            netWorth: parseAmount(entry.netWorth),
+            investments: parseAmount(entry.investments),
+            cash: parseAmount(entry.cash),
+            liabilities: parseAmount(entry.liabilities),
+            savingsRate: parseAmount(entry.savingsRate),
+          }));
+
+          const latest = {
+            id: lastEntry.id,
+            date: lastEntry.date,
+            category: lastEntry.category,
+            netWorth: parseAmount(lastEntry.netWorth),
+            investments: parseAmount(lastEntry.investments),
+            cash: parseAmount(lastEntry.cash),
+            liabilities: parseAmount(lastEntry.liabilities),
+            fireTarget: parseAmount(lastEntry.fireTarget),
+            savingsRate: parseAmount(lastEntry.savingsRate),
+            monthlyIncome: parseAmount(lastEntry.monthlyIncome),
+            monthlyExpenses: parseAmount(lastEntry.monthlyExpenses),
+            monthlySavings: parseAmount(lastEntry.monthlySavings),
+          };
+
+          const monthlyGrowth = previousEntry
+            ? ((parseAmount(lastEntry.netWorth) - parseAmount(previousEntry.netWorth)) /
+                Math.max(parseAmount(previousEntry.netWorth), 1)) * 100
+            : 0;
+
+          const averageSavingsRate =
+            trend.reduce((total, entry) => total + entry.savingsRate, 0) / trend.length;
+
+          const assetAllocationRaw = {
+            investments: parseAmount(lastEntry.investments),
+            cash: parseAmount(lastEntry.cash),
+            retirement: parseAmount(lastEntry.retirement401k) +
+              parseAmount(lastEntry.retirementIRA) +
+              parseAmount(lastEntry.retirementRoth) +
+              parseAmount(lastEntry.hsa),
+            realEstate: parseAmount(lastEntry.realEstate),
+            alternatives:
+              parseAmount(lastEntry.crypto) +
+              parseAmount(lastEntry.commodities) +
+              parseAmount(lastEntry.alternativeInvestments),
+          };
+
+          const assetAllocationTotal = Object.values(assetAllocationRaw).reduce(
+            (total, value) => total + value,
+            0,
+          );
+
+          const assetAllocation = assetAllocationTotal > 0
+            ? Object.entries(assetAllocationRaw).map(([label, value]) => ({
+                label,
+                value,
+                percentage: (value / assetAllocationTotal) * 100,
+              }))
+            : null;
+
+          const debtBreakdownRaw = {
+            mortgage: parseAmount(lastEntry.mortgage),
+            creditCards: parseAmount(lastEntry.creditCards),
+            studentLoans: parseAmount(lastEntry.studentLoans),
+            autoLoans: parseAmount(lastEntry.autoLoans),
+            personalLoans: parseAmount(lastEntry.personalLoans),
+            otherDebts: parseAmount(lastEntry.otherDebts),
+          };
+
+          const debtTotal = Object.values(debtBreakdownRaw).reduce((total, value) => total + value, 0);
+
+          const debtBreakdown = debtTotal > 0
+            ? Object.entries(debtBreakdownRaw).map(([label, value]) => ({
+                label,
+                value,
+                percentage: (value / debtTotal) * 100,
+              }))
+            : null;
+
+          const cashFlow = {
+            income: latest.monthlyIncome,
+            expenses: latest.monthlyExpenses,
+            savings: latest.monthlySavings,
+          };
+
+          return {
+            category,
+            totalEntries: entries.length,
+            range: {
+              start: entries[0].date,
+              end: lastEntry.date,
+            },
+            latest,
+            monthlyGrowth,
+            averageSavingsRate,
+            trend,
+            assetAllocation,
+            debtBreakdown,
+            cashFlow,
+          };
+        }),
+      );
+
+      res.json({ categories: summaries });
+    } catch (error) {
+      console.error("Failed to build wealth data summary", error);
+      res.status(500).json({ message: "Failed to build wealth data summary" });
+    }
+  });
+
   app.get("/api/wealth-data/latest", async (req, res) => {
     try {
       const category = req.query.category as string | undefined;
