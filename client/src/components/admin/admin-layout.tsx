@@ -1,11 +1,12 @@
 import { ReactNode, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { adminRoutes } from "./admin-routes";
 import { LogOut, Shield } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface AdminLayoutProps {
   title: string;
@@ -91,14 +92,18 @@ export function AdminLayout({ title, description, actions, children, seo, titleT
                 (route.href !== "/admin" && location.startsWith(route.href));
 
               return (
-                <Link key={route.href} href={route.href}>
-                  <Button
-                    size="sm"
-                    variant={isActive ? "default" : "ghost"}
-                    className="font-medium"
-                  >
-                    {route.label}
-                  </Button>
+                <Link
+                  key={route.href}
+                  href={route.href}
+                  className={cn(
+                    buttonVariants({
+                      size: "sm",
+                      variant: isActive ? "default" : "ghost",
+                    }),
+                    "font-medium"
+                  )}
+                >
+                  {route.label}
                 </Link>
               );
             })}
