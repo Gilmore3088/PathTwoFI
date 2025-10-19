@@ -8,14 +8,14 @@ import { TrendingUp, Wallet, PiggyBank, Calendar, ChartArea, DollarSign, Target 
 import { FIRE_TARGET } from "@/lib/constants";
 
 export default function Dashboard() {
-  // Fetch all wealth data for "Both" category for charts
+  // Fetch all wealth data (all categories) for charts
   const { data: wealthData, isLoading: wealthLoading } = useQuery<WealthData[]>({
-    queryKey: ["/api/wealth-data?category=Both"],
+    queryKey: ["/api/wealth-data"],
   });
 
-  // Fetch latest wealth data for "Both" category for current metrics
+  // Fetch latest wealth data (all categories) for current metrics
   const { data: latestWealth, isLoading: latestLoading } = useQuery<WealthData>({
-    queryKey: ["/api/wealth-data/latest?category=Both"],
+    queryKey: ["/api/wealth-data/latest"],
   });
 
   const formatCurrency = (amount: string | number | null | undefined) => {
