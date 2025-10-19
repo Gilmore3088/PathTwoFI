@@ -358,15 +358,13 @@ export default function About() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild data-testid="button-contact">
                 <Link href="/contact">
-                  <span className="inline-flex items-center">
-                    <Mail className="w-4 h-4 mr-2" />
-                    Get in Touch
-                  </span>
+                  <Mail className="w-4 h-4 mr-2" />
+                  Get in Touch
                 </Link>
               </Button>
               <Button variant="outline" asChild data-testid="button-blog">
                 <Link href="/blog">
-                  <span>Read the Blog</span>
+                  Read the Blog
                 </Link>
               </Button>
             </div>
