@@ -57,11 +57,11 @@ export function Offline() {
           </div>
           
           <div className="pt-4 border-t border-border">
-            <Link href="/" data-testid="link-home-offline">
-              <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" asChild>
+              <Link href="/" data-testid="link-home-offline">
                 Go to Homepage
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
