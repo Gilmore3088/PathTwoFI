@@ -16,6 +16,7 @@ import AdminWealth from "@/pages/admin-wealth";
 import AdminBlog from "@/pages/admin-blog";
 import AdminGoals from "@/pages/admin-goals";
 import AdminMessages from "@/pages/admin-messages";
+import AdminInsights from "@/pages/admin-insights";
 import NotFound from "@/pages/not-found";
 import { Offline } from "@/pages/offline";
 
@@ -29,6 +30,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       <Route path="/admin" component={AdminHome} />
+      <Route path="/admin/insights" component={AdminInsights} />
       <Route path="/admin/wealth" component={AdminWealth} />
       <Route path="/admin/blog" component={AdminBlog} />
       <Route path="/admin/goals" component={AdminGoals} />

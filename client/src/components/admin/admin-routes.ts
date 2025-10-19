@@ -1,11 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import {
-  LayoutDashboard,
-  TrendingUp,
-  FileText,
-  Target,
-  MessageSquare,
-} from "lucide-react";
+import { LayoutDashboard, TrendingUp, FileText, Target, MessageSquare, Activity } from "lucide-react";
 
 export interface AdminRouteConfig {
   href: string;
@@ -22,6 +16,14 @@ export const adminRoutes: AdminRouteConfig[] = [
     label: "Dashboard",
     icon: LayoutDashboard,
     description: "Overview of PathTwo administration tools",
+  },
+  {
+    href: "/admin/insights",
+    label: "My Insights",
+    icon: Activity,
+    color: "bg-teal-500",
+    description: "Private analytics across traffic, content, and SEO",
+    stats: "Updated daily",
   },
   {
     href: "/admin/wealth",
