@@ -9,7 +9,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/ui/seo";
-import { TrendingUp, Wallet, PiggyBank, Calendar, Target, DollarSign, Shield, ListChecks } from "lucide-react";
+import { TrendingUp, Wallet, PiggyBank, Calendar, ChartArea, DollarSign, Target, Users, User, Heart } from "lucide-react";
 import { FIRE_TARGET } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -67,11 +67,31 @@ type WealthSummaryResponse = {
 export default function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState<"Both" | "His" | "Her">("Both");
 
-  const { data, isLoading, isError } = useQuery<WealthSummaryResponse>({
-    queryKey: ["/api/wealth-data/summary"],
+  // Fetch all wealth data for selected category for charts
+  const { data: wealthData, isLoading: wealthLoading } = useQuery<WealthData[]>({
+    queryKey: ["/api/wealth-data", selectedCategory],
+    queryFn: async () => {
+      const response = await fetch(`/api/wealth-data?category=${selectedCategory}`);
+      return response.json();
+    }
   });
 
-  const summary = data?.categories.find((category) => category.category === selectedCategory) ?? null;
+  // Fetch latest wealth data for selected category for current metrics
+  const { data: latestWealth, isLoading: latestLoading } = useQuery<WealthData>({
+    queryKey: ["/api/wealth-data/latest", selectedCategory],
+    queryFn: async () => {
+      const response = await fetch(`/api/wealth-data/latest?category=${selectedCategory}`);
+      if (!response.ok) {
+        return undefined;
+      }
+      return response.json();
+    }
+  });
+
+  const summary = useMemo(
+    () => data?.categories.find((category) => category.category === selectedCategory) ?? null,
+    [data, selectedCategory],
+  );
 
   const latest = summary?.latest ?? null;
   const target = latest?.fireTarget || FIRE_TARGET;
@@ -166,7 +186,8 @@ export default function Dashboard() {
       />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-12">
+          {/* Header */}
+          <div className="mb-8">
             <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-4" data-testid="text-dashboard-title">
               Wealth Dashboard
             </h1>
@@ -175,46 +196,53 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="flex items-center gap-3">
-                <Badge variant="outline" className="text-sm">
-                  Updated {latest ? format(new Date(latest.date), "PPP") : "soon"}
-                </Badge>
-                {summary?.range && (
-                  <span className="text-sm text-muted-foreground">
-                    Tracking since {format(new Date(summary.range.start), "MMMM yyyy")}
-                  </span>
-                )}
-              </div>
-              {summary?.totalEntries ? (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {summary.totalEntries} recorded updates • Category: {selectedCategory}
-                </p>
-              ) : (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Add your first wealth entry from the admin dashboard to populate these insights.
-                </p>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {["Both", "His", "Her"].map((category) => (
-                <button
-                  key={category}
-                  className={cn(
-                    buttonVariants({ variant: selectedCategory === category ? "default" : "outline", size: "sm" }),
-                    "capitalize",
-                  )}
-                  onClick={() => setSelectedCategory(category as typeof selectedCategory)}
-                  data-testid={`toggle-category-${category.toLowerCase()}`}
-                >
-                  {category === "Both" ? "Both (Combined)" : category}
-                </button>
-              ))}
-            </div>
+          {/* Category Selector */}
+          <div className="flex justify-center gap-3 mb-12">
+            <Button
+              variant={selectedCategory === "Both" ? "default" : "outline"}
+              onClick={() => setSelectedCategory("Both")}
+              data-testid="button-category-both"
+              className="flex items-center gap-2"
+            >
+              <Users className="w-4 h-4" />
+              Both (Combined)
+            </Button>
+            <Button
+              variant={selectedCategory === "His" ? "default" : "outline"}
+              onClick={() => setSelectedCategory("His")}
+              data-testid="button-category-his"
+              className="flex items-center gap-2"
+            >
+              <User className="w-4 h-4" />
+              His
+            </Button>
+            <Button
+              variant={selectedCategory === "Her" ? "default" : "outline"}
+              onClick={() => setSelectedCategory("Her")}
+              data-testid="button-category-her"
+              className="flex items-center gap-2"
+            >
+              <Heart className="w-4 h-4" />
+              Hers
+            </Button>
           </div>
 
-          {hasData && latest && (
+          {/* No Data Message */}
+          {!latestLoading && !latestWealth && (
+            <div className="text-center py-16 bg-muted/30 rounded-xl mb-12">
+              <ChartArea className="h-16 w-16 text-muted-foreground mb-4 mx-auto" />
+              <h3 className="text-xl font-semibold text-foreground mb-2">No Data Available</h3>
+              <p className="text-muted-foreground mb-4">
+                No wealth data found for "{selectedCategory}" category.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Try selecting a different category or add wealth data from the admin panel.
+              </p>
+            </div>
+          )}
+
+          {/* FIRE Progress Section */}
+          {latestWealth && (
             <div className="mb-12">
               <h2 className="text-2xl font-bold text-foreground mb-6 text-center" data-testid="text-fire-progress-title">
                 FIRE Progress

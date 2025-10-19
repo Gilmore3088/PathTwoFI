@@ -216,7 +216,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Wealth data routes
+  // Wealth data routes (public read, admin write)
   app.get("/api/wealth-data", async (req, res) => {
     try {
       const category = req.query.category as string | undefined;

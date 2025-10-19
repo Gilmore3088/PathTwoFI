@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +29,7 @@ export default function AdminWealth() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState<string>("all");
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-  const [autoSavingsEnabled, setAutoSavingsEnabled] = useState(true);
+  const [isQuickMode, setIsQuickMode] = useState(true);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -324,6 +324,47 @@ export default function AdminWealth() {
     }
   };
 
+  const loadFromLatest = useCallback(() => {
+    if (allWealthData.length === 0) return;
+    
+    const latest = allWealthData[0];
+    form.reset({
+      date: new Date(),
+      category: latest.category as "Both" | "His" | "Her",
+      netWorth: latest.netWorth,
+      investments: latest.investments,
+      cash: latest.cash,
+      liabilities: latest.liabilities,
+      fireTarget: latest.fireTarget || "1000000.00",
+      savingsRate: latest.savingsRate,
+      stocks: latest.stocks || "0",
+      bonds: latest.bonds || "0",
+      realEstate: latest.realEstate || "0",
+      crypto: latest.crypto || "0",
+      commodities: latest.commodities || "0",
+      alternativeInvestments: latest.alternativeInvestments || "0",
+      mortgage: latest.mortgage || "0",
+      creditCards: latest.creditCards || "0",
+      studentLoans: latest.studentLoans || "0",
+      autoLoans: latest.autoLoans || "0",
+      personalLoans: latest.personalLoans || "0",
+      otherDebts: latest.otherDebts || "0",
+      checkingAccounts: latest.checkingAccounts || "0",
+      savingsAccounts: latest.savingsAccounts || "0",
+      retirement401k: latest.retirement401k || "0",
+      retirementIRA: latest.retirementIRA || "0",
+      retirementRoth: latest.retirementRoth || "0",
+      hsa: latest.hsa || "0",
+      monthlyIncome: latest.monthlyIncome || "0",
+      monthlyExpenses: latest.monthlyExpenses || "0",
+      monthlySavings: latest.monthlySavings || "0"
+    });
+    
+    toast({
+      description: "Loaded values from latest entry. Date set to today."
+    });
+  }, [allWealthData, form, toast]);
+
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case "Both": return <Users className="w-5 h-5 text-blue-500" />;
@@ -362,31 +403,6 @@ export default function AdminWealth() {
               <DialogHeader>
                 <DialogTitle>{editingItem ? "Edit" : "Add"} Wealth Data</DialogTitle>
               </DialogHeader>
-
-              <div className="grid gap-4 rounded-lg border border-border bg-muted/40 p-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div>
-                  <p className="text-xs uppercase text-muted-foreground">Projected Net Worth</p>
-                  <p className="text-lg font-semibold">{formatPreviewCurrency(previewNetWorth)}</p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase text-muted-foreground">Investments</p>
-                  <p className="text-lg font-semibold">{formatPreviewCurrency(previewInvestments)}</p>
-                </div>
-                <div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="uppercase">Monthly Savings</span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">Auto</span>
-                      <Switch checked={autoSavingsEnabled} onCheckedChange={setAutoSavingsEnabled} />
-                    </div>
-                  </div>
-                  <p className="text-lg font-semibold">{formatPreviewCurrency(previewMonthlySavings)}</p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase text-muted-foreground">Savings Rate</p>
-                  <p className="text-lg font-semibold">{formatPreviewPercent(previewSavingsRate)}</p>
-                </div>
-              </div>
 
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
