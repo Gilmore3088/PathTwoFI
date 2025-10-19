@@ -73,7 +73,7 @@ export default function Home() {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild data-testid="button-read-posts">
-                <Link href="#featured-posts">
+                <Link href="#featured-posts" className="inline-flex items-center justify-center">
                   Read Latest Posts
                   <ArrowDown className="ml-2 h-4 w-4" />
                 </Link>
@@ -83,7 +83,7 @@ export default function Home() {
                 asChild
                 data-testid="button-view-dashboard"
               >
-                <Link href="/dashboard">
+                <Link href="/dashboard" className="inline-flex items-center justify-center">
                   View Dashboard
                   <ChartArea className="ml-2 h-4 w-4" />
                 </Link>
@@ -224,7 +224,7 @@ export default function Home() {
             
             <div className="text-center mt-12">
               <Button variant="outline" asChild data-testid="button-view-all-posts">
-                <Link href="/blog">
+                <Link href="/blog" className="inline-flex items-center justify-center">
                   View All Posts
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>

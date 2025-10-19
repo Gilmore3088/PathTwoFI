@@ -107,7 +107,7 @@ export default function AdminHome() {
                     asChild
                     data-testid={action.testId}
                   >
-                    <Link href={action.href}>
+                    <Link href={action.href} className="inline-flex items-center">
                       {IconComponent ? <IconComponent className="mr-2 h-4 w-4" /> : null}
                       {action.label}
                     </Link>

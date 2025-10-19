@@ -274,6 +274,13 @@ export default function AdminBlog() {
     form.reset();
   };
 
+  const handleDialogOpenChange = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) {
+      resetForm();
+    }
+  };
+
   const categories = [
     "Personal Reflections",
     "Wealth Progress",
@@ -286,6 +293,8 @@ export default function AdminBlog() {
     <AdminLayout
       title="Blog Post Management"
       description="Create and manage blog posts for the PathTwo journey"
+      titleTestId="text-admin-blog-title"
+      descriptionTestId="text-admin-blog-subtitle"
       seo={
         <SEO
           title="Admin Blog Management - PathTwo"
@@ -742,55 +751,85 @@ export default function AdminBlog() {
                           </div>
                         </div>
                       </div>
-                    </form>
-                  </Form>
-                </div>
+                </form>
+              </Form>
+            </div>
 
-                {/* Action Buttons - Fixed at bottom */}
-                <div className="shrink-0 pt-6 border-t bg-background">
-                  <div className="flex flex-wrap gap-3 justify-end">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsDialogOpen(false)}
-                      data-testid="button-cancel"
-                      className="h-11 px-6"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handlePreview}
-                      data-testid="button-preview"
-                      className="h-11 px-6"
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Preview
-                    </Button>
-                    <Button
-                      onClick={form.handleSubmit(onSubmit)}
-                      disabled={createMutation.isPending || updateMutation.isPending}
-                      data-testid="button-save-post"
-                      className="h-11 px-8"
-                    >
-                      {createMutation.isPending || updateMutation.isPending ? (
-                        <>
-                          <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          {editingItem ? "Updating..." : "Creating..."}
-                        </>
-                      ) : (
-                        <>
-                          {editingItem ? "Update Post" : "Create Post"}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </section>
+            {/* Action Buttons - Fixed at bottom */}
+            <div className="shrink-0 pt-6 border-t bg-background">
+              <div className="flex flex-wrap gap-3 justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
+                  data-testid="button-cancel"
+                  className="h-11 px-6"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handlePreview}
+                  data-testid="button-preview"
+                  className="h-11 px-6"
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Preview
+                </Button>
+                <Button
+                  onClick={form.handleSubmit(onSubmit)}
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                  data-testid="button-save-post"
+                  className="h-11 px-8"
+                >
+                  {createMutation.isPending || updateMutation.isPending ? (
+                    <>
+                      <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      {editingItem ? "Updating..." : "Creating..."}
+                    </>
+                  ) : (
+                    <>
+                      {editingItem ? "Update Post" : "Create Post"}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      }
+    >
+      <div className="max-w-7xl mx-auto space-y-10">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>Blog Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-testid="stats-blog-overview">
+              <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+                <span className="text-muted-foreground">Total</span>
+                <span className="font-semibold text-foreground">{postStats.total}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+                <span className="text-muted-foreground">Published</span>
+                <span className="font-semibold text-green-600">{postStats.published}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+                <span className="text-muted-foreground">Drafts</span>
+                <span className="font-semibold text-yellow-600">{postStats.drafts}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+                <span className="text-muted-foreground">Scheduled</span>
+                <span className="font-semibold text-purple-600">{postStats.scheduled}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3 sm:col-span-2 lg:col-span-1">
+                <span className="text-muted-foreground">Featured</span>
+                <span className="font-semibold text-blue-600">{postStats.featured}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <section className="space-y-6">
           {/* Search and Filters */}
