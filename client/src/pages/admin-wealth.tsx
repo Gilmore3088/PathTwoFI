@@ -28,6 +28,7 @@ export default function AdminWealth() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState<string>("all");
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [isQuickMode, setIsQuickMode] = useState(true);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -278,6 +279,47 @@ export default function AdminWealth() {
     }
   };
 
+  const loadFromLatest = useCallback(() => {
+    if (allWealthData.length === 0) return;
+    
+    const latest = allWealthData[0];
+    form.reset({
+      date: new Date(),
+      category: latest.category as "Both" | "His" | "Her",
+      netWorth: latest.netWorth,
+      investments: latest.investments,
+      cash: latest.cash,
+      liabilities: latest.liabilities,
+      fireTarget: latest.fireTarget || "1000000.00",
+      savingsRate: latest.savingsRate,
+      stocks: latest.stocks || "0",
+      bonds: latest.bonds || "0",
+      realEstate: latest.realEstate || "0",
+      crypto: latest.crypto || "0",
+      commodities: latest.commodities || "0",
+      alternativeInvestments: latest.alternativeInvestments || "0",
+      mortgage: latest.mortgage || "0",
+      creditCards: latest.creditCards || "0",
+      studentLoans: latest.studentLoans || "0",
+      autoLoans: latest.autoLoans || "0",
+      personalLoans: latest.personalLoans || "0",
+      otherDebts: latest.otherDebts || "0",
+      checkingAccounts: latest.checkingAccounts || "0",
+      savingsAccounts: latest.savingsAccounts || "0",
+      retirement401k: latest.retirement401k || "0",
+      retirementIRA: latest.retirementIRA || "0",
+      retirementRoth: latest.retirementRoth || "0",
+      hsa: latest.hsa || "0",
+      monthlyIncome: latest.monthlyIncome || "0",
+      monthlyExpenses: latest.monthlyExpenses || "0",
+      monthlySavings: latest.monthlySavings || "0"
+    });
+    
+    toast({
+      description: "Loaded values from latest entry. Date set to today."
+    });
+  }, [allWealthData, form, toast]);
+
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case "Both": return <Users className="w-5 h-5 text-blue-500" />;
@@ -317,8 +359,176 @@ export default function AdminWealth() {
                 <DialogTitle>{editingItem ? "Edit" : "Add"} Wealth Data</DialogTitle>
               </DialogHeader>
 
+              {!editingItem && (
+                <div className="flex gap-2 pb-4 border-b">
+                  <Button
+                    type="button"
+                    variant={isQuickMode ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setIsQuickMode(true)}
+                    data-testid="button-quick-mode"
+                  >
+                    Quick Mode (8 fields)
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={!isQuickMode ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setIsQuickMode(false)}
+                    data-testid="button-detailed-mode"
+                  >
+                    Detailed Mode
+                  </Button>
+                  {allWealthData.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={loadFromLatest}
+                      className="ml-auto"
+                      data-testid="button-load-latest"
+                    >
+                      Load from Latest
+                    </Button>
+                  )}
+                </div>
+              )}
+
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  {isQuickMode && !editingItem ? (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold mb-4">Quick Entry - Essential Fields Only</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="date"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Date</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="date" 
+                                  {...field} 
+                                  value={field.value ? format(new Date(field.value), 'yyyy-MM-dd') : ''}
+                                  onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
+                                  data-testid="input-date" 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="category"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Category</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger data-testid="select-category">
+                                    <SelectValue placeholder="Select category" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="His">His</SelectItem>
+                                  <SelectItem value="Her">Her</SelectItem>
+                                  <SelectItem value="Both">Both (Combined)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="netWorth"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Net Worth ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-net-worth" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="investments"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Investments ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-investments" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="cash"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Cash ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-cash" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="liabilities"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Liabilities ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-liabilities" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="fireTarget"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>FIRE Target ($)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="1000000.00" {...field} value={field.value || ""} data-testid="input-fire-target" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="savingsRate"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Savings Rate (%)</FormLabel>
+                              <FormControl>
+                                <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value || ""} data-testid="input-savings-rate" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  ) : (
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       {/* Basic Information */}
                       <div className="space-y-4">
@@ -573,6 +783,7 @@ export default function AdminWealth() {
                         </div>
                       </div>
                     </div>
+                  )}
 
                     <div className="flex justify-end gap-2 pt-6">
                       <Button
