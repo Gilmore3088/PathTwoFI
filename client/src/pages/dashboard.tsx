@@ -330,18 +330,18 @@ export default function Dashboard() {
           ) : !latestLoading && !wealthLoading ? (
             <Card>
               <CardHeader>
-                <CardTitle>Waiting for your first update</CardTitle>
+                <CardTitle>Wealth Dashboard Coming Soon</CardTitle>
                 <CardDescription>
-                  The dashboard will spring to life after you log the first wealth snapshot in the admin tools.
+                  We're tracking our progress and will share updates here as we make progress toward FIRE.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-3">
-                  <Button asChild>
-                    <a href="/admin/wealth">Add wealth data</a>
+                  <Button variant="outline" asChild>
+                    <a href="/blog">Read our journey</a>
                   </Button>
                   <Button variant="outline" asChild>
-                    <a href="/blog">Read how we invest</a>
+                    <a href="/about">Learn about us</a>
                   </Button>
                 </div>
               </CardContent>
