@@ -9,8 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SEO } from "@/components/ui/seo";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
-import { apiRequest } from "@/lib/queryClient";
 import { TrendingUp, Wallet, PiggyBank, Calendar, ArrowDown, ArrowRight, ChartArea } from "lucide-react";
 import { FIRE_TARGET } from "@/lib/constants";
 
@@ -75,19 +73,19 @@ export default function Home() {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild data-testid="button-read-posts">
-                <Link href="#featured-posts">
-                  <a className="inline-flex items-center justify-center">
-                    Read Latest Posts
-                    <ArrowDown className="ml-2 h-4 w-4" />
-                  </a>
+                <Link href="#featured-posts" className="inline-flex items-center justify-center">
+                  Read Latest Posts
+                  <ArrowDown className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button variant="outline" asChild data-testid="button-view-dashboard">
-                <Link href="/dashboard">
-                  <a className="inline-flex items-center justify-center">
-                    View Dashboard
-                    <ChartArea className="ml-2 h-4 w-4" />
-                  </a>
+              <Button
+                variant="outline"
+                asChild
+                data-testid="button-view-dashboard"
+              >
+                <Link href="/dashboard" className="inline-flex items-center justify-center">
+                  View Dashboard
+                  <ChartArea className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
@@ -226,11 +224,9 @@ export default function Home() {
             
             <div className="text-center mt-12">
               <Button variant="outline" asChild data-testid="button-view-all-posts">
-                <Link href="/blog">
-                  <a className="inline-flex items-center justify-center">
-                    View All Posts
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </a>
+                <Link href="/blog" className="inline-flex items-center justify-center">
+                  View All Posts
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
