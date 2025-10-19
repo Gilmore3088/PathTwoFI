@@ -447,9 +447,21 @@ export default function AdminWealth() {
                 <Download className="w-4 h-4 mr-2" />
                 Export CSV
               </Button>
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) {
+                  setEditingItem(null);
+                  form.reset();
+                }
+              }}>
                 <DialogTrigger asChild>
-                  <Button data-testid="button-add-wealth">
+                  <Button 
+                    onClick={() => {
+                      setEditingItem(null);
+                      form.reset();
+                    }}
+                    data-testid="button-add-wealth"
+                  >
                     <PlusCircle className="w-4 h-4 mr-2" />
                     Add Wealth Data
                   </Button>
