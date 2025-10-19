@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/ui/seo";
 import { TrendingUp, Wallet, PiggyBank, Calendar, ChartArea, DollarSign, Target } from "lucide-react";
 import { FIRE_TARGET } from "@/lib/constants";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 export default function Dashboard() {
   // Fetch all wealth data (all categories) for charts
@@ -167,20 +168,37 @@ export default function Dashboard() {
                 <h3 className="text-lg font-semibold text-foreground" data-testid="text-net-worth-chart-title">
                   Net Worth Over Time
                 </h3>
-                <div className="flex space-x-2">
-                  <Button size="sm" data-testid="button-chart-6m">6M</Button>
-                  <Button size="sm" variant="outline" data-testid="button-chart-1y">1Y</Button>
-                  <Button size="sm" variant="outline" data-testid="button-chart-all">All</Button>
-                </div>
               </div>
               
-              <div className="h-64 bg-muted/30 rounded-lg flex items-center justify-center border-2 border-dashed border-border" data-testid="placeholder-net-worth-chart">
-                <div className="text-center">
-                  <ChartArea className="h-12 w-12 text-muted-foreground mb-2 mx-auto" />
-                  <p className="text-muted-foreground">Net Worth Trend Chart</p>
-                  <p className="text-xs text-muted-foreground mt-1">Line chart showing wealth growth over time</p>
+              {wealthData && wealthData.length > 0 ? (
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={wealthData.map(d => ({
+                      date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                      netWorth: parseFloat(d.netWorth),
+                      fireTarget: FIRE_TARGET
+                    }))}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis dataKey="date" className="text-xs" />
+                      <YAxis className="text-xs" tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
+                      <Tooltip 
+                        formatter={(value: number) => [`$${value.toLocaleString()}`, '']}
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                      />
+                      <Line type="monotone" dataKey="netWorth" stroke="hsl(var(--primary))" strokeWidth={2} name="Net Worth" />
+                      <Line type="monotone" dataKey="fireTarget" stroke="hsl(var(--muted-foreground))" strokeWidth={2} strokeDasharray="5 5" name="FIRE Target" />
+                    </LineChart>
+                  </ResponsiveContainer>
                 </div>
-              </div>
+              ) : (
+                <div className="h-64 bg-muted/30 rounded-lg flex items-center justify-center border-2 border-dashed border-border">
+                  <div className="text-center">
+                    <ChartArea className="h-12 w-12 text-muted-foreground mb-2 mx-auto" />
+                    <p className="text-muted-foreground">No wealth data yet</p>
+                    <p className="text-xs text-muted-foreground mt-1">Add wealth snapshots to see your progress</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Asset Allocation Chart */}
@@ -189,13 +207,52 @@ export default function Dashboard() {
                 Asset Allocation
               </h3>
               
-              <div className="h-64 bg-muted/30 rounded-lg flex items-center justify-center border-2 border-dashed border-border" data-testid="placeholder-allocation-chart">
-                <div className="text-center">
-                  <ChartArea className="h-12 w-12 text-muted-foreground mb-2 mx-auto" />
-                  <p className="text-muted-foreground">Asset Allocation Pie Chart</p>
-                  <p className="text-xs text-muted-foreground mt-1">Breakdown of investments, cash, and other assets</p>
+              {latestWealth ? (
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: 'Investments', value: parseFloat(latestWealth.investments || '0') },
+                          { name: 'Cash', value: parseFloat(latestWealth.cash || '0') },
+                          { name: 'Stocks', value: parseFloat(latestWealth.stocks || '0') },
+                          { name: 'Bonds', value: parseFloat(latestWealth.bonds || '0') },
+                          { name: 'Real Estate', value: parseFloat(latestWealth.realEstate || '0') },
+                          { name: 'Crypto', value: parseFloat(latestWealth.crypto || '0') }
+                        ].filter(item => item.value > 0)}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={(entry) => `${entry.name}: $${entry.value.toLocaleString()}`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {[
+                          'hsl(var(--primary))',
+                          'hsl(var(--secondary))',
+                          'hsl(var(--accent))',
+                          'hsl(var(--chart-3))',
+                          'hsl(var(--chart-4))',
+                          'hsl(var(--chart-5))'
+                        ].map((color, index) => (
+                          <Cell key={`cell-${index}`} fill={color} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
-              </div>
+              ) : (
+                <div className="h-64 bg-muted/30 rounded-lg flex items-center justify-center border-2 border-dashed border-border">
+                  <div className="text-center">
+                    <ChartArea className="h-12 w-12 text-muted-foreground mb-2 mx-auto" />
+                    <p className="text-muted-foreground">No asset data yet</p>
+                    <p className="text-xs text-muted-foreground mt-1">Add asset details to see allocation breakdown</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* FIRE Progress Chart */}
