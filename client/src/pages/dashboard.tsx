@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { ProgressIndicator } from "@/components/dashboard/progress-indicator";
@@ -9,10 +9,11 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/ui/seo";
-import { TrendingUp, Wallet, PiggyBank, Calendar, ChartArea, DollarSign, Target, Users, User, Heart } from "lucide-react";
+import { TrendingUp, Wallet, PiggyBank, Calendar, ChartArea, DollarSign, Target, Users, User, Heart, Shield, ListChecks } from "lucide-react";
 import { FIRE_TARGET } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { WealthData } from "@shared/schema";
 
 type AllocationPoint = {
   label: string;
@@ -67,29 +68,48 @@ type WealthSummaryResponse = {
 export default function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState<"Both" | "His" | "Her">("Both");
 
-  // Fetch all wealth data for selected category for charts
-  const { data: wealthData, isLoading: wealthLoading } = useQuery<WealthData[]>({
-    queryKey: ["/api/wealth-data", selectedCategory],
+  // Fetch wealth summary data with trends, allocations, and analytics
+  const { data, isLoading: summaryLoading, isError: summaryError } = useQuery<WealthSummaryResponse>({
+    queryKey: ["/api/wealth-data/summary"],
     queryFn: async () => {
-      const response = await fetch(`/api/wealth-data?category=${selectedCategory}`);
-      return response.json();
-    }
-  });
-
-  // Fetch latest wealth data for selected category for current metrics
-  const { data: latestWealth, isLoading: latestLoading } = useQuery<WealthData>({
-    queryKey: ["/api/wealth-data/latest", selectedCategory],
-    queryFn: async () => {
-      const response = await fetch(`/api/wealth-data/latest?category=${selectedCategory}`);
+      const response = await fetch('/api/wealth-data/summary');
       if (!response.ok) {
-        return undefined;
+        throw new Error('Failed to fetch wealth summary');
       }
       return response.json();
     }
   });
 
+  // Fetch all wealth data for selected category for charts
+  const { data: wealthData, isLoading: wealthLoading, isError: wealthError } = useQuery<WealthData[]>({
+    queryKey: ["/api/wealth-data", selectedCategory],
+    queryFn: async () => {
+      const response = await fetch(`/api/wealth-data?category=${selectedCategory}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch wealth data');
+      }
+      return response.json();
+    }
+  });
+
+  // Fetch latest wealth data for selected category for current metrics
+  const { data: latestWealth, isLoading: latestLoading, isError: latestError } = useQuery<WealthData>({
+    queryKey: ["/api/wealth-data/latest", selectedCategory],
+    queryFn: async () => {
+      const response = await fetch(`/api/wealth-data/latest?category=${selectedCategory}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch latest wealth data');
+      }
+      return response.json();
+    }
+  });
+
+  // Combined loading and error states
+  const isLoading = summaryLoading || wealthLoading || latestLoading;
+  const isError = summaryError || wealthError || latestError;
+
   const summary = useMemo(
-    () => data?.categories.find((category) => category.category === selectedCategory) ?? null,
+    () => data?.categories.find((category: WealthSummaryCategory) => category.category === selectedCategory) ?? null,
     [data, selectedCategory],
   );
 
@@ -242,7 +262,7 @@ export default function Dashboard() {
           )}
 
           {/* FIRE Progress Section */}
-          {latestWealth && (
+          {latestWealth && latest && (
             <div className="mb-12">
               <h2 className="text-2xl font-bold text-foreground mb-6 text-center" data-testid="text-fire-progress-title">
                 FIRE Progress

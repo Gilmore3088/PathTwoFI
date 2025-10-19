@@ -8,7 +8,6 @@ replit.nix
 .config
 .upm
 .cache
-.vite
 attached_assets
 
 # Database backups (don't commit production data!)
