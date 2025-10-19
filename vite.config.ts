@@ -3,6 +3,13 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
+const reactRoot = path.resolve(import.meta.dirname, "node_modules", "react");
+const reactDomRoot = path.resolve(
+  import.meta.dirname,
+  "node_modules",
+  "react-dom",
+);
+
 export default defineConfig({
   plugins: [
     react(),
@@ -30,6 +37,16 @@ export default defineConfig({
         "jsx-runtime.js",
       ),
     },
+    dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
+  },
+  optimizeDeps: {
+    include: [
+      "react",
+      "react-dom",
+      "react-dom/client",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+    ],
   },
   root: path.resolve(import.meta.dirname, "client"),
   build: {
