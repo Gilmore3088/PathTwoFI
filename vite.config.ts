@@ -1,46 +1,50 @@
+// vite.config.ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
-export default defineConfig(async () => {
-  const plugins = [react(), runtimeErrorOverlay()];
+// ⬇️ Replace with YOUR exact Replit host (the one you pasted from the console)
+const PUBLIC_HOST = "124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev";
 
-  if (process.env.NODE_ENV !== "production" && process.env.REPL_ID !== undefined) {
-    const { cartographer } = await import("@replit/vite-plugin-cartographer");
-    plugins.push(cartographer());
-  }
+export default defineConfig({
+  plugins: [
+    react(),
+    runtimeErrorOverlay(),
 
-  const isReplit = Boolean(process.env.REPL_ID);
-
-  return {
-    plugins,
-    resolve: {
-      alias: {
-        "@": path.resolve(import.meta.dirname, "client", "src"),
-        "@shared": path.resolve(import.meta.dirname, "shared"),
-        "@assets": path.resolve(import.meta.dirname, "attached_assets"),
-      },
-      // ensure single React instance at runtime
-      dedupe: ["react", "react-dom"],
+    // Re-enable later if you want; it can interfere with HMR host detection.
+    // (async () => {
+    //   if (process.env.NODE_ENV !== "production" && process.env.REPL_ID) {
+    //     const { cartographer } = await import("@replit/vite-plugin-cartographer");
+    //     return cartographer();
+    //   }
+    // })() as any,
+  ],
+  resolve: {
+    alias: {
+      "@": path.resolve(import.meta.dirname, "client", "src"),
+      "@shared": path.resolve(import.meta.dirname, "shared"),
+      "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
-    root: path.resolve(import.meta.dirname, "client"),
-    build: {
-      outDir: path.resolve(import.meta.dirname, "dist/public"),
-      emptyOutDir: true,
+    // Prevent multiple React copies (fixes invalid hook call / null.useState)
+    dedupe: ["react", "react-dom"],
+  },
+  root: path.resolve(import.meta.dirname, "client"),
+  build: {
+    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    emptyOutDir: true,
+  },
+  server: {
+    host: true,
+    port: 5173,
+    // Hard-pin HMR to your HTTPS host so it never tries ws://localhost:undefined
+    hmr: {
+      protocol: "wss",
+      host: PUBLIC_HOST,
+      clientPort: 443,
+      // Optional but helps prevent odd fallback paths:
+      path: "/hmr",
     },
-    server: {
-      host: true,
-      port: 5173,
-      hmr: isReplit
-        ? {
-            protocol: "wss",
-            clientPort: 443,
-            // If the socket still tries localhost, uncomment the next line and paste your public host
-            // host: "YOUR-REPLIT-HOST.spock.replit.dev",
-          }
-        : { protocol: "ws" },
-      fs: { strict: true, deny: ["**/.*"] },
-    },
-  };
+    fs: { strict: true, deny: ["**/.*"] },
+  },
 });
