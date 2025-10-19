@@ -22,7 +22,7 @@ export default defineConfig({
   },
   server: {
     allowedHosts: [
-      "124e58bb-b59a-460e-b6f1-5de8cc67e7fd-00-v5rfqdscqnt4.spock.replit.dev",
+      process.env.REPLIT_DEV_DOMAIN || "localhost",
       ".replit.dev"
     ],
   },
