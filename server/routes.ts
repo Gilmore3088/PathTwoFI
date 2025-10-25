@@ -560,6 +560,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/financial-goals/:id/complete", isAdmin, async (req, res) => {
+    try {
+      const goal = await storage.completeFinancialGoal(req.params.id);
+      if (!goal) {
+        return res.status(404).json({ message: "Financial goal not found" });
+      }
+      res.json(goal);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to complete financial goal" });
+    }
+  });
+
   // Wealth Reports routes
   app.get("/api/wealth-reports", isAdmin, async (req, res) => {
     try {
