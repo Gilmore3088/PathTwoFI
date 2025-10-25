@@ -50,7 +50,7 @@ export function AdminLayout({ title, description, actions, children, seo, titleT
         window.clearTimeout(redirectTimeout);
       }
     };
-  }, [isAuthenticated, isAdmin, isLoading, toast]);
+  }, [isAuthenticated, isAdmin, isLoading]);
 
   if (isLoading) {
     return (
