@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { PlusCircle, Edit, Trash2, Target, CheckCircle, Clock, TrendingUp, Flag } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Target, CheckCircle, Clock, TrendingUp, Flag, DollarSign } from "lucide-react";
 import { format } from "date-fns";
 import { insertFinancialGoalSchema, type FinancialGoal, type InsertFinancialGoal } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -26,6 +26,8 @@ export default function AdminGoals() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<FinancialGoal | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [editingCurrentAmount, setEditingCurrentAmount] = useState<string | null>(null);
+  const [tempCurrentAmount, setTempCurrentAmount] = useState<string>("");
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -199,6 +201,28 @@ export default function AdminGoals() {
     if (confirm("Mark this goal as completed?")) {
       completeMutation.mutate(id);
     }
+  };
+
+  const handleQuickEdit = (goalId: string, currentAmount: string | null) => {
+    setEditingCurrentAmount(goalId);
+    setTempCurrentAmount(currentAmount || "0");
+  };
+
+  const handleQuickSave = (goalId: string) => {
+    updateMutation.mutate(
+      { id: goalId, data: { currentAmount: tempCurrentAmount } },
+      {
+        onSuccess: () => {
+          setEditingCurrentAmount(null);
+          setTempCurrentAmount("");
+        },
+      }
+    );
+  };
+
+  const handleQuickCancel = () => {
+    setEditingCurrentAmount(null);
+    setTempCurrentAmount("");
   };
 
   return (
@@ -531,10 +555,45 @@ export default function AdminGoals() {
                       <span className="font-semibold">{progress.toFixed(1)}%</span>
                     </div>
                     <Progress value={progress} className="h-2" />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>${currentAmount.toLocaleString()}</span>
-                      <span>${targetAmount.toLocaleString()}</span>
-                    </div>
+
+                    {/* Quick Edit Current Amount */}
+                    {editingCurrentAmount === goal.id ? (
+                      <div className="flex gap-2 items-center pt-2">
+                        <div className="flex items-center flex-1 gap-2 bg-muted px-3 py-2 rounded-md">
+                          <DollarSign className="h-4 w-4 text-muted-foreground" />
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={tempCurrentAmount}
+                            onChange={(e) => setTempCurrentAmount(e.target.value)}
+                            className="h-8 border-0 bg-transparent p-0 focus-visible:ring-0"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleQuickSave(goal.id);
+                              if (e.key === "Escape") handleQuickCancel();
+                            }}
+                          />
+                        </div>
+                        <Button size="sm" onClick={() => handleQuickSave(goal.id)}>
+                          Save
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={handleQuickCancel}>
+                          Cancel
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex justify-between items-center text-sm text-muted-foreground pt-2">
+                        <button
+                          onClick={() => handleQuickEdit(goal.id, goal.currentAmount)}
+                          className="hover:bg-muted px-2 py-1 rounded transition-colors flex items-center gap-1 group"
+                        >
+                          <DollarSign className="h-3 w-3" />
+                          <span className="font-medium">${currentAmount.toLocaleString()}</span>
+                          <Edit className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+                        <span className="text-xs">of ${targetAmount.toLocaleString()}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">

@@ -5,6 +5,7 @@ import { FeaturedPost } from "@/components/blog/featured-post";
 import { BlogCard } from "@/components/blog/blog-card";
 import { ProgressIndicator } from "@/components/dashboard/progress-indicator";
 import { MetricCard } from "@/components/dashboard/metric-card";
+import { GoalsShowcase } from "@/components/goals/goals-showcase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SEO } from "@/components/ui/seo";
@@ -196,8 +197,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Recent Posts Section */}
+      {/* Financial Goals Section */}
       <section className="py-16 lg:py-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4" data-testid="text-goals-title">Financial Goals</h2>
+              <p className="text-lg text-muted-foreground" data-testid="text-goals-subtitle">Tracking our milestones on the path to financial independence</p>
+            </div>
+
+            <GoalsShowcase category="all" limit={6} />
+          </div>
+        </div>
+      </section>
+
+      {/* Recent Posts Section */}
+      <section className="py-16 lg:py-20 bg-muted/50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-12">
