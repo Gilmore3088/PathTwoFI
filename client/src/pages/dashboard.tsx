@@ -5,6 +5,7 @@ import { ProgressIndicator } from "@/components/dashboard/progress-indicator";
 import { NetWorthChart } from "@/components/dashboard/net-worth-chart";
 import { AssetAllocationChart } from "@/components/dashboard/asset-allocation-chart";
 import { CashFlowChart } from "@/components/dashboard/cash-flow-chart";
+import { GoalsShowcase } from "@/components/goals/goals-showcase";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -93,15 +94,19 @@ export default function Dashboard() {
   });
 
   // Fetch latest wealth data for selected category for current metrics
-  const { data: latestWealth, isLoading: latestLoading, isError: latestError } = useQuery<WealthData>({
+  const { data: latestWealth, isLoading: latestLoading, isError: latestError } = useQuery<WealthData | null>({
     queryKey: ["/api/wealth-data/latest", selectedCategory],
     queryFn: async () => {
       const response = await fetch(`/api/wealth-data/latest?category=${selectedCategory}`);
+      if (response.status === 404) {
+        return null; // No wealth data yet
+      }
       if (!response.ok) {
         throw new Error('Failed to fetch latest wealth data');
       }
       return response.json();
-    }
+    },
+    retry: false, // Don't retry on 404
   });
 
   // Combined loading and error states
@@ -389,6 +394,15 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           )}
+
+          {/* Financial Goals Section */}
+          <div className="mt-16">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-foreground mb-2">Financial Goals</h2>
+              <p className="text-muted-foreground">Track progress toward our financial milestones</p>
+            </div>
+            <GoalsShowcase category={selectedCategory} showViewAll={false} />
+          </div>
         </div>
       </div>
     </div>
