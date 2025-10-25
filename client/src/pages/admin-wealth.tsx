@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +30,8 @@ export default function AdminWealth() {
   const [selectedPeriod, setSelectedPeriod] = useState<string>("all");
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [isQuickMode, setIsQuickMode] = useState(true);
-  
+  const [autoSavingsEnabled, setAutoSavingsEnabled] = useState(true);
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
