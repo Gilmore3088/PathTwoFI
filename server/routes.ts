@@ -506,6 +506,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public Financial Goals route (non-admin)
+  app.get("/api/financial-goals/public", async (req, res) => {
+    try {
+      const category = req.query.category as string;
+      const goals = await storage.getFinancialGoals(category);
+      res.json(goals);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch financial goals" });
+    }
+  });
+
   // Financial Goals routes
   app.get("/api/financial-goals", isAdmin, async (req, res) => {
     try {
@@ -557,6 +568,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Financial goal deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete financial goal" });
+    }
+  });
+
+  app.put("/api/financial-goals/:id/complete", isAdmin, async (req, res) => {
+    try {
+      const goal = await storage.completeFinancialGoal(req.params.id);
+      if (!goal) {
+        return res.status(404).json({ message: "Financial goal not found" });
+      }
+      res.json(goal);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to complete financial goal" });
     }
   });
 

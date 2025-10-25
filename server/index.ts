@@ -21,7 +21,14 @@ async function createServer() {
 
   if (!isProduction) {
     // --- DEV: use Vite as middleware so it injects /@vite/client and /@react-refresh
-    vite = await (await import("vite")).createServer({
+    const { createServer: createViteServer, loadConfigFromFile } = await import("vite");
+    const configFile = await loadConfigFromFile(
+      { command: "serve", mode: "development" },
+      path.resolve(__dirname, "../vite.config.ts")
+    );
+
+    vite = await createViteServer({
+      ...configFile?.config,
       root: clientRoot,
       server: { middlewareMode: true, hmr: { server } },
       appType: "custom",
