@@ -27,11 +27,19 @@ export default function Home() {
   });
 
   // Fetch latest wealth data for "Both" category (combined finances)
-  const { data: latestWealth, isLoading: wealthLoading } = useQuery<WealthData>({
+  const { data: latestWealth, isLoading: wealthLoading } = useQuery<WealthData | null>({
     queryKey: ["/api/wealth-data/latest", "Both"],
     queryFn: async () => {
-      return await fetch('/api/wealth-data/latest?category=Both').then(res => res.json());
-    }
+      const response = await fetch('/api/wealth-data/latest?category=Both');
+      if (response.status === 404) {
+        return null; // No wealth data yet
+      }
+      if (!response.ok) {
+        throw new Error('Failed to fetch wealth data');
+      }
+      return response.json();
+    },
+    retry: false, // Don't retry on 404
   });
 
 

@@ -94,15 +94,19 @@ export default function Dashboard() {
   });
 
   // Fetch latest wealth data for selected category for current metrics
-  const { data: latestWealth, isLoading: latestLoading, isError: latestError } = useQuery<WealthData>({
+  const { data: latestWealth, isLoading: latestLoading, isError: latestError } = useQuery<WealthData | null>({
     queryKey: ["/api/wealth-data/latest", selectedCategory],
     queryFn: async () => {
       const response = await fetch(`/api/wealth-data/latest?category=${selectedCategory}`);
+      if (response.status === 404) {
+        return null; // No wealth data yet
+      }
       if (!response.ok) {
         throw new Error('Failed to fetch latest wealth data');
       }
       return response.json();
-    }
+    },
+    retry: false, // Don't retry on 404
   });
 
   // Combined loading and error states
