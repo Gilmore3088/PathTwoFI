@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { PlusCircle, Edit, Trash2, Target, CheckCircle, Clock, TrendingUp, Flag, DollarSign, Upload, Download } from "lucide-react";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import { insertFinancialGoalSchema, type FinancialGoal, type InsertFinancialGoal } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -287,7 +287,7 @@ export default function AdminGoals() {
                 currentAmount: row.currentAmount || "0",
                 category: (row.category as "His" | "Her" | "Both") || "Both",
                 goalType: (row.goalType as "net_worth" | "savings_rate" | "debt_payoff" | "custom") || "custom",
-                targetDate: row.targetDate ? parse(row.targetDate, "yyyy-MM-dd", new Date()) : new Date(),
+                targetDate: row.targetDate ? new Date(row.targetDate) : new Date(),
                 priority: (row.priority as "low" | "medium" | "high") || "medium",
               };
 
