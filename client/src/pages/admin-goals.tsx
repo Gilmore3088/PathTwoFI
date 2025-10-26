@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,13 +13,15 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { PlusCircle, Edit, Trash2, Target, CheckCircle, Clock, TrendingUp, Flag, DollarSign } from "lucide-react";
-import { format } from "date-fns";
+import { PlusCircle, Edit, Trash2, Target, CheckCircle, Clock, TrendingUp, Flag, DollarSign, Upload, Download } from "lucide-react";
+import { format, parse } from "date-fns";
 import { insertFinancialGoalSchema, type FinancialGoal, type InsertFinancialGoal } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { SEO } from "@/components/ui/seo";
 import { AdminLayout } from "@/components/admin/admin-layout";
+import { GoalMilestones } from "@/components/goals/goal-milestones";
+import Papa from "papaparse";
 
 export default function AdminGoals() {
   const { isAuthenticated, isAdmin } = useAuth();
@@ -28,6 +30,7 @@ export default function AdminGoals() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [editingCurrentAmount, setEditingCurrentAmount] = useState<string | null>(null);
   const [tempCurrentAmount, setTempCurrentAmount] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -225,6 +228,107 @@ export default function AdminGoals() {
     setTempCurrentAmount("");
   };
 
+  const handleExportCSV = () => {
+    try {
+      const csvData = goals.map((goal) => ({
+        title: goal.title,
+        description: goal.description || "",
+        targetAmount: goal.targetAmount || "",
+        currentAmount: goal.currentAmount || "0",
+        category: goal.category || "Both",
+        goalType: goal.goalType || "custom",
+        targetDate: goal.targetDate ? format(new Date(goal.targetDate), "yyyy-MM-dd") : "",
+        priority: goal.priority || "medium",
+        isCompleted: goal.isCompleted ? "true" : "false",
+      }));
+
+      const csv = Papa.unparse(csvData);
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `financial-goals-${format(new Date(), "yyyy-MM-dd")}.csv`);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({
+        title: "Success",
+        description: `Exported ${goals.length} goals to CSV`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to export goals",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        try {
+          let successCount = 0;
+          let errorCount = 0;
+
+          for (const row of results.data as any[]) {
+            try {
+              const goalData: InsertFinancialGoal = {
+                title: row.title || "",
+                description: row.description || "",
+                targetAmount: row.targetAmount || "",
+                currentAmount: row.currentAmount || "0",
+                category: (row.category as "His" | "Her" | "Both") || "Both",
+                goalType: (row.goalType as "net_worth" | "savings_rate" | "debt_payoff" | "custom") || "custom",
+                targetDate: row.targetDate ? parse(row.targetDate, "yyyy-MM-dd", new Date()) : new Date(),
+                priority: (row.priority as "low" | "medium" | "high") || "medium",
+              };
+
+              const validatedData = insertFinancialGoalSchema.parse(goalData);
+              await apiRequest("POST", "/api/financial-goals", validatedData);
+              successCount++;
+            } catch (error) {
+              console.error("Failed to import goal:", row, error);
+              errorCount++;
+            }
+          }
+
+          queryClient.invalidateQueries({ queryKey: ["/api/financial-goals"] });
+
+          toast({
+            title: "Import Complete",
+            description: `Successfully imported ${successCount} goals${errorCount > 0 ? `, ${errorCount} failed` : ""}`,
+          });
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "Failed to parse CSV file",
+            variant: "destructive",
+          });
+        }
+      },
+      error: () => {
+        toast({
+          title: "Error",
+          description: "Failed to read CSV file",
+          variant: "destructive",
+        });
+      },
+    });
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <AdminLayout
       title="Financial Goals"
@@ -240,13 +344,38 @@ export default function AdminGoals() {
         />
       }
       actions={
-        <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
-          <DialogTrigger asChild>
-            <Button data-testid="button-add-goal">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add Goal
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            onChange={handleImportCSV}
+            className="hidden"
+          />
+          <Button
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+            data-testid="button-import-goals"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Import CSV
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleExportCSV}
+            disabled={goals.length === 0}
+            data-testid="button-export-goals"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
+            <DialogTrigger asChild>
+              <Button data-testid="button-add-goal">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Goal
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle data-testid="text-dialog-title">
@@ -437,7 +566,8 @@ export default function AdminGoals() {
               </form>
             </Form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       }
     >
       <section className="grid gap-4 md:grid-cols-3">
@@ -601,6 +731,14 @@ export default function AdminGoals() {
                     <span>
                       Target: {goal.targetDate ? format(new Date(goal.targetDate), "MMM dd, yyyy") : "No target date"}
                     </span>
+                  </div>
+
+                  <div className="border-t pt-3 mt-2">
+                    <GoalMilestones
+                      goalId={goal.id}
+                      goalTitle={goal.title}
+                      targetAmount={goal.targetAmount}
+                    />
                   </div>
 
                   {!isCompleted && progress >= 100 && (

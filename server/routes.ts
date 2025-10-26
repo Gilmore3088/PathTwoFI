@@ -2,12 +2,13 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
-import { 
-  insertBlogPostSchema, 
-  insertWealthDataSchema, 
+import {
+  insertBlogPostSchema,
+  insertWealthDataSchema,
   insertNewsletterSubscriptionSchema,
   insertContactSubmissionSchema,
   insertFinancialGoalSchema,
+  insertGoalMilestoneSchema,
   insertWealthReportSchema
 } from "@shared/schema";
 import { ObjectStorageService } from "./objectStorage";
@@ -580,6 +581,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(goal);
     } catch (error) {
       res.status(500).json({ message: "Failed to complete financial goal" });
+    }
+  });
+
+  // Goal Milestones routes
+  app.get("/api/goal-milestones/:goalId", isAdmin, async (req, res) => {
+    try {
+      const milestones = await storage.getGoalMilestones(req.params.goalId);
+      res.json(milestones);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch goal milestones" });
+    }
+  });
+
+  app.post("/api/goal-milestones", isAdmin, async (req, res) => {
+    try {
+      const validatedData = insertGoalMilestoneSchema.parse(req.body);
+      const milestone = await storage.createGoalMilestone(validatedData);
+      res.json(milestone);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ message: "Invalid milestone data", error: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to create milestone" });
+      }
+    }
+  });
+
+  app.put("/api/goal-milestones/:id", isAdmin, async (req, res) => {
+    try {
+      const validatedData = insertGoalMilestoneSchema.partial().parse(req.body);
+      const milestone = await storage.updateGoalMilestone(req.params.id, validatedData);
+      if (!milestone) {
+        return res.status(404).json({ message: "Milestone not found" });
+      }
+      res.json(milestone);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ message: "Invalid milestone data", error: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to update milestone" });
+      }
+    }
+  });
+
+  app.delete("/api/goal-milestones/:id", isAdmin, async (req, res) => {
+    try {
+      const success = await storage.deleteGoalMilestone(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Milestone not found" });
+      }
+      res.json({ message: "Milestone deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete milestone" });
+    }
+  });
+
+  app.put("/api/goal-milestones/:id/complete", isAdmin, async (req, res) => {
+    try {
+      const milestone = await storage.completeGoalMilestone(req.params.id);
+      if (!milestone) {
+        return res.status(404).json({ message: "Milestone not found" });
+      }
+      res.json(milestone);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to complete milestone" });
     }
   });
 

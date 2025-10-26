@@ -5,6 +5,7 @@ import { SEO } from "@/components/ui/seo";
 import { ArrowRight } from "lucide-react";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { adminRoutes } from "@/components/admin/admin-routes";
+import { GoalsWidget } from "@/components/admin/goals-widget";
 
 const managementRoutes = adminRoutes.filter((route) => route.href !== "/admin");
 
@@ -117,6 +118,10 @@ export default function AdminHome() {
             </div>
           </CardContent>
         </Card>
+      </section>
+
+      <section>
+        <GoalsWidget />
       </section>
 
       <section className="text-center">
