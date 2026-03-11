@@ -35,6 +35,7 @@ export async function middleware(request: NextRequest) {
     '/auth',
     '/blog',
     '/about',
+    '/wealthboard',
     '/',
     '/api',
   ]
