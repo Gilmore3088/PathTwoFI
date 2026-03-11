@@ -81,9 +81,9 @@ export function WealthboardClient({
         <CategoryFilter value={categoryFilter} onChange={setCategoryFilter} />
         <div className="flex gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/wealthboard/import">
+            <Link href="/dashboard/wealthboard/import/balance-sheet">
               <Upload className="h-4 w-4 mr-2" />
-              Import
+              Import Balance Sheet
             </Link>
           </Button>
           <Button
