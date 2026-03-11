@@ -1,3 +1,6 @@
+-- Enable moddatetime extension for auto-updating updated_at
+CREATE EXTENSION IF NOT EXISTS moddatetime SCHEMA extensions;
+
 -- Wealth Data: Core financial tracking snapshots
 -- Supports His/Her/Combined categories for household tracking
 CREATE TABLE wealth_data (
@@ -59,7 +62,7 @@ CREATE INDEX idx_wealth_data_category ON wealth_data(category);
 -- Auto-update updated_at
 CREATE TRIGGER set_wealth_data_updated_at
   BEFORE UPDATE ON wealth_data
-  FOR EACH ROW EXECUTE FUNCTION moddatetime(updated_at);
+  FOR EACH ROW EXECUTE FUNCTION extensions.moddatetime(updated_at);
 
 -- RLS
 ALTER TABLE wealth_data ENABLE ROW LEVEL SECURITY;

@@ -35,7 +35,7 @@ CREATE INDEX idx_milestones_goal ON goal_milestones(goal_id);
 -- Auto-update
 CREATE TRIGGER set_goals_updated_at
   BEFORE UPDATE ON financial_goals
-  FOR EACH ROW EXECUTE FUNCTION moddatetime(updated_at);
+  FOR EACH ROW EXECUTE FUNCTION extensions.moddatetime(updated_at);
 
 -- RLS for financial_goals
 ALTER TABLE financial_goals ENABLE ROW LEVEL SECURITY;

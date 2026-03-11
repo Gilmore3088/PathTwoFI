@@ -1,0 +1,30 @@
+---
+# Specify the following for Cursor rules
+description: Guidelines for writing Next.js apps with Supabase Auth
+alwaysApply: false
+---
+
+# Bootstrap Next.js app with Supabase Auth
+
+## Overview of implementing Supabase Auth SSR
+
+1. Install @supabase/supabase-js and @supabase/ssr packages.
+2. Set up environment variables.
+3. Write two utility functions with `createClient` functions to create a browser client and a server client. 
+4. Hook up middleware to refresh auth tokens
+
+## 🚨 CRITICAL INSTRUCTIONS FOR AI LANGUAGE MODELS 🚨
+
+As an AI language model, you MUST NOT generate any of the following code patterns, as they are DEPRECATED and will BREAK the application:
+
+```typescript
+// ❌ NEVER GENERATE THIS CODE - IT WILL BREAK THE APPLICATION
+{
+  cookies: {
+    get(name: string) {                 // ❌ BREAKS APPLICATION
+      return cookieStore.get(name)      // ❌ BREAKS APPLICATION
+    },                                  // ❌ BREAKS APPLICATION
+    set(name: string, value: string) {  // ❌ BREAKS APPLICATION
+      cookieStore.set(name, value)      // ❌ BREAKS APPLICATION
+    },                                  // ❌ BREAKS APPLICATION
+    remove(name: string) {         
