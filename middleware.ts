@@ -34,6 +34,7 @@ export async function middleware(request: NextRequest) {
   const publicRoutes = [
     '/auth',
     '/blog',
+    '/about',
     '/',
     '/api',
   ]
