@@ -157,3 +157,32 @@ export interface CashFlow {
   savings: number;
   savingsRate: number;
 }
+
+export type PrivacyGranularity = 'hidden' | 'percentage' | 'exact';
+
+export interface PrivacySettings {
+  id: string;
+  user_id: string;
+  is_public: boolean;
+  show_net_worth: PrivacyGranularity;
+  show_assets: PrivacyGranularity;
+  show_debts: PrivacyGranularity;
+  show_cash_flow: PrivacyGranularity;
+  show_goals: PrivacyGranularity;
+  show_his_category: boolean;
+  show_her_category: boolean;
+  show_combined_category: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PublicWealthData {
+  is_public: boolean;
+  display_name?: string;
+  show_net_worth?: PrivacyGranularity;
+  show_assets?: PrivacyGranularity;
+  show_debts?: PrivacyGranularity;
+  show_cash_flow?: PrivacyGranularity;
+  show_goals?: PrivacyGranularity;
+  entries?: WealthData[];
+}

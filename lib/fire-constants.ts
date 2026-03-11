@@ -1,5 +1,5 @@
 // FIRE (Financial Independence, Retire Early) Configuration
-// These are the household targets for the Gilmore family
+// Household FIRE targets
 
 export const FIRE_CONFIG = {
   // Today's dollars

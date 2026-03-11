@@ -10,7 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { FIRE_CONFIG } from "@/lib/fire-constants";
-import type { WealthData, FinancialGoal } from "@/types/wealth.types";
+import type { WealthData, FinancialGoal, PublicWealthData } from "@/types/wealth.types";
+import { EyeOff } from "lucide-react";
+
+export const revalidate = 3600;
 
 export const metadata = {
   title: "Wealthboard - PathTwo FIRE Journey",
@@ -21,26 +24,45 @@ export const metadata = {
 export default async function PublicWealthboardPage() {
   const supabase = await createClient();
 
-  // Fetch public wealth data (no auth required - uses anon key)
-  // RLS will control what's visible
-  const [entriesRes, goalsRes] = await Promise.all([
-    supabase
-      .from("wealth_data")
-      .select("*")
-      .order("date", { ascending: true }),
-    supabase
-      .from("financial_goals")
-      .select("*")
-      .order("priority", { ascending: true }),
-  ]);
+  const { data: rpcData, error } = await supabase.rpc("get_public_wealth_data");
 
-  const entries = (entriesRes.data || []) as WealthData[];
-  const goals = (goalsRes.data || []) as FinancialGoal[];
+  const publicData = (rpcData as PublicWealthData) ?? { is_public: false };
 
+  if (!publicData.is_public) {
+    return (
+      <>
+        <Header />
+        <main className="pt-24 pb-16 px-4">
+          <div className="max-w-3xl mx-auto text-center space-y-6">
+            <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto">
+              <EyeOff className="w-10 h-10 text-muted-foreground" />
+            </div>
+            <h1 className="text-4xl font-bold tracking-tight">
+              Wealthboard is Private
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              The owners have chosen to keep their financial data private.
+              Check back later or visit the blog for updates on their FIRE journey.
+            </p>
+            <Button asChild size="lg">
+              <Link href="/blog">Read the Blog</Link>
+            </Button>
+          </div>
+        </main>
+      </>
+    );
+  }
+
+  const entries = (publicData.entries || []) as WealthData[];
   const latestEntry = entries.length > 0 ? entries[entries.length - 1] : null;
   const currentNetWorth = latestEntry
     ? Number(latestEntry.net_worth)
     : FIRE_CONFIG.currentNetWorth;
+
+  const showNetWorth = publicData.show_net_worth !== "hidden";
+  const showAssets = publicData.show_assets !== "hidden";
+  const showCashFlow = publicData.show_cash_flow !== "hidden";
+  const showGoals = publicData.show_goals !== "hidden";
 
   return (
     <>
@@ -52,32 +74,48 @@ export default async function PublicWealthboardPage() {
               Wealthboard
             </h1>
             <p className="text-lg text-muted-foreground">
-              Follow our journey to financial independence. Real numbers,
-              real progress toward our $3.5M FIRE goal.
+              {publicData.display_name && publicData.display_name !== "Anonymous"
+                ? `${publicData.display_name}'s journey to financial independence.`
+                : "Follow our journey to financial independence."}{" "}
+              Real progress toward our $3.5M FIRE goal.
             </p>
           </div>
 
-          <FireProgressCard currentNetWorth={currentNetWorth} />
+          {showNetWorth && (
+            <FireProgressCard currentNetWorth={currentNetWorth} />
+          )}
 
           <Tabs defaultValue="networth" className="space-y-4">
             <TabsList>
-              <TabsTrigger value="networth">Net Worth</TabsTrigger>
-              <TabsTrigger value="cashflow">Cash Flow</TabsTrigger>
-              <TabsTrigger value="goals">Goals</TabsTrigger>
+              {showNetWorth && (
+                <TabsTrigger value="networth">Net Worth</TabsTrigger>
+              )}
+              {showCashFlow && (
+                <TabsTrigger value="cashflow">Cash Flow</TabsTrigger>
+              )}
+              {showGoals && (
+                <TabsTrigger value="goals">Goals</TabsTrigger>
+              )}
             </TabsList>
 
-            <TabsContent value="networth" className="space-y-6">
-              <NetWorthChart data={entries} />
-              <AssetBreakdown data={latestEntry} />
-            </TabsContent>
+            {showNetWorth && (
+              <TabsContent value="networth" className="space-y-6">
+                <NetWorthChart data={entries} />
+                {showAssets && <AssetBreakdown data={latestEntry} />}
+              </TabsContent>
+            )}
 
-            <TabsContent value="cashflow" className="space-y-6">
-              <CashFlowCard data={latestEntry} />
-            </TabsContent>
+            {showCashFlow && (
+              <TabsContent value="cashflow" className="space-y-6">
+                <CashFlowCard data={latestEntry} />
+              </TabsContent>
+            )}
 
-            <TabsContent value="goals" className="space-y-6">
-              <GoalsList goals={goals} />
-            </TabsContent>
+            {showGoals && (
+              <TabsContent value="goals" className="space-y-6">
+                <GoalsList goals={[]} />
+              </TabsContent>
+            )}
           </Tabs>
 
           <Card className="bg-primary/5 border-primary/20">

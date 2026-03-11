@@ -266,6 +266,30 @@ export async function toggleMilestoneComplete(
 }
 
 // ──────────────────────────────────────────────
+// Carry Forward (pre-fill from latest entry)
+// ──────────────────────────────────────────────
+
+export async function getLatestEntryForCarryForward(
+  category: WealthCategory
+): Promise<WealthData | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data, error } = await supabase
+    .from('wealth_data')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('category', category)
+    .order('date', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error || !data) return null
+  return data as WealthData
+}
+
+// ──────────────────────────────────────────────
 // Wealth Summary (aggregated data for dashboard)
 // ──────────────────────────────────────────────
 
