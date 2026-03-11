@@ -11,6 +11,7 @@ import { CashFlowCard } from './cash-flow-card';
 import { CategoryFilter } from './category-filter';
 import { GoalsList } from './goals-list';
 import { AddWealthEntryDialog } from './add-wealth-entry-dialog';
+import { AddGoalDialog } from './add-goal-dialog';
 import { FIRE_CONFIG } from '@/lib/fire-constants';
 import { exportWealthDataCsv } from '@/app/dashboard/wealthboard/import/actions';
 import { Upload, Download } from 'lucide-react';
@@ -119,6 +120,9 @@ export function WealthboardClient({
         </TabsContent>
 
         <TabsContent value="goals" className="space-y-6">
+          <div className="flex justify-end">
+            <AddGoalDialog />
+          </div>
           <GoalsList goals={filteredGoals} />
         </TabsContent>
       </Tabs>
