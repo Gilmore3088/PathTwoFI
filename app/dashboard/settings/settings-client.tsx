@@ -21,7 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Shield, Eye, EyeOff, Save } from "lucide-react";
+import { Shield, Eye, EyeOff, Save, Landmark, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { upsertPrivacySettings, updateDisplayName } from "./actions";
 import type { PrivacySettings, PrivacyGranularity } from "@/types/wealth.types";
@@ -87,6 +88,7 @@ export function SettingsClient({
         <TabsList>
           <TabsTrigger value="privacy">Privacy</TabsTrigger>
           <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="connections">Bank Connections</TabsTrigger>
         </TabsList>
 
         <TabsContent value="privacy" className="space-y-6">
@@ -209,6 +211,28 @@ export function SettingsClient({
                   {saving ? "Saving..." : "Save Privacy Settings"}
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="connections" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Landmark className="h-5 w-5" />
+                Bank Connections
+              </CardTitle>
+              <CardDescription>
+                Connect your bank accounts for automatic balance updates. Read-only access only.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild>
+                <Link href="/dashboard/settings/connections">
+                  Manage Bank Connections
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
