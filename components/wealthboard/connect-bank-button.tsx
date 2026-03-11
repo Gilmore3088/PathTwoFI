@@ -56,7 +56,9 @@ export function ConnectBankButton({ tellerAppId, tellerEnvironment }: ConnectBan
 
     const tellerConnect = window.TellerConnect.setup({
       applicationId: tellerAppId,
-      environment: tellerEnvironment || 'sandbox',
+      environment: ['sandbox', 'development', 'production'].includes(tellerEnvironment)
+        ? tellerEnvironment
+        : 'sandbox',
       onSuccess: async (enrollment) => {
         setIsLoading(true);
         try {
